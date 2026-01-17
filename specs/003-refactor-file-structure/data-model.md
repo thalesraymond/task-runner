@@ -20,7 +20,7 @@ This document outlines the key data entities for the Task Runner feature.
   - `status` (`TaskStatus`, required): The final status of the task.
   - `message` (`string`, optional): An optional message, typically for success statuses.
   - `error` (`string`, optional): An optional error message, for failure statuses.
-  - `data` (`any`, optional): Optional data produced by the step for later inspection.
+  - `data` (`unknown`, optional): Optional data produced by the step for later inspection.
 
 ---
 
