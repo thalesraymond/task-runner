@@ -1,4 +1,4 @@
-import { TaskStatus } from './TaskStatus';
+import { TaskStatus } from "./TaskStatus.js";
 
 /**
  * Defines the result object returned by a single task step.

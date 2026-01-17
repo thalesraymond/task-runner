@@ -1,5 +1,5 @@
-import { TaskStep } from './TaskStep';
-import { TaskResult } from './TaskResult';
+import { TaskStep } from "./TaskStep.js";
+import { TaskResult } from "./TaskResult.js";
 
 /**
  * The main class that orchestrates the execution of a list of tasks
@@ -32,7 +32,7 @@ export class TaskRunner<TContext> {
       const readySteps = pendingSteps.filter((step) => {
         const deps = step.dependencies ?? [];
         return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === 'success'
+          (dep) => results.has(dep) && results.get(dep)?.status === "success"
         );
       });
 
@@ -41,11 +41,11 @@ export class TaskRunner<TContext> {
         if (results.has(step.name)) continue;
         const deps = step.dependencies ?? [];
         const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== 'success'
+          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
         );
         if (failedDep) {
           results.set(step.name, {
-            status: 'skipped',
+            status: "skipped",
             message: `Skipped due to failed dependency: ${failedDep}`,
           });
         }
@@ -59,7 +59,7 @@ export class TaskRunner<TContext> {
         const unrunnableSteps = steps.filter((s) => !results.has(s.name));
         const unrunnableStepNames = unrunnableSteps.map((s) => s.name);
         throw new Error(
-          `Circular dependency or missing dependency detected. Unable to run tasks: ${unrunnableStepNames.join(', ')}`
+          `Circular dependency or missing dependency detected. Unable to run tasks: ${unrunnableStepNames.join(", ")}`
         );
       }
 
@@ -71,7 +71,7 @@ export class TaskRunner<TContext> {
             results.set(step.name, result);
           } catch (e) {
             results.set(step.name, {
-              status: 'failure',
+              status: "failure",
               error: (e as Error).message,
             });
           } finally {
