@@ -14,14 +14,14 @@
 
 **Purpose**: Create all the new empty files for the refactored structure.
 
-- [ ] T001 [P] Create empty file `src/TaskStatus.ts`
-- [ ] T002 [P] Create empty file `src/TaskResult.ts`
-- [ ] T003 [P] Create empty file `src/TaskStep.ts`
-- [ ] T004 [P] Create empty file `src/TaskRunner.ts`
-- [ ] T005 [P] Create empty file `tests/TaskStatus.test.ts`
-- [ ] T006 [P] Create empty file `tests/TaskResult.test.ts`
-- [ ] T007 [P] Create empty file `tests/TaskStep.test.ts`
-- [ ] T008 [P] Create empty file `tests/TaskRunner.test.ts`
+- [x] T001 [P] Create empty file `src/TaskStatus.ts`
+- [x] T002 [P] Create empty file `src/TaskResult.ts`
+- [x] T003 [P] Create empty file `src/TaskStep.ts`
+- [x] T004 [P] Create empty file `src/TaskRunner.ts`
+- [x] T005 [P] Create empty file `tests/TaskStatus.test.ts`
+- [x] T006 [P] Create empty file `tests/TaskResult.test.ts`
+- [x] T007 [P] Create empty file `tests/TaskStep.test.ts`
+- [x] T008 [P] Create empty file `tests/TaskRunner.test.ts`
 
 ---
 
@@ -30,20 +30,24 @@
 **Purpose**: Move code and tests from the monolithic files to their new dedicated files, one entity at a time.
 
 ### TaskStatus
-- [ ] T009 [US1] Move `TaskStatus` type from `src/index.ts` to `src/TaskStatus.ts`
+
+- [x] T009 [US1] Move `TaskStatus` type from `src/index.ts` to `src/TaskStatus.ts`
 
 ### TaskResult
-- [ ] T010 [US1] Move `TaskResult` interface from `src/index.ts` to `src/TaskResult.ts`
+
+- [x] T010 [US1] Move `TaskResult` interface from `src/index.ts` to `src/TaskResult.ts`
 
 ### TaskStep
-- [ ] T011 [US1] Move `TaskStep` interface from `src/index.ts` to `src/TaskStep.ts`
+
+- [x] T011 [US1] Move `TaskStep` interface from `src/index.ts` to `src/TaskStep.ts`
 
 ### TaskRunner
-- [ ] T012 [US1] Move `TaskRunner` class from `src/index.ts` to `src/TaskRunner.ts`
-- [ ] T013 [US1] Update imports within `src/TaskRunner.ts` to reflect the new file locations for `TaskStatus`, `TaskResult`, and `TaskStep`.
-- [ ] T014 [US2] Move tests for `TaskRunner` from `tests/index.test.ts` to `tests/TaskRunner.test.ts`.
-- [ ] T015 [US2] Update imports within `tests/TaskRunner.test.ts` for `TaskRunner` and other types.
-- [ ] T016 [US2] Run the tests in `tests/TaskRunner.test.ts` to ensure they pass after the move.
+
+- [x] T012 [US1] Move `TaskRunner` class from `src/index.ts` to `src/TaskRunner.ts`
+- [x] T013 [US1] Update imports within `src/TaskRunner.ts` to reflect the new file locations for `TaskStatus`, `TaskResult`, and `TaskStep`.
+- [x] T014 [US2] Move tests for `TaskRunner` from `tests/index.test.ts` to `tests/TaskRunner.test.ts`.
+- [x] T015 [US2] Update imports within `tests/TaskRunner.test.ts` for `TaskRunner` and other types.
+- [x] T016 [US2] Run the tests in `tests/TaskRunner.test.ts` to ensure they pass after the move.
 
 ---
 
@@ -51,11 +55,11 @@
 
 **Purpose**: Clean up the old files and verify the entire project is working correctly.
 
-- [ ] T017 [US1] Update `src/index.ts` to be a barrel file, exporting all public entities from their new files.
-- [ ] T018 [US2] Delete the now-empty `tests/index.test.ts` file.
-- [ ] T019 Run all project tests via `npm test` to ensure 100% pass rate.
-- [ ] T020 Run the linter via `npm run lint` and fix any issues.
-- [ ] T021 Run the formatter via `npm run format` to ensure consistent style.
+- [x] T017 [US1] Update `src/index.ts` to be a barrel file, exporting all public entities from their new files.
+- [x] T018 [US2] Delete the now-empty `tests/index.test.ts` file.
+- [x] T019 Run all project tests via `npm test` to ensure 100% pass rate.
+- [x] T020 Run the linter via `npm run lint` and fix any issues.
+- [x] T021 Run the formatter via `npm run format` to ensure consistent style.
 
 ---
 
