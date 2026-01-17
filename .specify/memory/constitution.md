@@ -1,25 +1,20 @@
 <!--
     Sync Impact Report
 
-    - Version change: 0.0.0 → 1.0.0
-    - Modified principles:
-        - Principle 1: → Test-First (NON-NEGOTIABLE)
-        - Principle 2: → Type Safety
-        - Principle 3: → API Documentation
-        - Principle 4: → Principle of Least Exposure
-        - Principle 5: → Code Style Consistency
+    - Version change: 1.0.0 → 1.1.0
+    - Modified principles: None (added new sections)
     - Added sections:
-        - Principle 6: Software Design Principles
+        - Development Standards (Principle VII, VIII)
+        - Quality Gates (Principle IX, X)
+        - Governance (Rules for Amendments and Compliance)
     - Removed sections: None
     - Templates requiring updates:
         - ✅ .specify/templates/plan-template.md (No changes needed, but principles are now enforceable)
         - ✅ .specify/templates/spec-template.md (No changes needed)
         - ✅ .specify/templates/tasks-template.md (No changes needed, but principles are now enforceable)
-    - Follow-up TODOs:
-        - TODO(SECTION_2_NAME): Define additional constraints, security requirements, or performance standards.
-        - TODO(SECTION_3_NAME): Define the development workflow, review process, and quality gates.
-        - TODO(GOVERNANCE_RULES): Define the specific rules for governance, amendments, and compliance.
+    - Follow-up TODOs: None
 -->
+
 # task-runner Constitution
 
 ## Core Principles
@@ -42,16 +37,28 @@ The project MUST use double quotes (`"`) for all string literals, imports, and o
 ### VI. Software Design Principles
 The codebase SHOULD adhere to SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) to promote maintainable, scalable, and robust software architecture.
 
-## [SECTION_2_NAME]
+## Development Standards
 
-[SECTION_2_CONTENT]
+### VII. Code Review Process
+All code changes MUST undergo a peer code review process. Reviews MUST ensure adherence to all defined principles, code style, and architectural patterns.
 
-## [SECTION_3_NAME]
+### VIII. Continuous Integration
+All code MUST pass automated build, test, and linting checks in a Continuous Integration (CI) pipeline before being merged into the main branch.
 
-[SECTION_3_CONTENT]
+## Quality Gates
+
+### IX. Release Process
+New releases MUST follow semantic versioning. Major versions require backward-incompatible changes, minor versions for new features, and patch versions for bug fixes.
+
+### X. Security Best Practices
+All development MUST adhere to industry-standard security best practices, including but not limited to input validation, secure coding patterns, and dependency vulnerability scanning.
 
 ## Governance
 
-[GOVERNANCE_RULES]
+### Amendments
+This constitution can be amended by a supermajority (2/3) vote of the core development team. Proposed amendments MUST be documented and reviewed by all stakeholders.
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-17 | **Last Amended**: 2026-01-17
+### Compliance
+Adherence to this constitution is mandatory for all contributors. Violations will result in code rejection and require remediation.
+
+**Version**: 1.1.0 | **Ratified**: 2026-01-17 | **Last Amended**: 2026-01-17
