@@ -21,7 +21,7 @@ The following example demonstrates how to define a series of tasks and run them.
 import { TaskRunner, TaskStep } from 'task-runner';
 
 // Define the steps for the workflow
-const steps: TaskStep<any>[] = [
+const steps: TaskStep<unknown>[] = [
   {
     name: 'A',
     run: async () => {
