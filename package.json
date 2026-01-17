@@ -22,7 +22,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "prepare": "husky",
-    "commit": "git-cz"
+    "commit": "git add . &&git-cz"
   },
   "config": {
     "commitizen": {

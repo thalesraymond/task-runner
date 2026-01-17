@@ -135,3 +135,5 @@ In my company I have a Github Issue validation engine that checks **a lot** of s
 ## What is .gemini and .specify
 
 One of the reasons this project exists is to test 'code vibing' tools, so yes, this is vibe coded. My goal is to not touch the code and see if works.
+
+---
