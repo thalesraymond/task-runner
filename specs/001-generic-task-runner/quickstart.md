@@ -42,13 +42,17 @@ const checkPermissions: TaskStep<MyWorkflowContext> = {
   dependencies: ['FetchUserData'], // This task runs only after FetchUserData succeeds
   run: async (context): Promise<TaskResult> => {
     console.log('Checking permissions...');
-    const hasPermission = context.userData?.permissions.includes('write:articles');
+    const hasPermission =
+      context.userData?.permissions.includes('write:articles');
     context.hasSufficientPermissions = hasPermission;
 
     if (hasPermission) {
       return { status: 'success', message: 'User has sufficient permissions.' };
     } else {
-      return { status: 'failure', error: 'User does not have "write:articles" permission.' };
+      return {
+        status: 'failure',
+        error: 'User does not have "write:articles" permission.',
+      };
     }
   },
 };
@@ -100,10 +104,12 @@ main();
 
 The `console.table` output will look something like this, clearly showing that `PublishArticle` was skipped due to the failure in `CheckPermissions`.
 
-| Task Name          | Status    | Message / Error                                |
-| ------------------ | --------- | ---------------------------------------------- |
-| `FetchUserData`    | `success` | User data fetched.                             |
-| `CheckPermissions` | `failure` | User does not have "write:articles" permission.|
-| `PublishArticle`   | `skipped` | _(no message)_                                |
+| Task Name          | Status    | Message / Error                                 |
+| ------------------ | --------- | ----------------------------------------------- |
+| `FetchUserData`    | `success` | User data fetched.                              |
+| `CheckPermissions` | `failure` | User does not have "write:articles" permission. |
+| `PublishArticle`   | `skipped` | _(no message)_                                  |
+
+```
 
 ```
