@@ -1,0 +1,17 @@
+# Tests
+tests/
+
+# Specs
+specs/
+
+# Development files
+.specify/
+.prettierrc
+.eslintrc.js
+eslint.config.js
+vitest.config.ts
+tsconfig.json
+.vscode/
+.idea/
+.DS_Store
+*.tgz
