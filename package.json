@@ -13,7 +13,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "vitest run --coverage",
+    "test": "tsc --noEmit -p tsconfig.test.json && vitest run --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
