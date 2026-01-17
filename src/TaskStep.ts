@@ -1,4 +1,4 @@
-import { TaskResult } from './TaskResult';
+import { TaskResult } from "./TaskResult.js";
 
 /**
  * Represents a single, executable step within a workflow.
