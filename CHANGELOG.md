@@ -1,3 +1,7 @@
+## <small>1.0.1 (2026-01-17)</small>
+
+* fix: 🐛 fixing commit script and adding a fix to test auto relea ([97cedf4](https://github.com/thalesraymond/task-runner/commit/97cedf4))
+
 ## 1.0.0 (2026-01-17)
 
 * Add templates for project documentation and task management ([bb7fb3c](https://github.com/thalesraymond/task-runner/commit/bb7fb3c))
