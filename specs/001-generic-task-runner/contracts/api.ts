@@ -19,7 +19,7 @@ export interface TaskResult {
   /** An optional error message, typically used for failure statuses. */
   error?: string;
   /** Optional data produced by the step for later inspection. */
-  data?: any;
+  data?: unknown;
 }
 
 /**
