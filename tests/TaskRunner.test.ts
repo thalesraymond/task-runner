@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { TaskRunner, TaskStep, TaskResult } from '../src/index';
+import { TaskRunner } from '../src/TaskRunner';
+import { TaskStep } from '../src/TaskStep';
 
 describe('TaskRunner', () => {
   it('should run tasks in the correct sequential order', async () => {
@@ -85,21 +86,37 @@ describe('TaskRunner', () => {
     {
       name: 'circular dependency',
       steps: [
-        { name: 'A', dependencies: ['B'], run: async () => ({ status: 'success' }) },
-        { name: 'B', dependencies: ['A'], run: async () => ({ status: 'success' }) },
+        {
+          name: 'A',
+          dependencies: ['B'],
+          run: async () => ({ status: 'success' }),
+        },
+        {
+          name: 'B',
+          dependencies: ['A'],
+          run: async () => ({ status: 'success' }),
+        },
       ],
-      expectedError: 'Circular dependency or missing dependency detected. Unable to run tasks: A, B',
+      expectedError:
+        'Circular dependency or missing dependency detected. Unable to run tasks: A, B',
     },
     {
       name: 'missing dependency',
       steps: [
-        { name: 'A', dependencies: ['B'], run: async () => ({ status: 'success' }) },
+        {
+          name: 'A',
+          dependencies: ['B'],
+          run: async () => ({ status: 'success' }),
+        },
       ],
-      expectedError: 'Circular dependency or missing dependency detected. Unable to run tasks: A',
+      expectedError:
+        'Circular dependency or missing dependency detected. Unable to run tasks: A',
     },
   ])('should throw an error for $name', async ({ steps, expectedError }) => {
     const runner = new TaskRunner({});
-    await expect(runner.execute(steps as TaskStep<unknown>[])).rejects.toThrow(expectedError);
+    await expect(runner.execute(steps as TaskStep<unknown>[])).rejects.toThrow(
+      expectedError
+    );
   });
 
   it('should handle tasks that throw an error during execution', async () => {
@@ -122,8 +139,16 @@ describe('TaskRunner', () => {
   it('should skip tasks whose dependencies are skipped', async () => {
     const steps: TaskStep<unknown>[] = [
       { name: 'A', run: async () => ({ status: 'failure' }) },
-      { name: 'B', dependencies: ['A'], run: async () => ({ status: 'success' }) },
-      { name: 'C', dependencies: ['B'], run: async () => ({ status: 'success' }) },
+      {
+        name: 'B',
+        dependencies: ['A'],
+        run: async () => ({ status: 'success' }),
+      },
+      {
+        name: 'C',
+        dependencies: ['B'],
+        run: async () => ({ status: 'success' }),
+      },
     ];
 
     const runner = new TaskRunner({});

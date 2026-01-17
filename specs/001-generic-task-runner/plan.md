@@ -2,12 +2,12 @@
 
 ## 1. Technical Context
 
-*   **Project:** `task-runner`
-*   **Language:** TypeScript
-*   **Package Manager:** pnpm
-*   **Testing Framework:** vitest
-*   **Core Objective:** Create a generic, dependency-aware, parallel task execution engine as a standalone library.
-*   **Key Technologies:** This is a pure TypeScript library with no runtime dependencies. Development dependencies include `vitest` for testing.
+- **Project:** `task-runner`
+- **Language:** TypeScript
+- **Package Manager:** pnpm
+- **Testing Framework:** vitest
+- **Core Objective:** Create a generic, dependency-aware, parallel task execution engine as a standalone library.
+- **Key Technologies:** This is a pure TypeScript library with no runtime dependencies. Development dependencies include `vitest` for testing.
 
 ## 2. Constitution Check
 
@@ -17,18 +17,18 @@ The project constitution (`.specify/memory/constitution.md`) is currently a temp
 
 The architecture will be simple and self-contained within the `src/` directory, suitable for a lightweight, dependency-free npm package.
 
-*   **`src/index.ts`**: This will be the main entry point of the library. It will export all the public-facing types and the main `TaskRunner` class.
-    *   **`TaskStatus` enum**: Defines `'success' | 'failure' | 'skipped'`.
-    *   **`TaskResult` interface**: Defines the result object for a single task.
-    *   **`TaskStep<TContext>` interface**: Defines the structure of a single task, including its `name`, `dependencies`, and `run` method.
-    *   **`TaskRunner<TContext>` class**: The core engine that manages task execution. It will contain the logic for dependency resolution, parallel execution, and status tracking.
+- **`src/index.ts`**: This will be the main entry point of the library. It will export all the public-facing types and the main `TaskRunner` class.
+  - **`TaskStatus` enum**: Defines `'success' | 'failure' | 'skipped'`.
+  - **`TaskResult` interface**: Defines the result object for a single task.
+  - **`TaskStep<TContext>` interface**: Defines the structure of a single task, including its `name`, `dependencies`, and `run` method.
+  - **`TaskRunner<TContext>` class**: The core engine that manages task execution. It will contain the logic for dependency resolution, parallel execution, and status tracking.
 
-*   **`tests/index.test.ts`**: This file will contain a comprehensive suite of unit and integration tests for the `TaskRunner`. Tests will cover:
-    *   Basic sequential execution.
-    *   Correct parallel execution of independent tasks.
-    *   Failure and skipping of dependent tasks.
-    *   Circular dependency detection.
-    *   Edge cases (e.g., empty task list).
+- **`tests/index.test.ts`**: This file will contain a comprehensive suite of unit and integration tests for the `TaskRunner`. Tests will cover:
+  - Basic sequential execution.
+  - Correct parallel execution of independent tasks.
+  - Failure and skipping of dependent tasks.
+  - Circular dependency detection.
+  - Edge cases (e.g., empty task list).
 
 This single-file architecture is sufficient for the initial implementation. If the complexity grows, it can be refactored into multiple files within the `src` directory.
 

@@ -15,5 +15,5 @@ This approach is a standard best practice within the TypeScript and broader soft
 
 ## Alternatives Considered
 
--   **Keep all entities in `index.ts`**: This is the current state and has been rejected as it leads to poor organization, difficulty in navigation, and a violation of SRP.
--   **Group related entities by feature**: For a small library like this, grouping by entity type (e.g., a `types.ts`, `interfaces.ts`) is an option. However, separating every entity is a more scalable and consistent approach as the library grows. It was chosen for its simplicity and strict adherence to SRP.
+- **Keep all entities in `index.ts`**: This is the current state and has been rejected as it leads to poor organization, difficulty in navigation, and a violation of SRP.
+- **Group related entities by feature**: For a small library like this, grouping by entity type (e.g., a `types.ts`, `interfaces.ts`) is an option. However, separating every entity is a more scalable and consistent approach as the library grows. It was chosen for its simplicity and strict adherence to SRP.

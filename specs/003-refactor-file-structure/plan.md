@@ -21,7 +21,7 @@ This plan outlines the refactoring of the codebase to improve modularity and mai
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - **I. Test-First (NON-NEGOTIABLE)**: **PASS**. The plan involves migrating existing tests to new files and ensuring all tests continue to pass. No new logic is being added, but the structure change is fully covered by existing tests.
 - **II. Type Safety**: **PASS**. The codebase already uses TypeScript strict mode. This refactoring will not introduce the `any` type.
