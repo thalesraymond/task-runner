@@ -18,7 +18,7 @@ An object representing the outcome of a single task execution.
   - `status` (`TaskStatus`): The mandatory completion status of the task.
   - `message` (`string`, optional): An optional message providing more details on a successful task.
   - `error` (`string`, optional): An optional error message if the task failed.
-  - `data` (`any`, optional): Any optional data produced by the step that might be useful for inspection after the run.
+- `data` (`unknown`, optional): Any optional data produced by the step that might be useful for inspection after the run.
 
 ### `TaskStep<TContext>` (Interface)
 
