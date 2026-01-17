@@ -18,30 +18,30 @@ The following example demonstrates how to define a series of tasks and run them.
 - **Task C**: Runs after A and B have both completed successfully.
 
 ```typescript
-import { TaskRunner, TaskStep } from 'task-runner';
+import { TaskRunner, TaskStep } from "task-runner";
 
 // Define the steps for the workflow
 const steps: TaskStep<unknown>[] = [
   {
-    name: 'A',
+    name: "A",
     run: async () => {
-      console.log('Task A completed');
-      return { status: 'success' };
+      console.log("Task A completed");
+      return { status: "success" };
     },
   },
   {
-    name: 'B',
+    name: "B",
     run: async () => {
-      console.log('Task B completed');
-      return { status: 'success' };
+      console.log("Task B completed");
+      return { status: "success" };
     },
   },
   {
-    name: 'C',
-    dependencies: ['A', 'B'],
+    name: "C",
+    dependencies: ["A", "B"],
     run: async () => {
-      console.log('Task C completed');
-      return { status: 'success' };
+      console.log("Task C completed");
+      return { status: "success" };
     },
   },
 ];
@@ -51,7 +51,7 @@ const runner = new TaskRunner({});
 
 // Execute the tasks
 runner.execute(steps).then((results) => {
-  console.log('All tasks finished!');
+  console.log("All tasks finished!");
   results.forEach((result, name) => {
     console.log(`- ${name}: ${result.status}`);
   });

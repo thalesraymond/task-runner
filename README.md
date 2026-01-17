@@ -15,7 +15,7 @@ A lightweight, type-safe, and domain-agnostic task orchestration engine. It reso
 Here is a simple example showing how to define a context, create steps, and execute them.
 
 ```typescript
-import { TaskRunner, TaskStep } from './src';
+import { TaskRunner, TaskStep } from "./src";
 
 // 1. Define your domain-specific context
 interface ValidationContext {
@@ -28,42 +28,42 @@ interface ValidationContext {
 
 // 2. Define your steps
 const UrlFormatStep: TaskStep<ValidationContext> = {
-  name: 'UrlFormatStep',
+  name: "UrlFormatStep",
   run: async (ctx) => {
-    const valid = ctx.issueBody.includes('github.com');
+    const valid = ctx.issueBody.includes("github.com");
     return valid
-      ? { status: 'success' }
-      : { status: 'failure', error: 'Invalid URL' };
+      ? { status: "success" }
+      : { status: "failure", error: "Invalid URL" };
   },
 };
 
 const DataLoaderStep: TaskStep<ValidationContext> = {
-  name: 'DataLoaderStep',
-  dependencies: ['UrlFormatStep'],
+  name: "DataLoaderStep",
+  dependencies: ["UrlFormatStep"],
   run: async (ctx) => {
     // Simulate API call
-    ctx.prData = { additions: 20, ciStatus: 'success' };
-    return { status: 'success', message: 'Data fetched' };
+    ctx.prData = { additions: 20, ciStatus: "success" };
+    return { status: "success", message: "Data fetched" };
   },
 };
 
 const MaxChangesStep: TaskStep<ValidationContext> = {
-  name: 'MaxChangesStep',
-  dependencies: ['DataLoaderStep'],
+  name: "MaxChangesStep",
+  dependencies: ["DataLoaderStep"],
   run: async (ctx) => {
     // Safe access because dependencies ensured execution order
-    if (!ctx.prData) return { status: 'failure', error: 'Missing PR Data' };
+    if (!ctx.prData) return { status: "failure", error: "Missing PR Data" };
 
     return ctx.prData.additions < 50
-      ? { status: 'success' }
-      : { status: 'failure', error: 'Too many changes' };
+      ? { status: "success" }
+      : { status: "failure", error: "Too many changes" };
   },
 };
 
 // 3. Execute the runner
 async function main() {
   const context: ValidationContext = {
-    issueBody: 'https://github.com/org/repo/pull/1',
+    issueBody: "https://github.com/org/repo/pull/1",
   };
 
   const runner = new TaskRunner(context);
@@ -79,7 +79,7 @@ main();
 
 ## Context Hydration
 
-One nice thing to do is to avoid optional parameters and excessive use of ```!``` operator, with task dependencies we can chain our steps and context usages to make sure steps are executed only when pre requisites are met.
+One nice thing to do is to avoid optional parameters and excessive use of `!` operator, with task dependencies we can chain our steps and context usages to make sure steps are executed only when pre requisites are met.
 
 This decouples **Data Loading** from **Business Logic**.
 
@@ -105,23 +105,23 @@ interface MyProjectFullContext extends MyProjectContext {
 
 // Step 1: Hydrate the context
 class UserLoaderStep implements TaskStep<MyProjectContext> {
-  name = 'UserLoaderStep';
+  name = "UserLoaderStep";
   async run(ctx: MyProjectContext & Partial<MyProjectFullContext>) {
     // Fetch data and update context
-    ctx.apiData = { user: 'john_doe', isPro: true };
-    return { status: 'success' };
+    ctx.apiData = { user: "john_doe", isPro: true };
+    return { status: "success" };
   }
 }
 
 // Step 2: Use the hydrated data
 class PremiumCheckStep implements TaskStep<MyProjectContext> {
-  name = 'PremiumCheckStep';
-  dependencies = ['UserLoaderStep']; // Ensures data is ready
+  name = "PremiumCheckStep";
+  dependencies = ["UserLoaderStep"]; // Ensures data is ready
 
   async run(ctx: MyProjectFullContext) {
     return ctx.apiData.isPro
-      ? { status: 'success' }
-      : { status: 'failure', error: 'User is not a Pro member' };
+      ? { status: "success" }
+      : { status: "failure", error: "User is not a Pro member" };
   }
 }
 ```
