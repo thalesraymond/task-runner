@@ -1,50 +1,57 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+    Sync Impact Report
+
+    - Version change: 0.0.0 → 1.0.0
+    - Modified principles:
+        - Principle 1: → Test-First (NON-NEGOTIABLE)
+        - Principle 2: → Type Safety
+        - Principle 3: → API Documentation
+        - Principle 4: → Principle of Least Exposure
+        - Principle 5: → Code Style Consistency
+    - Added sections:
+        - Principle 6: Software Design Principles
+    - Removed sections: None
+    - Templates requiring updates:
+        - ✅ .specify/templates/plan-template.md (No changes needed, but principles are now enforceable)
+        - ✅ .specify/templates/spec-template.md (No changes needed)
+        - ✅ .specify/templates/tasks-template.md (No changes needed, but principles are now enforceable)
+    - Follow-up TODOs:
+        - TODO(SECTION_2_NAME): Define additional constraints, security requirements, or performance standards.
+        - TODO(SECTION_3_NAME): Define the development workflow, review process, and quality gates.
+        - TODO(GOVERNANCE_RULES): Define the specific rules for governance, amendments, and compliance.
+-->
+# task-runner Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Test-First (NON-NEGOTIABLE)
+The system MUST target 100% unit test coverage for all new code. Tests must be written before or alongside the implementation, following a Red-Green-Refactor cycle where possible. This ensures that all code is verifiable, and regressions can be caught early.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Type Safety
+The `any` type is strictly forbidden in the codebase. Devs should use specific types, generics, or `unknown` with appropriate type-checking and guards. This leverages TypeScript's compiler to catch errors at build time, not runtime.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. API Documentation
+All public-facing classes, methods, properties, and types MUST be documented using JSDoc-style comments. This provides critical Intellisense and developer guidance for library consumers directly in their editor.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Principle of Least Exposure
+The public API surface MUST be minimal. Only export functions, classes, and types that are essential for the client to consume the library. Internal utilities and types should not be exported, reducing coupling and hiding implementation details.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Code Style Consistency
+The project MUST use double quotes (`"`) for all string literals, imports, and other syntax. This maintains a single, consistent style across the entire codebase, enforced automatically by Prettier and ESLint.
+
+### VI. Software Design Principles
+The codebase SHOULD adhere to SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) to promote maintainable, scalable, and robust software architecture.
 
 ## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
 [SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
 
 ## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
 
 [SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
 [GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-17 | **Last Amended**: 2026-01-17
