@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "Right now all the files are in the index.ts and all the tests are in index.test.ts, this is bad design. Plan the reactor to give each type/class/interface its own file and its own test file."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 This feature is a technical refactoring to improve code maintainability and organization. The primary "user" is the developer working on the codebase.
 
@@ -43,7 +43,7 @@ As a developer, I want the tests for a specific piece of code to be in a corresp
 - **Simple Types**: For very simple, one-line type aliases (like `TaskStatus`), they can optionally be grouped in a central `types.ts` file if creating individual files is deemed excessive. However, for this project, we will give each its own file to maintain consistency.
 - **Barrel Files**: The `index.ts` files will serve as "barrel files" to export the public API of a given directory, simplifying imports for consumers.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -58,14 +58,14 @@ As a developer, I want the tests for a specific piece of code to be in a corresp
 - **FR-009**: The project's build process MUST complete successfully after the changes.
 - **FR-010**: All tests MUST pass after the refactoring.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **TaskStatus**: A type alias representing the status of a task.
 - **TaskResult**: An interface defining the result of a task.
 - **TaskStep**: An interface representing a single step in a workflow.
 - **TaskRunner**: A class that executes a series of tasks.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

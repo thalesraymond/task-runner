@@ -4,7 +4,7 @@
 **Created**: 2026-01-17
 **Status**: Draft
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Sequential Task Execution (Priority: P1)
 
@@ -51,34 +51,34 @@ As a developer, I want the engine to automatically skip any tasks that depend on
 
 ### Edge Cases
 
--   What happens when a circular dependency is defined (e.g., A depends on B, and B depends on A)? The system should detect this and throw an error instead of hanging.
--   How does the system handle an empty list of tasks? It should complete successfully without performing any action.
--   What happens if a task that does not exist is listed as a dependency? The system should throw a configuration error before execution begins.
+- What happens when a circular dependency is defined (e.g., A depends on B, and B depends on A)? The system should detect this and throw an error instead of hanging.
+- How does the system handle an empty list of tasks? It should complete successfully without performing any action.
+- What happens if a task that does not exist is listed as a dependency? The system should throw a configuration error before execution begins.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
--   **FR-001**: The system MUST execute a collection of tasks according to a defined dependency graph.
--   **FR-002**: The system MUST execute tasks with no pending dependencies in parallel.
--   **FR-003**: The system MUST pass a shared, mutable context object to each task.
--   **FR-004**: The system MUST record the status of each task as 'success', 'failure', or 'skipped'.
--   **FR-005**: The system MUST skip any task whose dependencies have failed or been skipped.
--   **FR-006**: The system MUST detect and throw an error for circular dependencies or unreachable tasks before or during execution.
--   **FR-007**: The engine's core logic MUST be domain-agnostic and fully type-safe, using generics for context and results.
+- **FR-001**: The system MUST execute a collection of tasks according to a defined dependency graph.
+- **FR-002**: The system MUST execute tasks with no pending dependencies in parallel.
+- **FR-003**: The system MUST pass a shared, mutable context object to each task.
+- **FR-004**: The system MUST record the status of each task as 'success', 'failure', or 'skipped'.
+- **FR-005**: The system MUST skip any task whose dependencies have failed or been skipped.
+- **FR-006**: The system MUST detect and throw an error for circular dependencies or unreachable tasks before or during execution.
+- **FR-007**: The engine's core logic MUST be domain-agnostic and fully type-safe, using generics for context and results.
 
 ### Key Entities
 
--   **TaskStep**: Represents a single unit of work. It has a `name`, an optional list of `dependencies` (strings corresponding to other task names), and a `run` method that executes the logic.
--   **TaskResult**: The output of a `TaskStep`. It contains a `status` and optional `message`, `error`, or `data` fields.
--   **TaskRunner**: The main engine that orchestrates the execution of `TaskStep`s based on their dependencies.
--   **Context**: A generic object provided by the user that is passed to every `TaskStep`, allowing them to share state and data.
+- **TaskStep**: Represents a single unit of work. It has a `name`, an optional list of `dependencies` (strings corresponding to other task names), and a `run` method that executes the logic.
+- **TaskResult**: The output of a `TaskStep`. It contains a `status` and optional `message`, `error`, or `data` fields.
+- **TaskRunner**: The main engine that orchestrates the execution of `TaskStep`s based on their dependencies.
+- **Context**: A generic object provided by the user that is passed to every `TaskStep`, allowing them to share state and data.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
--   **SC-001**: Parallel execution of 5 independent I/O-bound tasks (e.g., 1-second network requests) completes in approximately 1 second, demonstrating a ~80% reduction in total execution time compared to a sequential runner.
--   **SC-002**: The engine can resolve and execute a dependency graph of 1,000 tasks with moderate complexity in under 10 seconds (excluding the execution time of the tasks themselves).
--   **SC-003**: A developer can integrate and successfully run a basic 3-step workflow (one with a dependency) within 15 minutes of reading the documentation.
--   **SC-004**: The engine's code coverage for its core dependency resolution and execution logic is above 95%.
+- **SC-001**: Parallel execution of 5 independent I/O-bound tasks (e.g., 1-second network requests) completes in approximately 1 second, demonstrating a ~80% reduction in total execution time compared to a sequential runner.
+- **SC-002**: The engine can resolve and execute a dependency graph of 1,000 tasks with moderate complexity in under 10 seconds (excluding the execution time of the tasks themselves).
+- **SC-003**: A developer can integrate and successfully run a basic 3-step workflow (one with a dependency) within 15 minutes of reading the documentation.
+- **SC-004**: The engine's code coverage for its core dependency resolution and execution logic is above 95%.
