@@ -3,76 +3,131 @@ import { TaskRunner } from "../src/TaskRunner.js";
 import { TaskStep } from "../src/TaskStep.js";
 import { TaskResult } from "../src/TaskResult.js";
 
-type TestContext = Record<string, string>;
+// --- Context Definitions ---
+
+interface BaseContext {
+  runId: string;
+}
+
+interface StepAContext {
+  stepAData: string;
+}
+
+interface StepBContext {
+  stepBData: string;
+}
+
+interface StepCContext {
+  stepCData: string;
+}
+
+interface StepDContext {
+  stepDData: string;
+}
+
+interface StepEContext {
+  stepEData: string;
+}
+
+interface StepFContext {
+  stepFData: string;
+}
+
+interface StepGContext {
+  stepGData: string;
+}
+
+// The "Full" context is what the runner will eventually hold,
+// but steps will only see what they need or what they add.
+type FullContext = BaseContext &
+  Partial<StepAContext> &
+  Partial<StepBContext> &
+  Partial<StepCContext> &
+  Partial<StepDContext> &
+  Partial<StepEContext> &
+  Partial<StepFContext> &
+  Partial<StepGContext>;
 
 describe("Complex Scenario Integration Tests", () => {
-  const createStep = (
+  // Helper to create steps more concisely while preserving the spirit of the pattern
+  const createStep = <TRequired>(
     name: string,
     dependencies: string[] | undefined,
-    action: (ctx: TestContext) => void,
+    action: (ctx: TRequired & FullContext) => void,
     shouldFail = false
-  ): TaskStep<TestContext> => {
+  ): TaskStep<FullContext> => {
     return {
       name,
       dependencies,
-      run: async (ctx: TestContext): Promise<TaskResult> => {
+      run: async (ctx: FullContext): Promise<TaskResult> => {
         if (shouldFail) {
           return { status: "failure", error: `${name} failed intentionally` };
         }
         try {
-          action(ctx);
+          // In a real scenario, we would cast or assert ctx has TRequired here
+          action(ctx as TRequired & FullContext);
           return { status: "success", message: `${name} succeeded` };
         } catch (error) {
-           return { status: "failure", error: String(error) };
+          return { status: "failure", error: String(error) };
         }
       },
     };
   };
 
   it("1. All steps execute when all succeed and context is hydrated", async () => {
-    const context: TestContext = {};
+    const context: FullContext = { runId: "test-run-1" };
     const runner = new TaskRunner(context);
 
-    // Step definitions
-    const StepA = createStep("StepA", undefined, (ctx) => {
+    // Step A: Hydrates StepAContext
+    const StepA = createStep<BaseContext>("StepA", undefined, (ctx) => {
       console.log("Running StepA");
-      ctx.stepA = "dataA";
+      ctx.stepAData = "dataA";
     });
 
-    const StepB = createStep("StepB", undefined, (ctx) => {
+    // Step B: Hydrates StepBContext
+    const StepB = createStep<BaseContext>("StepB", undefined, (ctx) => {
       console.log("Running StepB");
-      ctx.stepB = "dataB";
+      ctx.stepBData = "dataB";
     });
 
-    const StepC = createStep("StepC", undefined, (ctx) => {
+    // Step C: Hydrates StepCContext
+    const StepC = createStep<BaseContext>("StepC", undefined, (ctx) => {
       console.log("Running StepC");
-      ctx.stepC = "dataC";
+      ctx.stepCData = "dataC";
     });
 
-    const StepD = createStep("StepD", ["StepA"], (ctx) => {
+    // Step D: Depends on A, requires StepAContext, hydrates StepDContext
+    const StepD = createStep<StepAContext>("StepD", ["StepA"], (ctx) => {
       console.log("Running StepD");
-      if (!ctx.stepA) throw new Error("Missing dependency data from StepA");
-      ctx.stepD = "dataD";
+      if (!ctx.stepAData) throw new Error("Missing stepAData");
+      ctx.stepDData = "dataD";
     });
 
-    const StepE = createStep("StepE", ["StepA", "StepB", "StepD"], (ctx) => {
-      console.log("Running StepE");
-      if (!ctx.stepA) throw new Error("Missing dependency data from StepA");
-      if (!ctx.stepB) throw new Error("Missing dependency data from StepB");
-      if (!ctx.stepD) throw new Error("Missing dependency data from StepD");
-      ctx.stepE = "dataE";
-    });
+    // Step E: Depends on A, B, D. Requires their contexts. Hydrates StepEContext
+    const StepE = createStep<StepAContext & StepBContext & StepDContext>(
+      "StepE",
+      ["StepA", "StepB", "StepD"],
+      (ctx) => {
+        console.log("Running StepE");
+        if (!ctx.stepAData) throw new Error("Missing stepAData");
+        if (!ctx.stepBData) throw new Error("Missing stepBData");
+        if (!ctx.stepDData) throw new Error("Missing stepDData");
+        ctx.stepEData = "dataE";
+      }
+    );
 
-    const StepF = createStep("StepF", ["StepC"], (ctx) => {
+    // Step F: Depends on C, requires StepCContext, hydrates StepFContext
+    const StepF = createStep<StepCContext>("StepF", ["StepC"], (ctx) => {
       console.log("Running StepF");
-      if (!ctx.stepC) throw new Error("Missing dependency data from StepC");
-      ctx.stepF = "dataF";
+      if (!ctx.stepCData) throw new Error("Missing stepCData");
+      ctx.stepFData = "dataF";
     });
 
-    const StepG = createStep("StepG", ["StepF"], (ctx) => {
+    // Step G: Depends on F, requires StepFContext, hydrates StepGContext
+    const StepG = createStep<StepFContext>("StepG", ["StepF"], (ctx) => {
       console.log("Running StepG");
-      if (!ctx.stepF) throw new Error("Missing dependency data from StepF");
-      ctx.stepG = "dataG";
+      if (!ctx.stepFData) throw new Error("Missing stepFData");
+      ctx.stepGData = "dataG";
     });
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
@@ -88,49 +143,51 @@ describe("Complex Scenario Integration Tests", () => {
     expect(results.get("StepG")?.status).toBe("success");
 
     expect(context).toEqual({
-      stepA: "dataA",
-      stepB: "dataB",
-      stepC: "dataC",
-      stepD: "dataD",
-      stepE: "dataE",
-      stepF: "dataF",
-      stepG: "dataG",
+      runId: "test-run-1",
+      stepAData: "dataA",
+      stepBData: "dataB",
+      stepCData: "dataC",
+      stepDData: "dataD",
+      stepEData: "dataE",
+      stepFData: "dataF",
+      stepGData: "dataG",
     });
   });
 
   it("2. The 'skip' propagation works as intended if something breaks up in the tree", async () => {
-    const context: TestContext = {};
+    const context: FullContext = { runId: "test-run-2" };
     const runner = new TaskRunner(context);
 
-    // Step definitions - StepA will fail
-    const StepA = createStep("StepA", undefined, (ctx) => {
-      ctx.stepA = "dataA";
-    }, true); // Fail this step
+    // StepA will fail
+    const StepA = createStep<BaseContext>("StepA", undefined, (ctx) => {
+      ctx.stepAData = "dataA";
+    }, true);
 
-    const StepB = createStep("StepB", undefined, (ctx) => {
-      ctx.stepB = "dataB";
+    const StepB = createStep<BaseContext>("StepB", undefined, (ctx) => {
+      ctx.stepBData = "dataB";
     });
 
-    const StepC = createStep("StepC", undefined, (ctx) => {
-      ctx.stepC = "dataC";
+    const StepC = createStep<BaseContext>("StepC", undefined, (ctx) => {
+      ctx.stepCData = "dataC";
     });
 
-    const StepD = createStep("StepD", ["StepA"], (ctx) => {
-        // Should not run
-      ctx.stepD = "dataD";
+    const StepD = createStep<StepAContext>("StepD", ["StepA"], (ctx) => {
+      ctx.stepDData = "dataD";
     });
 
-    const StepE = createStep("StepE", ["StepA", "StepB", "StepD"], (ctx) => {
-        // Should not run
-      ctx.stepE = "dataE";
+    const StepE = createStep<StepAContext & StepBContext & StepDContext>(
+      "StepE",
+      ["StepA", "StepB", "StepD"],
+      (ctx) => {
+      ctx.stepEData = "dataE";
     });
 
-    const StepF = createStep("StepF", ["StepC"], (ctx) => {
-      ctx.stepF = "dataF";
+    const StepF = createStep<StepCContext>("StepF", ["StepC"], (ctx) => {
+      ctx.stepFData = "dataF";
     });
 
-    const StepG = createStep("StepG", ["StepF"], (ctx) => {
-      ctx.stepG = "dataG";
+    const StepG = createStep<StepFContext>("StepG", ["StepF"], (ctx) => {
+      ctx.stepGData = "dataG";
     });
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
@@ -145,8 +202,7 @@ describe("Complex Scenario Integration Tests", () => {
     expect(results.get("StepD")?.status).toBe("skipped");
     expect(results.get("StepD")?.message).toContain("StepA");
 
-    // StepE depends on A, B, D. A failed, D skipped.
-    // The runner logic usually skips if any dependency is not success.
+    // StepE depends on A, B, D.
     expect(results.get("StepE")?.status).toBe("skipped");
 
     // StepF depends on C (success)
@@ -156,12 +212,12 @@ describe("Complex Scenario Integration Tests", () => {
     expect(results.get("StepG")?.status).toBe("success");
 
     // Verify context - A, D, E data should be missing
-    expect(context.stepA).toBeUndefined();
-    expect(context.stepD).toBeUndefined();
-    expect(context.stepE).toBeUndefined();
-    expect(context.stepB).toBe("dataB");
-    expect(context.stepC).toBe("dataC");
-    expect(context.stepF).toBe("dataF");
-    expect(context.stepG).toBe("dataG");
+    expect(context.stepAData).toBeUndefined();
+    expect(context.stepDData).toBeUndefined();
+    expect(context.stepEData).toBeUndefined();
+    expect(context.stepBData).toBe("dataB");
+    expect(context.stepCData).toBe("dataC");
+    expect(context.stepFData).toBe("dataF");
+    expect(context.stepGData).toBe("dataG");
   });
 });
