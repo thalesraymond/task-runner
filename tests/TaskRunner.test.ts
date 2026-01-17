@@ -158,4 +158,46 @@ describe("TaskRunner", () => {
     expect(results.get("B")?.status).toBe("skipped");
     expect(results.get("C")?.status).toBe("skipped");
   });
+
+  it("should handle tasks that throw a non-Error object during execution", async () => {
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        run: async () => {
+          throw "Some string error";
+        },
+      },
+    ];
+
+    const runner = new TaskRunner({});
+    const results = await runner.execute(steps);
+
+    expect(results.get("A")?.status).toBe("failure");
+    expect(results.get("A")?.error).toBe("Some string error");
+  });
+
+  it("should handle duplicate steps where one gets skipped due to failed dependency", async () => {
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        run: async () => ({ status: "failure" }),
+      },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+    ];
+
+    const runner = new TaskRunner({});
+
+    await expect(runner.execute(steps)).rejects.toThrow(
+      /Circular dependency or missing dependency detected/
+    );
+  });
 });
