@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "prepare": "test -d .git && husky || echo 'husky skipped'"
+    "prepare": "test -d .git && husky || echo 'husky skipped'",
+    "commit": "git-cz"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "@vitest/coverage-v8": "4.0.17",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "git-cz": "^4.9.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.0",
     "typescript": "^5.9.3",
