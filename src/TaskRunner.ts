@@ -72,7 +72,7 @@ export class TaskRunner<TContext> {
           } catch (e) {
             results.set(step.name, {
               status: "failure",
-              error: (e as Error).message,
+              error: e instanceof Error ? e.message : String(e),
             });
           } finally {
             this.running.delete(step.name);
