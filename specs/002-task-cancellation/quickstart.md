@@ -63,7 +63,7 @@ const longRunningTask: TaskStep<MyContext> = {
 const dependentTask: TaskStep<MyContext> = {
   name: 'dependentOperation',
   dependencies: ['longRunningOperation'],
-  run: async (context) => {
+  run: async (context, _signal) => {
     console.log('Task: Dependent operation started. This should only run if the previous task completes.');
     await new Promise(resolve => setTimeout(resolve, 100));
     console.log('Task: Dependent operation finished.');
