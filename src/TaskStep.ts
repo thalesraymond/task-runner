@@ -1,4 +1,5 @@
 import { TaskResult } from "./TaskResult.js";
+import { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
 
 /**
  * Represents a single, executable step within a workflow.
@@ -9,6 +10,10 @@ export interface TaskStep<TContext> {
   name: string;
   /** An optional list of task names that must complete successfully before this step can run. */
   dependencies?: string[];
+
+  /** Optional configuration for retrying the task upon failure. */
+  retry?: TaskRetryConfig;
+
   /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
