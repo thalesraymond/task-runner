@@ -27,6 +27,10 @@ export interface RunnerEventPayloads<TContext> {
     step: TaskStep<TContext>;
     result: TaskResult;
   };
+  taskCancelled: {
+    step: TaskStep<TContext>;
+    result: TaskResult;
+  };
 }
 
 /**
@@ -260,7 +264,7 @@ export class TaskRunner<TContext> {
                 message: "Workflow cancelled",
               };
               results.set(step.name, result);
-              this.emit("taskSkipped", { step, result });
+              this.emit("taskCancelled", { step, result });
             }
             continue;
           }
