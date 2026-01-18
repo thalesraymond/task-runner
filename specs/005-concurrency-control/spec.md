@@ -38,7 +38,7 @@ As a developer, I want the `TaskRunner` to intelligently queue tasks that are re
 
 ### Edge Cases
 
--   What happens if `concurrency` is set to 0 or a negative number? It should be treated as an invalid configuration, perhaps defaulting to unlimited or throwing an error.
+-   What happens if `concurrency` is set to a negative number? It should be treated as an invalid configuration, perhaps defaulting to unlimited or throwing an error.
 -   How does concurrency control interact with task cancellation (via `AbortSignal` or `timeout`)? A cancelled task should free up a concurrency slot.
 -   What if all tasks in the queue are blocked by a single long-running task at the concurrency limit? The system should continue to wait for that task to complete or for cancellation.
 
