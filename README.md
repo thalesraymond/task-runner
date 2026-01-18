@@ -9,6 +9,22 @@ A lightweight, type-safe, and domain-agnostic task orchestration engine. It reso
 - **Parallel Execution**: Automatically identifies and runs independent steps concurrently.
 - **Dependency Management**: Enforces execution order based on dependencies.
 - **Error Handling & Skipping**: robustly handles failures and automatically skips dependent steps.
+- **Event System**: Subscribe to lifecycle events (`workflowStart`, `taskStart`, `taskEnd`, etc.) for logging or monitoring.
+- **Runtime Validation**: Automatically detects circular dependencies and missing dependencies before execution loops.
+
+## Event System
+
+The `TaskRunner` implements an Observer Pattern, allowing you to subscribe to various lifecycle events.
+
+```typescript
+runner.on("taskStart", ({ step }) => {
+  console.log(`Starting step: ${step.name}`);
+});
+
+runner.on("taskEnd", ({ step, result }) => {
+  console.log(`Step ${step.name} finished with status: ${result.status}`);
+});
+```
 
 ## Usage Example
 
@@ -76,6 +92,10 @@ async function main() {
 
 main();
 ```
+
+## Skip Propagation
+
+If a task fails or is skipped, the `TaskRunner` automatically marks all subsequent tasks that depend on it as `skipped`. This ensures that your pipeline doesn't attempt to run steps with missing prerequisites, saving resources and preventing cascading errors.
 
 ## Context Hydration
 
