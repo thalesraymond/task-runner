@@ -15,4 +15,9 @@ export interface TaskRunnerExecutionConfig {
    * If undefined, tasks will run with unlimited concurrency.
    */
   concurrency?: number;
+  /**
+   * If true, the runner will simulate execution without running the actual tasks.
+   * Useful for verifying the execution order and graph structure.
+   */
+  dryRun?: boolean;
 }
