@@ -280,27 +280,25 @@ export class TaskRunner<TContext> {
           });
 
 
-          if (readySteps.length > 0) {
-              await Promise.all(
-                readySteps.map(async (step) => {
-                  this.running.add(step.name);
-                  this.emit("taskStart", { step });
-                  try {
-                    const result = await step.run(this.context, internalController.signal);
-                    results.set(step.name, result);
-                  } catch (e) {
-                    results.set(step.name, {
-                      status: "failure",
-                      error: e instanceof Error ? e.message : String(e),
-                    });
-                  } finally {
-                    this.running.delete(step.name);
-                    const result = results.get(step.name)!;
-                    this.emit("taskEnd", { step, result });
-                  }
-                })
-              );
-          }
+          await Promise.all(
+            readySteps.map(async (step) => {
+              this.running.add(step.name);
+              this.emit("taskStart", { step });
+              try {
+                const result = await step.run(this.context, internalController.signal);
+                results.set(step.name, result);
+              } catch (e) {
+                results.set(step.name, {
+                  status: "failure",
+                  error: e instanceof Error ? e.message : String(e),
+                });
+              } finally {
+                this.running.delete(step.name);
+                const result = results.get(step.name)!;
+                this.emit("taskEnd", { step, result });
+              }
+            })
+          );
         }
     } finally {
         cleanup();
