@@ -6,8 +6,8 @@ import { TaskResult } from "../../src/TaskResult.js";
 import { IExecutionStrategy } from "../../src/strategies/IExecutionStrategy.js";
 
 describe("RetryingExecutionStrategy", () => {
-  let innerStrategy: IExecutionStrategy<any>;
-  let retryingStrategy: RetryingExecutionStrategy<any>;
+  let innerStrategy: IExecutionStrategy<unknown>;
+  let retryingStrategy: RetryingExecutionStrategy<unknown>;
 
   beforeEach(() => {
     innerStrategy = new StandardExecutionStrategy();
@@ -21,7 +21,7 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should execute successfully without retry if task succeeds", async () => {
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       run: vi.fn().mockResolvedValue({ status: "success" }),
     };
@@ -33,7 +33,7 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should execute successfully without retry if task has no retry config", async () => {
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       run: vi.fn().mockResolvedValue({ status: "failure", error: "failed" }),
     };
@@ -49,7 +49,7 @@ describe("RetryingExecutionStrategy", () => {
       .mockResolvedValueOnce({ status: "failure", error: "fail 1" })
       .mockResolvedValueOnce({ status: "success" });
 
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: {
         attempts: 2,
@@ -78,7 +78,7 @@ describe("RetryingExecutionStrategy", () => {
   it("should fail after max attempts reached", async () => {
     const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
 
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: {
         attempts: 2,
@@ -111,7 +111,7 @@ describe("RetryingExecutionStrategy", () => {
   it("should use exponential backoff", async () => {
     const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
 
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: {
         attempts: 3,
@@ -145,7 +145,7 @@ describe("RetryingExecutionStrategy", () => {
 
   it("should handle cancellation during delay", async () => {
     const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: {
         attempts: 1,
@@ -173,7 +173,7 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should handle cancellation before execution", async () => {
-     const task: TaskStep<any> = {
+     const task: TaskStep<unknown> = {
       name: "task1",
       retry: { attempts: 1, delay: 100 },
       run: vi.fn(),
@@ -192,12 +192,12 @@ describe("RetryingExecutionStrategy", () => {
      const mockStrategy = {
          execute: vi.fn().mockResolvedValue({ status: "failure" })
      };
-     const strategy = new RetryingExecutionStrategy(mockStrategy as any);
+     const strategy = new RetryingExecutionStrategy(mockStrategy as unknown as IExecutionStrategy<unknown>);
 
      // Mocking sleep to throw
      const sleepSpy = vi.spyOn(strategy as any, 'sleep').mockRejectedValue(new Error("Random error"));
 
-     const task: TaskStep<any> = {
+     const task: TaskStep<unknown> = {
       name: "task1",
       retry: { attempts: 1, delay: 100 },
       run: vi.fn(),
@@ -223,7 +223,7 @@ describe("RetryingExecutionStrategy", () => {
         return { status: "failure", error: "fail" };
     });
 
-    const task: TaskStep<any> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: { attempts: 1, delay: 100 },
       run: runMock,

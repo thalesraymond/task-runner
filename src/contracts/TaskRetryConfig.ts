@@ -4,5 +4,5 @@ export interface TaskRetryConfig {
   /** Delay in milliseconds between retries. */
   delay: number;
   /** Backoff strategy: 'fixed' (default) or 'exponential'. */
-  backoff?: 'fixed' | 'exponential';
+  backoff?: "fixed" | "exponential";
 }
