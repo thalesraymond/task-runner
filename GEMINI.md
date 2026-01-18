@@ -35,6 +35,8 @@ tests/
 
 
 <!-- MANUAL ADDITIONS START -->
+- Never edit CHANGELOG.md manually. This file is for semantic release and is filled automatically.
+
 Before marking a task as concluded, YOU MUST:
 
 1. run pnpm install
