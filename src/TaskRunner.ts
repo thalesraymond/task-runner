@@ -143,28 +143,6 @@ export class TaskRunner<TContext> {
 
     const stateManager = new TaskStateManager(this.eventBus);
 
-    // Combine Retrying strategy with DryRun strategy if needed
-    // If dryRun is enabled, we use DryRunExecutionStrategy.
-    // Question: Should DryRun be retried? Probably not, as it simulates success.
-    // However, if we want to test retry logic in dry run?
-    // Usually dry run implies "don't actually do the work", so retrying is redundant if it always succeeds.
-    // But if DryRun is just a strategy, we *could* retry it if it were to fail (which it doesn't).
-
-    // Main branch logic:
-    // let strategy = this.executionStrategy;
-    // if (config?.dryRun) {
-    //   strategy = new DryRunExecutionStrategy<TContext>();
-    // }
-
-    // My logic (implicit): `this.executionStrategy` is `Retrying(Standard)`.
-
-    // Resolution:
-    // We should keep the logic from Main that allows swapping to DryRun.
-    // But we should decide if we want Retrying(DryRun) or just DryRun.
-    // Since DryRun simulates success, retrying is irrelevant.
-    // However, if `this.executionStrategy` was set by user to something else, we might want to respect that?
-    // No, `config.dryRun` usually overrides everything to ensure safety.
-
     let strategy = this.executionStrategy;
     if (config?.dryRun) {
       strategy = new DryRunExecutionStrategy<TContext>();
