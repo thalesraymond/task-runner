@@ -5,9 +5,9 @@ import { TaskResult } from "../TaskResult.js";
 /**
  * Standard execution strategy that runs the task's run method.
  */
-export class StandardExecutionStrategy<TContext>
-  implements IExecutionStrategy<TContext>
-{
+export class StandardExecutionStrategy<
+  TContext,
+> implements IExecutionStrategy<TContext> {
   async execute(
     step: TaskStep<TContext>,
     context: TContext,
@@ -19,7 +19,7 @@ export class StandardExecutionStrategy<TContext>
       // Check if error is due to abort
       if (
         signal?.aborted &&
-        (e instanceof Error && e.name === "AbortError" || signal.reason === e)
+        ((e instanceof Error && e.name === "AbortError") || signal.reason === e)
       ) {
         return {
           status: "cancelled",

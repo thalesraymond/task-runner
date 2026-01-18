@@ -13,16 +13,28 @@ describe("TaskRunner Mermaid Graph", () => {
     const lines = graph.split("\n");
 
     expect(lines[0]).toBe("graph TD");
-    expect(lines).toContain("  A[\"A\"]");
-    expect(lines).toContain("  B[\"B\"]");
+    expect(lines).toContain('  A["A"]');
+    expect(lines).toContain('  B["B"]');
   });
 
   it("should generate a graph with dependencies", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "A", run: async () => ({ status: "success" }) },
-      { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) },
-      { name: "C", dependencies: ["A"], run: async () => ({ status: "success" }) },
-      { name: "D", dependencies: ["B", "C"], run: async () => ({ status: "success" }) },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+      {
+        name: "C",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+      {
+        name: "D",
+        dependencies: ["B", "C"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
@@ -39,29 +51,37 @@ describe("TaskRunner Mermaid Graph", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Independent", run: async () => ({ status: "success" }) },
       { name: "A", run: async () => ({ status: "success" }) },
-      { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain("  Independent[\"Independent\"]");
+    expect(lines).toContain('  Independent["Independent"]');
     expect(lines).toContain("  A --> B");
   });
 
   it("should handle special characters in task names", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Task With Space", run: async () => ({ status: "success" }) },
-      { name: "Task\"Quote\"", run: async () => ({ status: "success" }) },
-      { name: "Task:Colon", dependencies: ["Task With Space"], run: async () => ({ status: "success" }) },
+      { name: 'Task"Quote"', run: async () => ({ status: "success" }) },
+      {
+        name: "Task:Colon",
+        dependencies: ["Task With Space"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain("  Task_With_Space[\"Task With Space\"]");
+    expect(lines).toContain('  Task_With_Space["Task With Space"]');
     // "Task\"Quote\""["Task\"Quote\""]
-    expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
+    expect(lines).toContain('  Task_Quote_["Task\\"Quote\\""]');
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
 });

@@ -1,5 +1,8 @@
 import { TaskRunner } from "./TaskRunner.js";
-import { RunnerEventPayloads, RunnerEventListener } from "./contracts/RunnerEvents.js";
+import {
+  RunnerEventPayloads,
+  RunnerEventListener,
+} from "./contracts/RunnerEvents.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 
 /**
@@ -9,7 +12,10 @@ export class TaskRunnerBuilder<TContext> {
   private context: TContext;
   private strategy?: IExecutionStrategy<TContext>;
   private listeners: {
-    [K in keyof RunnerEventPayloads<TContext>]?: RunnerEventListener<TContext, K>[];
+    [K in keyof RunnerEventPayloads<TContext>]?: RunnerEventListener<
+      TContext,
+      K
+    >[];
   } = {};
 
   /**
@@ -57,7 +63,9 @@ export class TaskRunnerBuilder<TContext> {
       runner.setExecutionStrategy(this.strategy);
     }
 
-    (Object.keys(this.listeners) as Array<keyof RunnerEventPayloads<TContext>>).forEach((event) => {
+    (
+      Object.keys(this.listeners) as Array<keyof RunnerEventPayloads<TContext>>
+    ).forEach((event) => {
       const callbacks = this.listeners[event];
       // callbacks is always defined because we are iterating keys of the object
       callbacks!.forEach((callback) =>

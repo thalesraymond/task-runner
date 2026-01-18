@@ -5,9 +5,9 @@ import { TaskResult } from "../TaskResult.js";
 /**
  * Execution strategy that simulates task execution without running the actual logic.
  */
-export class DryRunExecutionStrategy<TContext>
-  implements IExecutionStrategy<TContext>
-{
+export class DryRunExecutionStrategy<
+  TContext,
+> implements IExecutionStrategy<TContext> {
   /**
    * Simulates execution by returning a success result immediately.
    * @param step The task step (ignored).

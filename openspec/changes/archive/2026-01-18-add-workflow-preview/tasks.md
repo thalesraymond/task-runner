@@ -1,4 +1,5 @@
 ## Implementation
+
 - [x] 1.1 Update `TaskRunnerExecutionConfig` to include an optional `dryRun: boolean` property.
 - [x] 1.2 Implement `dryRun` logic in `WorkflowExecutor` (traverse graph, validate order, skip `step.run()`, return `skipped` or `success` pseudo-status).
 - [x] 1.3 Implement `getMermaidGraph(steps: TaskStep[])` method (can be static or instance method on `TaskRunner`).

@@ -41,7 +41,9 @@ export class WorkflowExecutor<TContext> {
 
     // Check if already aborted
     if (signal?.aborted) {
-      this.stateManager.cancelAllPending("Workflow cancelled before execution started.");
+      this.stateManager.cancelAllPending(
+        "Workflow cancelled before execution started."
+      );
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
       return results;
@@ -55,7 +57,7 @@ export class WorkflowExecutor<TContext> {
     };
 
     if (signal) {
-       signal.addEventListener("abort", onAbort);
+      signal.addEventListener("abort", onAbort);
     }
 
     try {
@@ -77,10 +79,10 @@ export class WorkflowExecutor<TContext> {
         }
 
         if (signal?.aborted) {
-           this.stateManager.cancelAllPending("Workflow cancelled.");
+          this.stateManager.cancelAllPending("Workflow cancelled.");
         } else {
-           // After a task finishes, check for new work
-           this.processLoop(executingPromises, signal);
+          // After a task finishes, check for new work
+          this.processLoop(executingPromises, signal);
         }
       }
 
@@ -124,14 +126,15 @@ export class WorkflowExecutor<TContext> {
 
       this.stateManager.markRunning(step);
 
-      const taskPromise = this.strategy.execute(step, this.context, signal)
+      const taskPromise = this.strategy
+        .execute(step, this.context, signal)
         .then((result) => {
-            this.stateManager.markCompleted(step, result);
+          this.stateManager.markCompleted(step, result);
         })
         .finally(() => {
-             executingPromises.delete(taskPromise);
-             // When a task finishes, we try to run more
-             this.processLoop(executingPromises, signal);
+          executingPromises.delete(taskPromise);
+          // When a task finishes, we try to run more
+          this.processLoop(executingPromises, signal);
         });
 
       executingPromises.add(taskPromise);

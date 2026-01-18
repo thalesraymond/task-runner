@@ -24,32 +24,32 @@ As a user, I want the task graph to be validated for structural integrity (cycle
 
 ### Edge Cases
 
--   What happens when an empty graph is provided? (Should be considered valid if no tasks, or invalid if expecting at least one task.)
--   How does the system handle a very large graph with many tasks and dependencies? (Performance consideration)
--   What if a dependency points to a non-existent task? (Covered by "missing dependency")
+- What happens when an empty graph is provided? (Should be considered valid if no tasks, or invalid if expecting at least one task.)
+- How does the system handle a very large graph with many tasks and dependencies? (Performance consideration)
+- What if a dependency points to a non-existent task? (Covered by "missing dependency")
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
--   **FR-001**: The system MUST perform a pre-execution validation of the task graph.
--   **FR-002**: The validation MUST detect cycles within the task graph.
--   **FR-003**: The validation MUST detect missing dependencies in the task graph.
--   **FR-004**: The validation MUST detect duplicate tasks in the task graph.
--   **FR-005**: If validation fails, the system MUST prevent task execution.
--   **FR-006**: The system MUST provide clear error messages indicating the specific validation failure (e.g., cycle detected, missing dependency for X, duplicate task Y).
+- **FR-001**: The system MUST perform a pre-execution validation of the task graph.
+- **FR-002**: The validation MUST detect cycles within the task graph.
+- **FR-003**: The validation MUST detect missing dependencies in the task graph.
+- **FR-004**: The validation MUST detect duplicate tasks in the task graph.
+- **FR-005**: If validation fails, the system MUST prevent task execution.
+- **FR-006**: The system MUST provide clear error messages indicating the specific validation failure (e.g., cycle detected, missing dependency for X, duplicate task Y).
 
 ### Key Entities _(include if feature involves data)_
 
--   **Task Graph**: A collection of tasks and their dependencies, representing the execution flow.
--   **Task**: An individual unit of work within the graph, identified by a unique ID, with optional dependencies on other tasks.
--   **Dependency**: A relationship indicating that one task must complete before another can start.
+- **Task Graph**: A collection of tasks and their dependencies, representing the execution flow.
+- **Task**: An individual unit of work within the graph, identified by a unique ID, with optional dependencies on other tasks.
+- **Dependency**: A relationship indicating that one task must complete before another can start.
 
 ## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
--   **SC-001**: The validation process completes for a graph with 1000 tasks and 5000 dependencies in under 500ms.
--   **SC-002**: All types of graph structural errors (cycles, missing dependencies, duplicates) are correctly identified and reported by the validation.
--   **SC-003**: No invalid task graphs are allowed to proceed to execution.
--   **SC-004**: Users receive actionable feedback when their task graph fails validation, enabling them to quickly identify and correct issues.
+- **SC-001**: The validation process completes for a graph with 1000 tasks and 5000 dependencies in under 500ms.
+- **SC-002**: All types of graph structural errors (cycles, missing dependencies, duplicates) are correctly identified and reported by the validation.
+- **SC-003**: No invalid task graphs are allowed to proceed to execution.
+- **SC-004**: Users receive actionable feedback when their task graph fails validation, enabling them to quickly identify and correct issues.

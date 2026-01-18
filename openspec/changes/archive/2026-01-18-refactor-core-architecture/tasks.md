@@ -1,4 +1,5 @@
 ## Implementation
+
 - [x] 1.1 Extract `TaskStateManager` to handle `TaskResult` storage, updates, and context mutations.
 - [x] 1.2 Define `IExecutionStrategy` interface for running tasks (Strategy Pattern).
 - [x] 1.3 Refactor `WorkflowExecutor` to use `TaskStateManager` and `IExecutionStrategy`.

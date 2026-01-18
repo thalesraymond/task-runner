@@ -16,15 +16,15 @@ describe("EventBus", () => {
     });
 
     const mockStep: TaskStep<Record<string, unknown>> = {
-        name: "test",
-        run: async (): Promise<TaskResult> => ({ status: "success" })
+      name: "test",
+      run: async (): Promise<TaskResult> => ({ status: "success" }),
     };
 
     // This should not throw
     bus.emit("taskStart", { step: mockStep });
 
     // Wait a tick for promise rejection to be handled
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining("Error in event listener for taskStart"),
