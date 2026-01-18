@@ -9,6 +9,7 @@ import { TaskRunnerExecutionConfig } from "./TaskRunnerExecutionConfig.js";
 import { TaskStateManager } from "./TaskStateManager.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
+import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
 // Re-export types for backward compatibility
 export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
@@ -65,6 +66,54 @@ export class TaskRunner<TContext> {
   }
 
   /**
+   * Generates a Mermaid.js graph representation of the task workflow.
+   * @param steps The list of tasks to visualize.
+   * @returns A string containing the Mermaid graph definition.
+   */
+  public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
+    const graphLines = ["graph TD"];
+
+    // Helper to sanitize node names or wrap them if needed
+    // For simplicity, we just wrap in quotes and use the name as ID if it's simple
+    // or generate an ID if strictly needed. Here we assume names are unique IDs.
+    // We will wrap names in quotes for the label, but use the name as the ID.
+    // Actually, Mermaid ID cannot have spaces without quotes.
+    const safeId = (name: string) => JSON.stringify(name);
+    const sanitize = (name: string) => this.sanitizeMermaidId(name);
+
+
+    // Add all nodes first to ensure they exist
+    for (const step of steps) {
+      // Using the name as both ID and Label for simplicity
+      // Format: ID["Label"]
+      // safeId returns a quoted string (e.g. "Task Name"), so we use it directly as the label
+      graphLines.push(`  ${sanitize(step.name)}[${safeId(step.name)}]`);
+    }
+
+    // Add edges
+    for (const step of steps) {
+      if (step.dependencies) {
+        for (const dep of step.dependencies) {
+          graphLines.push(
+            `  ${sanitize(dep)} --> ${sanitize(step.name)}`
+          );
+        }
+      }
+    }
+
+    return [...new Set(graphLines)].join("\n");
+  }
+
+  /**
+   * Sanitizes a string for use as a Mermaid node ID.
+   * @param id The string to sanitize.
+   * @returns The sanitized string.
+   */
+  private static sanitizeMermaidId(id: string): string {
+    return id.replaceAll(/ /g, "_").replaceAll(/:/g, "_").replaceAll(/"/g, "_");
+  }
+
+  /**
    * Executes a list of tasks, respecting their dependencies and running
    * independent tasks in parallel.
    * @param steps An array of TaskStep objects to be executed.
@@ -90,11 +139,17 @@ export class TaskRunner<TContext> {
     }
 
     const stateManager = new TaskStateManager(this.eventBus);
+
+    let strategy = this.executionStrategy;
+    if (config?.dryRun) {
+      strategy = new DryRunExecutionStrategy<TContext>();
+    }
+
     const executor = new WorkflowExecutor(
       this.context,
       this.eventBus,
       stateManager,
-      this.executionStrategy
+      strategy
     );
 
     // We need to handle the timeout cleanup properly.
