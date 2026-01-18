@@ -16,8 +16,8 @@ export interface Task {
  * Represents the entire collection of tasks and their interdependencies.
  */
 export interface TaskGraph {
-    /** A map of tasks, where each task is uniquely identified by its ID. */
-    tasks: Map<string, Task>;
+    /** An array of tasks that make up the graph. */
+    tasks: Task[];
 }
 
 /**
