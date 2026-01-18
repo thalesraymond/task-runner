@@ -1,3 +1,10 @@
+## <small>1.2.2 (2026-01-18)</small>
+
+* Merge pull request #38 from thalesraymond/refactor-task-runner-7434390989639993181 ([e315cbd](https://github.com/thalesraymond/task-runner/commit/e315cbd)), closes [#38](https://github.com/thalesraymond/task-runner/issues/38)
+* fix(EventBus): fix lint errors in test file ([86b3ad8](https://github.com/thalesraymond/task-runner/commit/86b3ad8))
+* fix(EventBus): handle unhandled promise rejections in event listeners ([5f5235a](https://github.com/thalesraymond/task-runner/commit/5f5235a))
+* refactor: decompose TaskRunner into smaller classes ([55a1928](https://github.com/thalesraymond/task-runner/commit/55a1928))
+
 ## <small>1.2.1 (2026-01-18)</small>
 
 * Merge branch 'main' into docs-add-status-badges-11560890930810516706 ([8baab4c](https://github.com/thalesraymond/task-runner/commit/8baab4c))

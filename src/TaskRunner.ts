@@ -2,48 +2,12 @@ import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { TaskGraphValidator } from "./TaskGraphValidator.js";
 import { TaskGraph } from "./TaskGraph.js";
+import { RunnerEventPayloads, RunnerEventListener } from "./contracts/RunnerEvents.js";
+import { EventBus } from "./EventBus.js";
+import { WorkflowExecutor } from "./WorkflowExecutor.js";
 
-/**
- * Define the payload for every possible event in the lifecycle.
- */
-export interface RunnerEventPayloads<TContext> {
-  workflowStart: {
-    context: TContext;
-    steps: TaskStep<TContext>[];
-  };
-  workflowEnd: {
-    context: TContext;
-    results: Map<string, TaskResult>;
-  };
-  taskStart: {
-    step: TaskStep<TContext>;
-  };
-  taskEnd: {
-    step: TaskStep<TContext>;
-    result: TaskResult;
-  };
-  taskSkipped: {
-    step: TaskStep<TContext>;
-    result: TaskResult;
-  };
-}
-
-/**
- * A generic listener type that maps the event key to its specific payload.
- */
-export type RunnerEventListener<
-  TContext,
-  K extends keyof RunnerEventPayloads<TContext>,
-> = (data: RunnerEventPayloads<TContext>[K]) => void | Promise<void>;
-
-/**
- * Helper type for the listeners map to avoid private access issues in generic contexts.
- */
-type ListenerMap<TContext> = {
-  [K in keyof RunnerEventPayloads<TContext>]?: Set<
-    RunnerEventListener<TContext, K>
-  >;
-};
+// Re-export types for backward compatibility
+export { RunnerEventPayloads, RunnerEventListener };
 
 /**
  * The main class that orchestrates the execution of a list of tasks
@@ -51,8 +15,7 @@ type ListenerMap<TContext> = {
  * @template TContext The shape of the shared context object.
  */
 export class TaskRunner<TContext> {
-  private running = new Set<string>();
-  private listeners: ListenerMap<TContext> = {};
+  private eventBus = new EventBus<TContext>();
   private validator = new TaskGraphValidator();
 
   /**
@@ -69,15 +32,7 @@ export class TaskRunner<TContext> {
     event: K,
     callback: RunnerEventListener<TContext, K>
   ): void {
-    if (!this.listeners[event]) {
-      // Type assertion needed because TypeScript cannot verify that the generic K
-      // matches the specific key in the mapped type during assignment.
-      this.listeners[event] = new Set() as unknown as ListenerMap<TContext>[K];
-    }
-    // Type assertion needed to tell TS that this specific Set matches the callback type
-    (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).add(
-      callback
-    );
+    this.eventBus.on(event, callback);
   }
 
   /**
@@ -89,38 +44,7 @@ export class TaskRunner<TContext> {
     event: K,
     callback: RunnerEventListener<TContext, K>
   ): void {
-    if (this.listeners[event]) {
-      (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).delete(
-        callback
-      );
-    }
-  }
-
-  /**
-   * Emit an event to all subscribers.
-   * @param event The event name.
-   * @param data The payload for the event.
-   */
-  private emit<K extends keyof RunnerEventPayloads<TContext>>(
-    event: K,
-    data: RunnerEventPayloads<TContext>[K]
-  ): void {
-    const listeners = this.listeners[event] as
-      | Set<RunnerEventListener<TContext, K>>
-      | undefined;
-    if (listeners) {
-      for (const listener of listeners) {
-        try {
-          listener(data);
-        } catch (error) {
-          // Prevent listener errors from bubbling up
-          console.error(
-            `Error in event listener for ${String(event)}:`,
-            error
-          );
-        }
-      }
-    }
+    this.eventBus.off(event, callback);
   }
 
   /**
@@ -178,82 +102,7 @@ export class TaskRunner<TContext> {
       throw new Error(`${legacyMessage} | ${detailedMessage}`);
     }
 
-    this.emit("workflowStart", { context: this.context, steps });
-
-    const results = new Map<string, TaskResult>();
-    const executingPromises = new Set<Promise<void>>();
-
-    // Helper to process pending steps and launch ready ones
-    const processPendingSteps = () => {
-      const pendingSteps = steps.filter(
-        (step) => !results.has(step.name) && !this.running.has(step.name)
-      );
-
-      // 1. Identify and mark skipped tasks
-      for (const step of pendingSteps) {
-        const deps = step.dependencies ?? [];
-        const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-        );
-        if (failedDep) {
-          const result: TaskResult = {
-            status: "skipped",
-            message: `Skipped due to failed dependency: ${failedDep}`,
-          };
-          results.set(step.name, result);
-          this.emit("taskSkipped", { step, result });
-        }
-      }
-
-      // Re-filter pending steps as some might have been skipped above
-      const readySteps = steps.filter((step) => {
-        if (results.has(step.name) || this.running.has(step.name)) return false;
-        const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
-
-      // 2. Launch ready tasks
-      for (const step of readySteps) {
-        this.running.add(step.name);
-        this.emit("taskStart", { step });
-
-        const taskPromise = (async () => {
-          try {
-            const result = await step.run(this.context);
-            results.set(step.name, result);
-          } catch (e) {
-            results.set(step.name, {
-              status: "failure",
-              error: e instanceof Error ? e.message : String(e),
-            });
-          } finally {
-            this.running.delete(step.name);
-            const result = results.get(step.name)!;
-            this.emit("taskEnd", { step, result });
-          }
-        })();
-
-        // Wrap the task promise to ensure we can track it in the Set
-        const trackedPromise = taskPromise.then(() => {
-          executingPromises.delete(trackedPromise);
-        });
-        executingPromises.add(trackedPromise);
-      }
-    };
-
-    // Initial check to start independent tasks
-    processPendingSteps();
-
-    while (results.size < steps.length && executingPromises.size > 0) {
-      // Wait for the next task to finish
-      await Promise.race(executingPromises);
-      // After a task finishes, check for new work
-      processPendingSteps();
-    }
-
-    this.emit("workflowEnd", { context: this.context, results });
-    return results;
+    const executor = new WorkflowExecutor(this.context, this.eventBus);
+    return executor.execute(steps);
   }
 }
