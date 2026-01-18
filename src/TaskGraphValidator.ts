@@ -94,33 +94,57 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     }
 
     private detectCycle(
-        taskId: string,
+        startNode: string,
         path: string[],
         visited: Set<string>,
         recursionStack: Set<string>,
         adjacencyList: Map<string, string[]>
     ): boolean {
-        visited.add(taskId);
-        recursionStack.add(taskId);
-        path.push(taskId);
+        // Use parallel stacks to simulate recursion and avoid object allocation per frame
+        const nodeStack: string[] = [startNode];
+        const indexStack: number[] = [0];
 
-        const dependencies = adjacencyList.get(taskId)!;
-        for (const dependenceId of dependencies) {
-            if (
-                !visited.has(dependenceId) &&
-                this.detectCycle(dependenceId, path, visited, recursionStack, adjacencyList)
-            ) {
-                return true;
-            } else if (recursionStack.has(dependenceId)) {
-                // Cycle detected
-                // Add the dependency to complete the visual cycle
-                path.push(dependenceId);
-                return true;
+        while (nodeStack.length > 0) {
+            const taskId = nodeStack[nodeStack.length - 1];
+            const nextDepIndex = indexStack[indexStack.length - 1];
+
+            // Pre-process (simulate function entry)
+            // Only perform this when entering the node for the first time
+            if (nextDepIndex === 0) {
+                visited.add(taskId);
+                recursionStack.add(taskId);
+                path.push(taskId);
+            }
+
+            const dependencies = adjacencyList.get(taskId)!;
+
+            if (nextDepIndex < dependencies.length) {
+                const depId = dependencies[nextDepIndex];
+                // Increment index so that when we return to this frame, we process the next dependency
+                indexStack[indexStack.length - 1]++;
+
+                if (!visited.has(depId)) {
+                    // Push new frame (simulate recursive call)
+                    nodeStack.push(depId);
+                    indexStack.push(0);
+                    continue;
+                } else if (recursionStack.has(depId)) {
+                    // Cycle detected
+                    path.push(depId);
+                    return true;
+                }
+                // If visited but not in recursionStack, it's a cross edge to an already processed node.
+                // We just ignore it and loop again to process next dependency of current frame.
+            } else {
+                // Post-process (simulate function return)
+                // All dependencies processed
+                recursionStack.delete(taskId);
+                path.pop();
+                nodeStack.pop();
+                indexStack.pop();
             }
         }
 
-        recursionStack.delete(taskId);
-        path.pop();
         return false;
     }
 }
