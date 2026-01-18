@@ -21,22 +21,32 @@ export class WorkflowExecutor<TContext> {
   /**
    * Executes the given steps.
    * @param steps The list of steps to execute.
+   * @param signal Optional AbortSignal to stop execution.
    * @returns A Promise that resolves to a map of task results.
    */
-  async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+  async execute(
+    steps: TaskStep<TContext>[],
+    signal?: AbortSignal
+  ): Promise<Map<string, TaskResult>> {
     this.eventBus.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
     const executingPromises = new Set<Promise<void>>();
 
     // Initial pass
-    this.processQueue(steps, results, executingPromises);
+    this.processQueue(steps, results, executingPromises, signal);
 
     while (results.size < steps.length && executingPromises.size > 0) {
       // Wait for the next task to finish
       await Promise.race(executingPromises);
+
+      // Check for cancellation
+      if (signal?.aborted) {
+        break;
+      }
+
       // After a task finishes, check for new work
-      this.processQueue(steps, results, executingPromises);
+      this.processQueue(steps, results, executingPromises, signal);
     }
 
     this.eventBus.emit("workflowEnd", { context: this.context, results });
@@ -49,14 +59,17 @@ export class WorkflowExecutor<TContext> {
   private processQueue(
     steps: TaskStep<TContext>[],
     results: Map<string, TaskResult>,
-    executingPromises: Set<Promise<void>>
+    executingPromises: Set<Promise<void>>,
+    signal?: AbortSignal
   ): void {
+    if (signal?.aborted) return;
+
     this.handleSkippedTasks(steps, results);
 
     const readySteps = this.getReadySteps(steps, results);
 
     for (const step of readySteps) {
-      const taskPromise = this.runStep(step, results).then(() => {
+      const taskPromise = this.runStep(step, results, signal).then(() => {
         executingPromises.delete(taskPromise);
       });
       executingPromises.add(taskPromise);
@@ -105,12 +118,16 @@ export class WorkflowExecutor<TContext> {
   /**
    * Handles the lifecycle of a single task execution.
    */
-  private async runStep(step: TaskStep<TContext>, results: Map<string, TaskResult>): Promise<void> {
+  private async runStep(
+    step: TaskStep<TContext>,
+    results: Map<string, TaskResult>,
+    signal?: AbortSignal
+  ): Promise<void> {
     this.running.add(step.name);
     this.eventBus.emit("taskStart", { step });
 
     try {
-      const result = await step.run(this.context);
+      const result = await step.run(this.context, signal);
       results.set(step.name, result);
     } catch (e) {
       results.set(step.name, {

@@ -51,10 +51,14 @@ export class TaskRunner<TContext> {
    * Executes a list of tasks, respecting their dependencies and running
    * independent tasks in parallel.
    * @param steps An array of TaskStep objects to be executed.
+   * @param options Optional configuration for execution.
    * @returns A Promise that resolves to a Map where keys are task names
    * and values are the corresponding TaskResult objects.
    */
-  async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+  async execute(
+    steps: TaskStep<TContext>[],
+    options?: { signal?: AbortSignal }
+  ): Promise<Map<string, TaskResult>> {
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
@@ -69,6 +73,6 @@ export class TaskRunner<TContext> {
     }
 
     const executor = new WorkflowExecutor(this.context, this.eventBus);
-    return executor.execute(steps);
+    return executor.execute(steps, options?.signal);
   }
 }
