@@ -72,7 +72,7 @@ const dependentTask: TaskStep<MyContext> = {
 
 const anotherTask: TaskStep<MyContext> = {
   name: 'anotherOperation',
-  run: async () => {
+  run: async (_context, _signal) => {
     console.log('Task: Another independent operation.');
     await new Promise(resolve => setTimeout(resolve, 50))
   }
