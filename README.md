@@ -142,7 +142,7 @@ If a task fails or is skipped, the `TaskRunner` automatically marks all subseque
 
 ## Why I did this?
 
-In my current job I have a Github Issue validation engine that checks **a lot** of stuff and I wanted to make a package that encapsulates the "validation engine" logic for use outside that niche case. I don't know if someone will find it useful but here it is. I also wanted to try to make a package that is not tied to a specific use case.
+In my current job I have a Github Issue validation engine that checks **a lot** of stuff and I wanted to make a package that encapsulates the "validation engine" logic for use outside that use case. I also wanted to try to make a package that is not tied to a specific scenario. I don't know if someone will find it useful but here it is. 
 
 ## What is .gemini and .specify
 
