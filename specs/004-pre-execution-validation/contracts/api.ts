@@ -9,7 +9,7 @@ export interface Task {
     /** An array of task IDs that this task directly depends on. */
     dependencies: string[];
     /** Allows for any other properties specific to the task's payload or configuration. */
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 /**
