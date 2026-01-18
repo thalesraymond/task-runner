@@ -16,8 +16,11 @@ export class DryRunExecutionStrategy<TContext>
    * @returns A promise resolving to a success result.
    */
   async execute(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _step: TaskStep<TContext>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _context: TContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _signal?: AbortSignal
   ): Promise<TaskResult> {
     return Promise.resolve({

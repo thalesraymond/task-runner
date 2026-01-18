@@ -13,8 +13,8 @@ describe("TaskRunner Mermaid Graph", () => {
     const lines = graph.split("\n");
 
     expect(lines[0]).toBe("graph TD");
-    expect(lines).toContain('  "A"["A"]');
-    expect(lines).toContain('  "B"["B"]');
+    expect(lines).toContain("  \"A\"[\"A\"]");
+    expect(lines).toContain("  \"B\"[\"B\"]");
   });
 
   it("should generate a graph with dependencies", () => {
@@ -29,10 +29,10 @@ describe("TaskRunner Mermaid Graph", () => {
     const lines = graph.split("\n");
 
     expect(lines[0]).toBe("graph TD");
-    expect(lines).toContain('  "A" --> "B"');
-    expect(lines).toContain('  "A" --> "C"');
-    expect(lines).toContain('  "B" --> "D"');
-    expect(lines).toContain('  "C" --> "D"');
+    expect(lines).toContain("  \"A\" --> \"B\"");
+    expect(lines).toContain("  \"A\" --> \"C\"");
+    expect(lines).toContain("  \"B\" --> \"D\"");
+    expect(lines).toContain("  \"C\" --> \"D\"");
   });
 
   it("should handle mixed independent and dependent tasks", () => {
@@ -45,23 +45,23 @@ describe("TaskRunner Mermaid Graph", () => {
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain('  "Independent"["Independent"]');
-    expect(lines).toContain('  "A" --> "B"');
+    expect(lines).toContain("  \"Independent\"[\"Independent\"]");
+    expect(lines).toContain("  \"A\" --> \"B\"");
   });
 
   it("should handle special characters in task names", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Task With Space", run: async () => ({ status: "success" }) },
-      { name: 'Task"Quote"', run: async () => ({ status: "success" }) },
+      { name: "Task\"Quote\"", run: async () => ({ status: "success" }) },
       { name: "Task:Colon", dependencies: ["Task With Space"], run: async () => ({ status: "success" }) },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain('  "Task With Space"["Task With Space"]');
+    expect(lines).toContain("  \"Task With Space\"[\"Task With Space\"]");
     // "Task\"Quote\""["Task\"Quote\""]
-    expect(lines).toContain('  "Task\\"Quote\\""["Task\\"Quote\\""]');
-    expect(lines).toContain('  "Task With Space" --> "Task:Colon"');
+    expect(lines).toContain("  \"Task\\\"Quote\\\"\"[\"Task\\\"Quote\\\"\"]");
+    expect(lines).toContain("  \"Task With Space\" --> \"Task:Colon\"");
   });
 });
