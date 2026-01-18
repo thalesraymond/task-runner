@@ -32,7 +32,7 @@ describe("WorkflowExecutor", () => {
 
     vi.spyOn(stateManager, "hasRunningTasks").mockReturnValue(false);
 
-    const processDepsSpy = vi.spyOn(stateManager, "processDependencies")
+    vi.spyOn(stateManager, "processDependencies")
       .mockReturnValueOnce([t1])      // Initial
       .mockReturnValueOnce([t2, t3])  // After t1
       .mockReturnValueOnce([t3])      // After t2 (t3 is the duplicate)
