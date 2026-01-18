@@ -11,4 +11,11 @@ export interface ITaskGraphValidator {
      * @returns A ValidationResult object indicating the outcome of the validation.
      */
     validate(taskGraph: TaskGraph): ValidationResult;
+
+    /**
+     * Creates a human-readable error message from a validation result.
+     * @param result The validation result containing errors.
+     * @returns A formatted error string.
+     */
+    createErrorMessage(result: ValidationResult): string;
 }

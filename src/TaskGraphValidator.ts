@@ -93,6 +93,16 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         };
     }
 
+    /**
+     * Creates a human-readable error message from a validation result.
+     * @param result The validation result containing errors.
+     * @returns A formatted error string.
+     */
+    createErrorMessage(result: ValidationResult): string {
+        const errorDetails = result.errors.map(e => e.message);
+        return `Task graph validation failed: ${errorDetails.join("; ")}`;
+    }
+
     private detectCycle(
         taskId: string,
         path: string[],
