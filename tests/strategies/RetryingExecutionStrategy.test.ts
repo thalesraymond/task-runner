@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { RetryingExecutionStrategy } from "../../src/strategies/RetryingExecutionStrategy.js";
 import { StandardExecutionStrategy } from "../../src/strategies/StandardExecutionStrategy.js";
 import { TaskStep } from "../../src/TaskStep.js";
-import { TaskResult } from "../../src/TaskResult.js";
 import { IExecutionStrategy } from "../../src/strategies/IExecutionStrategy.js";
 
 describe("RetryingExecutionStrategy", () => {
@@ -195,7 +194,7 @@ describe("RetryingExecutionStrategy", () => {
      const strategy = new RetryingExecutionStrategy(mockStrategy as unknown as IExecutionStrategy<unknown>);
 
      // Mocking sleep to throw
-     const sleepSpy = vi.spyOn(strategy as any, 'sleep').mockRejectedValue(new Error("Random error"));
+     vi.spyOn(strategy as unknown as { sleep: () => Promise<void> }, "sleep").mockRejectedValue(new Error("Random error"));
 
      const task: TaskStep<unknown> = {
       name: "task1",
