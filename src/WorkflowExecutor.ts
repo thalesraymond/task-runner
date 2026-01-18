@@ -9,17 +9,21 @@ import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
  * @template TContext The shape of the shared context object.
  */
 export class WorkflowExecutor<TContext> {
+  private readyQueue: TaskStep<TContext>[] = [];
+
   /**
    * @param context The shared context object.
    * @param eventBus The event bus to emit events.
    * @param stateManager Manages execution state.
    * @param strategy Execution strategy.
+   * @param concurrency Maximum number of concurrent tasks.
    */
   constructor(
     private context: TContext,
     private eventBus: EventBus<TContext>,
     private stateManager: TaskStateManager<TContext>,
-    private strategy: IExecutionStrategy<TContext>
+    private strategy: IExecutionStrategy<TContext>,
+    private concurrency?: number
   ) {}
 
   /**
@@ -100,10 +104,28 @@ export class WorkflowExecutor<TContext> {
     executingPromises: Set<Promise<void>>,
     signal?: AbortSignal
   ): void {
-    const toRun = this.stateManager.processDependencies();
+    const newlyReady = this.stateManager.processDependencies();
 
-    // Execute ready tasks
-    for (const step of toRun) {
+    // Add newly ready tasks to the queue
+    for (const task of newlyReady) {
+      // Prevent duplicates in the queue
+      if (!this.readyQueue.some(t => t.name === task.name)) {
+        this.readyQueue.push(task);
+      }
+    }
+
+    // Execute ready tasks while respecting concurrency limit
+    while (this.readyQueue.length > 0) {
+      if (
+        this.concurrency !== undefined &&
+        executingPromises.size >= this.concurrency
+      ) {
+        break;
+      }
+
+      const step = this.readyQueue.shift();
+      if (!step) break;
+
       this.stateManager.markRunning(step);
 
       const taskPromise = this.strategy.execute(step, this.context, signal)
@@ -112,6 +134,8 @@ export class WorkflowExecutor<TContext> {
         })
         .finally(() => {
              executingPromises.delete(taskPromise);
+             // When a task finishes, we try to run more
+             this.processLoop(executingPromises, signal);
         });
 
       executingPromises.add(taskPromise);

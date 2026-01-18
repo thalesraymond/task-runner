@@ -15,4 +15,9 @@ export interface TaskRunnerExecutionConfig {
    * Useful for verifying the execution order and graph structure.
    */
   dryRun?: boolean;
+  /**
+   * The maximum number of tasks to run concurrently.
+   * If undefined, all ready tasks will be run in parallel.
+   */
+  concurrency?: number;
 }
