@@ -1,3 +1,13 @@
+## 3.4.0 (2026-01-18)
+
+* Merge branch 'main' into backlog-maniac/task-graph-validation-error-13695085329883636026 ([82584ff](https://github.com/thalesraymond/task-runner/commit/82584ff))
+* Merge branch 'main' into backlog-maniac/task-graph-validation-error-13695085329883636026 ([a0e6795](https://github.com/thalesraymond/task-runner/commit/a0e6795))
+* Merge branch 'main' into backlog-maniac/task-graph-validation-error-13695085329883636026 ([a92ee6f](https://github.com/thalesraymond/task-runner/commit/a92ee6f))
+* Merge pull request #62 from thalesraymond/backlog-maniac/task-graph-validation-error-136950853298836 ([e19ea32](https://github.com/thalesraymond/task-runner/commit/e19ea32)), closes [#62](https://github.com/thalesraymond/task-runner/issues/62)
+* Update tests/TaskRunner.test.ts ([3158486](https://github.com/thalesraymond/task-runner/commit/3158486))
+* docs: ✏️ archive done spc ([bc4d58b](https://github.com/thalesraymond/task-runner/commit/bc4d58b))
+* feat: throw TaskGraphValidationError on validation failure ([35a4e91](https://github.com/thalesraymond/task-runner/commit/35a4e91))
+
 ## 3.3.0 (2026-01-18)
 
 * Merge branch 'main' into feat/concurrency-control-5339998093271172305 ([9fbb19b](https://github.com/thalesraymond/task-runner/commit/9fbb19b))
