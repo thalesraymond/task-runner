@@ -4,11 +4,11 @@
 The current implementation executes *all* independent tasks in parallel. In large graphs with many independent nodes, this could overwhelm system resources (CPU, memory) or trigger external API rate limits.
 
 ## What Changes
-- Add a concurrency control mechanism to the `TaskRunner`.
-- Add `concurrency: number` to the `TaskRunnerExecutionConfig`.
-- Implement a task queue to hold tasks that are ready but waiting for a free slot.
-- Update `WorkflowExecutor` to respect the concurrency limit.
+- Add `concurrency: number` optional property to `WorkflowExecutor`.
+- Modify `WorkflowExecutor.processLoop` to respect the concurrency limit.
+    - Track the active promise count.
+    - Only start new tasks from the ready queue if `active < concurrency`.
+    - Continue to defer ready tasks until slots open up.
 
 ## Impact
-- Affected specs: `task-runner`
-- Affected code: `src/TaskRunner.ts`, `src/WorkflowExecutor.ts`, `src/TaskRunnerExecutionConfig.ts`
+- **Affected Components**: `WorkflowExecutor`

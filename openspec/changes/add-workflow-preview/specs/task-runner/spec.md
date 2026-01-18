@@ -1,23 +1,21 @@
 ## ADDED Requirements
-### Requirement: Workflow Dry Run
-The `TaskRunner` SHALL support a 'dry run' mode to simulate execution without performing side effects.
 
-#### Scenario: Dry run execution
-- **WHEN** `TaskRunner.execute` is called with `dryRun: true`
-- **THEN** the runner SHALL traverse the dependency graph and determine the execution order
-- **AND** the runner SHALL NOT execute the `run` method of any `TaskStep`.
+### Requirement: Dry Run Execution Strategy
+The system SHALL provide a `DryRunExecutionStrategy` that implements `IExecutionStrategy`.
 
-#### Scenario: Dry run result
-- **WHEN** a dry run completes
-- **THEN** the returned `TaskResult` map SHALL indicate which tasks would have been run (e.g., status 'success' or a specific 'dry-run' status).
+#### Scenario: Simulating execution
+- **WHEN** `WorkflowExecutor` is configured with `DryRunExecutionStrategy`
+- **AND** `execute` is called
+- **THEN** it SHALL traverse the dependency graph respecting order
+- **AND** it SHALL NOT execute the actual work of the `TaskStep`.
+- **AND** it SHALL return `TaskResult`s with a status indicating successful simulation (e.g., `simulated` or `success`).
 
-### Requirement: Graph Visualization
-The system SHALL provide a mechanism to visualize the dependency graph.
+### Requirement: Mermaid Visualization
+The system SHALL provide a utility to generate a Mermaid.js graph from task steps.
 
-#### Scenario: Mermaid.js generation
-- **WHEN** the visualization method is called with a list of `TaskStep`s
-- **THEN** it SHALL return a string representation of the graph in Mermaid.js syntax (flowchart).
-
-#### Scenario: Graph representation
-- **WHEN** generating the graph
-- **THEN** it MUST correctly represent all tasks as nodes and dependencies as directed edges.
+#### Scenario: Generate Mermaid Graph
+- **GIVEN** a list of `TaskStep`s with dependencies
+- **WHEN** `generateMermaidGraph` is called
+- **THEN** it SHALL return a valid Mermaid flowchart syntax string.
+- **AND** dependencies SHALL be represented as arrows (`-->`).
+- **AND** independent tasks SHALL appear as nodes.
