@@ -35,4 +35,12 @@ tests/
 
 
 <!-- MANUAL ADDITIONS START -->
+Before marking a task as concluded, YOU MUST:
+
+1. run pnpm install
+2. run pnpm build
+3. run pnpm test
+4. run pnpm lint
+
+If any of those command fail, review your changes.
 <!-- MANUAL ADDITIONS END -->
