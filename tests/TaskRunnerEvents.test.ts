@@ -19,14 +19,18 @@ describe("TaskRunner Events", () => {
     const runner = new TaskRunner({});
     const events: string[] = [];
 
-    runner.on("workflowStart", () => events.push("workflowStart"));
-    runner.on("taskStart", ({ step }: { step: TaskStep<unknown> }) =>
-      events.push(`taskStart:${step.name}`)
-    );
-    runner.on("taskEnd", ({ step }: { step: TaskStep<unknown> }) =>
-      events.push(`taskEnd:${step.name}`)
-    );
-    runner.on("workflowEnd", () => events.push("workflowEnd"));
+    runner.on("workflowStart", () => {
+      events.push("workflowStart");
+    });
+    runner.on("taskStart", ({ step }: { step: TaskStep<unknown> }) => {
+      events.push(`taskStart:${step.name}`);
+    });
+    runner.on("taskEnd", ({ step }: { step: TaskStep<unknown> }) => {
+      events.push(`taskEnd:${step.name}`);
+    });
+    runner.on("workflowEnd", () => {
+      events.push("workflowEnd");
+    });
 
     await runner.execute(steps);
 
