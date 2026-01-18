@@ -19,6 +19,8 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ## Additional Rules
 - Never edit CHANGELOG.md manually. This file is for semantic release and is filled automatically.
+- Avoid using 'any' type at all costs.
+- Always prefer to add more tests instead of simply bypassing coverage validation with comments.
 
 # task-runner Development Guidelines
 
