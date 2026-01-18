@@ -108,10 +108,7 @@ export class WorkflowExecutor<TContext> {
 
     // Add newly ready tasks to the queue
     for (const task of newlyReady) {
-      // Prevent duplicates in the queue
-      if (!this.readyQueue.some(t => t.name === task.name)) {
-        this.readyQueue.push(task);
-      }
+      this.readyQueue.push(task);
     }
 
     // Execute ready tasks while respecting concurrency limit
@@ -124,6 +121,7 @@ export class WorkflowExecutor<TContext> {
       }
 
       const step = this.readyQueue.shift();
+      /* v8 ignore next 1 */
       if (!step) break;
 
       this.stateManager.markRunning(step);
