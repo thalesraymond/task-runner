@@ -104,33 +104,60 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     }
 
     private detectCycle(
-        taskId: string,
+        startTaskId: string,
         path: string[],
         visited: Set<string>,
         recursionStack: Set<string>,
         adjacencyList: Map<string, string[]>
     ): boolean {
-        visited.add(taskId);
-        recursionStack.add(taskId);
-        path.push(taskId);
+        // Use an explicit stack to avoid maximum call stack size exceeded errors
+        const stack: { taskId: string; index: number; dependencies: string[] }[] = [];
 
-        const dependencies = adjacencyList.get(taskId)!;
-        for (const dependenceId of dependencies) {
-            if (
-                !visited.has(dependenceId) &&
-                this.detectCycle(dependenceId, path, visited, recursionStack, adjacencyList)
-            ) {
-                return true;
-            } else if (recursionStack.has(dependenceId)) {
-                // Cycle detected
-                // Add the dependency to complete the visual cycle
-                path.push(dependenceId);
-                return true;
+        visited.add(startTaskId);
+        recursionStack.add(startTaskId);
+        path.push(startTaskId);
+
+        stack.push({
+            taskId: startTaskId,
+            index: 0,
+            /* v8 ignore next */
+            dependencies: adjacencyList.get(startTaskId) ?? []
+        });
+
+        while (stack.length > 0) {
+            const frame = stack[stack.length - 1];
+            const { taskId, dependencies } = frame;
+
+            if (frame.index < dependencies.length) {
+                const dependenceId = dependencies[frame.index];
+                frame.index++;
+
+                if (recursionStack.has(dependenceId)) {
+                    // Cycle detected
+                    path.push(dependenceId);
+                    return true;
+                }
+
+                if (!visited.has(dependenceId)) {
+                    visited.add(dependenceId);
+                    recursionStack.add(dependenceId);
+                    path.push(dependenceId);
+
+                    stack.push({
+                        taskId: dependenceId,
+                        index: 0,
+                        /* v8 ignore next */
+                        dependencies: adjacencyList.get(dependenceId) ?? []
+                    });
+                }
+            } else {
+                // Finished all dependencies for this node
+                recursionStack.delete(taskId);
+                path.pop();
+                stack.pop();
             }
         }
 
-        recursionStack.delete(taskId);
-        path.pop();
         return false;
     }
 }
