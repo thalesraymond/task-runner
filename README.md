@@ -1,5 +1,10 @@
 # Generic Task Runner
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thalesraymond_task-runner&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thalesraymond_task-runner)
+[![codecov](https://codecov.io/gh/thalesraymond/task-runner/graph/badge.svg)](https://codecov.io/gh/thalesraymond/task-runner)
+[![CI](https://github.com/thalesraymond/task-runner/actions/workflows/ci.yml/badge.svg)](https://github.com/thalesraymond/task-runner/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/@calmo%2Ftask-runner.svg)](https://www.npmjs.com/package/@calmo/task-runner)
+
 A lightweight, type-safe, and domain-agnostic task orchestration engine. It resolves a Directed Acyclic Graph (DAG) of steps, executes independent tasks in parallel, and manages a shared context across the pipeline.
 
 ## Features
