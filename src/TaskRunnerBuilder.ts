@@ -60,7 +60,15 @@ export class TaskRunnerBuilder<TContext> {
     (Object.keys(this.listeners) as Array<keyof RunnerEventPayloads<TContext>>).forEach((event) => {
       const callbacks = this.listeners[event];
       // callbacks is always defined because we are iterating keys of the object
-      callbacks!.forEach((callback) => runner.on(event, callback as any));
+      callbacks!.forEach((callback) =>
+        runner.on(
+          event,
+          callback as unknown as RunnerEventListener<
+            TContext,
+            keyof RunnerEventPayloads<TContext>
+          >
+        )
+      );
     });
 
     return runner;

@@ -68,4 +68,3 @@ The system's integrity SHALL be verified through comprehensive integration scena
 #### Scenario: Context Integrity
 - **WHEN** multiple tasks mutate the shared context
 - **THEN** state changes MUST be propagated correctly to downstream tasks.
-
