@@ -68,3 +68,11 @@ The system's integrity SHALL be verified through comprehensive integration scena
 #### Scenario: Context Integrity
 - **WHEN** multiple tasks mutate the shared context
 - **THEN** state changes MUST be propagated correctly to downstream tasks.
+
+### Requirement: Modular Execution Architecture
+The system SHALL support pluggable execution strategies and decoupled state management.
+
+#### Scenario: Pluggable Strategy
+- **WHEN** configured with a custom execution strategy
+- **THEN** the `TaskRunner` SHALL delegate the execution logic to that strategy.
+
