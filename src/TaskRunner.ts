@@ -186,48 +186,50 @@ export class TaskRunner<TContext> {
     this.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
-    const activePromises = new Set<Promise<void>>();
+    const executingPromises = new Set<Promise<void>>();
     const concurrencyLimit =
       config?.concurrency !== undefined && config.concurrency > 0
         ? config.concurrency
         : Infinity;
 
-    while (results.size < steps.length) {
-      const pendingSteps = steps.filter(
-        (step) => !results.has(step.name) && !this.running.has(step.name)
-      );
-
-      // Skip tasks with failed dependencies
-      let skippedAny = false;
-      for (const step of pendingSteps) {
-        const deps = step.dependencies ?? [];
-        const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
+    // Helper to process pending steps and launch ready ones
+    const processPendingSteps = () => {
+      // 1. Identify and mark skipped tasks
+      // We loop until no more tasks can be skipped in this pass to handle chains of skips
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const pendingSteps = steps.filter(
+          (step) => !results.has(step.name) && !this.running.has(step.name)
         );
-        if (failedDep) {
-          const result: TaskResult = {
-            status: "skipped",
-            message: `Skipped due to failed dependency: ${failedDep}`,
-          };
-          results.set(step.name, result);
-          this.emit("taskSkipped", { step, result });
-          skippedAny = true;
+
+        for (const step of pendingSteps) {
+          const deps = step.dependencies ?? [];
+          const failedDep = deps.find(
+            (dep) => results.has(dep) && results.get(dep)?.status !== "success"
+          );
+          if (failedDep) {
+            const result: TaskResult = {
+              status: "skipped",
+              message: `Skipped due to failed dependency: ${failedDep}`,
+            };
+            results.set(step.name, result);
+            this.emit("taskSkipped", { step, result });
+            changed = true;
+          }
         }
       }
 
-      // If we skipped any, we should re-evaluate pendingSteps immediately to possibly skip downstream
-      if (skippedAny) {
-        continue;
-      }
-
-      const readySteps = pendingSteps.filter((step) => {
+      // 2. Identify ready tasks
+      const readySteps = steps.filter((step) => {
+        if (results.has(step.name) || this.running.has(step.name)) return false;
         const deps = step.dependencies ?? [];
         return deps.every(
           (dep) => results.has(dep) && results.get(dep)?.status === "success"
         );
       });
 
-      // Start tasks up to concurrency limit
+      // 3. Launch ready tasks respecting concurrency
       const freeSlots = concurrencyLimit - this.running.size;
       const tasksToStart = readySteps.slice(0, freeSlots);
 
@@ -235,7 +237,7 @@ export class TaskRunner<TContext> {
         this.running.add(step.name);
         this.emit("taskStart", { step });
 
-        const promise = (async () => {
+        const taskPromise = (async () => {
           try {
             const result = await step.run(this.context);
             results.set(step.name, result);
@@ -251,26 +253,44 @@ export class TaskRunner<TContext> {
           }
         })();
 
-        activePromises.add(promise);
-        // When promise completes, remove from active set
-        promise.then(() => activePromises.delete(promise));
+        // Wrap the task promise to ensure we can track it in the Set
+        const trackedPromise = taskPromise.then(() => {
+          executingPromises.delete(trackedPromise);
+        });
+        executingPromises.add(trackedPromise);
       }
+    };
 
-      // If we are at capacity OR we have no ready tasks but things are running, wait for something to finish
-      if (
-        (this.running.size >= concurrencyLimit || tasksToStart.length === 0) &&
-        activePromises.size > 0
-      ) {
-        await Promise.race(activePromises);
-      } else if (
-        results.size < steps.length &&
-        tasksToStart.length === 0 &&
-        activePromises.size === 0
-      ) {
-        // Deadlock or logic error, though validation should catch deadlocks.
-        // This case might happen if dependencies are not met but not failed (shouldn't happen with correct logic)
-        break;
-      }
+    // Initial check to start independent tasks
+    processPendingSteps();
+
+    // Loop until all tasks are processed (either result set or running)
+    // Note: checking executingPromises.size > 0 is important to wait for running tasks,
+    // but we also need to ensure we don't exit if tasks are pending but not running (though that should mean deadlock or ready tasks waiting for slots?)
+    // If results.size < steps.length, we must have either running tasks OR ready tasks (waiting for slots).
+    // If we have ready tasks but no running tasks and no slots -> impossible unless concurrency is 0 (handled) or negative.
+    // If we have no running tasks and no ready tasks but results.size < steps.length -> deadlock (validated away) or waiting for external event?
+    // The main loop relies on executingPromises to wait.
+
+    while (results.size < steps.length) {
+        if (executingPromises.size === 0) {
+             // If nothing is running and we haven't finished, and we are here,
+             // it means we have no ready tasks (or we would have started them up to concurrency).
+             // Since we validate graph, this implies strictly that we are done?
+             // But results.size < steps.length.
+             // This happens if processPendingSteps() didn't start anything.
+             // Which implies readySteps is empty or freeSlots is 0.
+             // If freeSlots is 0, then executingPromises.size MUST be > 0.
+             // So if executingPromises.size === 0, then freeSlots > 0.
+             // So readySteps must be empty.
+             // If readySteps is empty and we are not done, and nothing running -> Deadlock/Unreachable.
+             break;
+        }
+
+      // Wait for the next task to finish
+      await Promise.race(executingPromises);
+      // After a task finishes, check for new work
+      processPendingSteps();
     }
 
     this.emit("workflowEnd", { context: this.context, results });
