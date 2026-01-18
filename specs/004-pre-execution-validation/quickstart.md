@@ -27,7 +27,7 @@ export class TaskRunner {
      * @returns A promise that resolves when the graph execution is complete.
      * @throws An error if the task graph is invalid.
      */
-    async run(graph: TaskGraph): Promise<any> {
+    async run(graph: TaskGraph): Promise<void> {
         // Perform validation before starting execution
         const validationResult: ValidationResult = this.validator.validate(graph);
 
