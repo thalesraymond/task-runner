@@ -24,14 +24,16 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(executionOrder).toEqual(["A", "B"]);
   });
 
   it("should handle an empty list of tasks gracefully", async () => {
     const runner = new TaskRunner({});
-    const results = await runner.execute([]);
+    runner.load([]);
+    const results = await runner.execute();
     expect(results.size).toBe(0);
   });
 
@@ -56,7 +58,8 @@ describe("TaskRunner", () => {
 
     const runner = new TaskRunner({});
     const startTime = Date.now();
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
     const endTime = Date.now();
 
     expect(endTime - startTime).toBeLessThan(200);
@@ -76,7 +79,8 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     expect(results.get("A")?.status).toBe("failure");
     expect(results.get("B")?.status).toBe("skipped");
@@ -112,9 +116,9 @@ describe("TaskRunner", () => {
       expectedError:
         "Circular dependency or missing dependency detected. Unable to run tasks: A",
     },
-  ])("should throw an error for $name", async ({ steps, expectedError }) => {
+  ])("should throw an error for $name", ({ steps, expectedError }) => {
     const runner = new TaskRunner({});
-    await expect(runner.execute(steps as TaskStep<unknown>[])).rejects.toThrow(
+    expect(() => runner.load(steps as TaskStep<unknown>[])).toThrow(
       expectedError
     );
   });
@@ -130,7 +134,8 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     expect(results.get("A")?.status).toBe("failure");
     expect(results.get("A")?.error).toBe("This task failed spectacularly");
@@ -152,7 +157,8 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     expect(results.get("A")?.status).toBe("failure");
     expect(results.get("B")?.status).toBe("skipped");
@@ -170,13 +176,14 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     expect(results.get("A")?.status).toBe("failure");
     expect(results.get("A")?.error).toBe("Some string error");
   });
 
-  it("should handle duplicate steps where one gets skipped due to failed dependency", async () => {
+  it("should handle duplicate steps where one gets skipped due to failed dependency", () => {
     const steps: TaskStep<unknown>[] = [
       {
         name: "A",
@@ -196,8 +203,15 @@ describe("TaskRunner", () => {
 
     const runner = new TaskRunner({});
 
-    await expect(runner.execute(steps)).rejects.toThrow(
+    expect(() => runner.load(steps)).toThrow(
       /Circular dependency or missing dependency detected/
+    );
+  });
+
+  it("should throw an error if execute is called before load", async () => {
+    const runner = new TaskRunner({});
+    await expect(runner.execute()).rejects.toThrow(
+      "Steps not loaded. Please call load() before execute()."
     );
   });
 });

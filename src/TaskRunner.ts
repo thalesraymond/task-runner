@@ -54,6 +54,7 @@ export class TaskRunner<TContext> {
   private running = new Set<string>();
   private listeners: ListenerMap<TContext> = {};
   private validator = new TaskGraphValidator();
+  private steps: TaskStep<TContext>[] | null = null;
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -124,13 +125,11 @@ export class TaskRunner<TContext> {
   }
 
   /**
-   * Executes a list of tasks, respecting their dependencies and running
-   * independent tasks in parallel.
+   * Validates and loads the workflow steps into the runner.
+   * This must be called before `execute`.
    * @param steps An array of TaskStep objects to be executed.
-   * @returns A Promise that resolves to a Map where keys are task names
-   * and values are the corresponding TaskResult objects.
    */
-  async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+  public load(steps: TaskStep<TContext>[]): void {
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
@@ -172,18 +171,34 @@ export class TaskRunner<TContext> {
       // Legacy error format: "Circular dependency or missing dependency detected. Unable to run tasks: A, B"
       const taskList = Array.from(affectedTasks).join(", ");
       const legacyMessage = `Circular dependency or missing dependency detected. Unable to run tasks: ${taskList}`;
-      const detailedMessage = `Task graph validation failed: ${errorDetails.join("; ")}`;
+      const detailedMessage = `Task graph validation failed: ${errorDetails.join(
+        "; "
+      )}`;
 
       // Combine them to satisfy both legacy tests (checking for legacy message) and new requirements (clear details)
       throw new Error(`${legacyMessage} | ${detailedMessage}`);
     }
 
-    this.emit("workflowStart", { context: this.context, steps });
+    this.steps = steps;
+  }
+
+  /**
+   * Executes a list of tasks, respecting their dependencies and running
+   * independent tasks in parallel.
+   * @returns A Promise that resolves to a Map where keys are task names
+   * and values are the corresponding TaskResult objects.
+   */
+  async execute(): Promise<Map<string, TaskResult>> {
+    if (!this.steps) {
+      throw new Error("Steps not loaded. Please call load() before execute().");
+    }
+
+    this.emit("workflowStart", { context: this.context, steps: this.steps });
 
     const results = new Map<string, TaskResult>();
 
-    while (results.size < steps.length) {
-      const pendingSteps = steps.filter(
+    while (results.size < this.steps.length) {
+      const pendingSteps = this.steps.filter(
         (step) => !results.has(step.name) && !this.running.has(step.name)
       );
 
