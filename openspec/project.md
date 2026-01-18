@@ -23,6 +23,7 @@ The project follows a modular architecture with distinct components for managing
 -   **Commit Messages:** Follows conventional commits enforced by Commitlint.
 -   **Git Hooks:** Utilizes Husky for pre-commit and commit-msg hooks.
 -   **Testing:** Uses Vitest for unit and integration testing.
+-   **Atomic Commits:** When working on complex multi-task features, commit after each distinct task, ensuring build, lint, and test success to establish safe rollback points.
 
 ## Build/Test/Run Commands
 -   **Install Dependencies:** `pnpm install`
