@@ -1,3 +1,9 @@
+## <small>3.4.1 (2026-01-18)</small>
+
+* Merge pull request #65 from thalesraymond/perf/async-event-listeners-3002139613350975332 ([77edbc7](https://github.com/thalesraymond/task-runner/commit/77edbc7)), closes [#65](https://github.com/thalesraymond/task-runner/issues/65)
+* perf: Make event listeners async to prevent blocking ([1f8728f](https://github.com/thalesraymond/task-runner/commit/1f8728f))
+* perf: Make event listeners async to prevent blocking ([a52f8d0](https://github.com/thalesraymond/task-runner/commit/a52f8d0))
+
 ## 3.4.0 (2026-01-18)
 
 - Merge branch 'main' into backlog-maniac/task-graph-validation-error-13695085329883636026 ([82584ff](https://github.com/thalesraymond/task-runner/commit/82584ff))
