@@ -40,6 +40,8 @@ export class WorkflowExecutor<TContext> {
     }
 
     const executingPromises = new Set<Promise<void>>();
+    const pendingSteps = new Set(steps);
+
     const onAbort = () => {
       // Mark all non-started, non-completed tasks as cancelled
       this.cancelAllPending(steps, results, "Workflow cancelled.");
@@ -51,7 +53,7 @@ export class WorkflowExecutor<TContext> {
 
     try {
       // Initial pass
-      this.processQueue(steps, results, executingPromises, signal);
+      this.processQueue(pendingSteps, results, executingPromises, signal);
 
       while (results.size < steps.length && executingPromises.size > 0) {
 
@@ -65,7 +67,7 @@ export class WorkflowExecutor<TContext> {
            this.cancelAllPending(steps, results, "Workflow cancelled.");
         } else {
            // After a task finishes, check for new work
-           this.processQueue(steps, results, executingPromises, signal);
+           this.processQueue(pendingSteps, results, executingPromises, signal);
         }
       }
 
@@ -83,38 +85,32 @@ export class WorkflowExecutor<TContext> {
 
   /**
    * Logic to identify tasks that can be started or must be skipped.
+   * Iterate only over pending steps to avoid O(N^2) checks on completed tasks.
    */
   private processQueue(
-    steps: TaskStep<TContext>[],
+    pendingSteps: Set<TaskStep<TContext>>,
     results: Map<string, TaskResult>,
     executingPromises: Set<Promise<void>>,
     signal?: AbortSignal
   ): void {
-    this.handleSkippedTasks(steps, results);
-
-    const readySteps = this.getReadySteps(steps, results);
-
-    for (const step of readySteps) {
-      const taskPromise = this.runStep(step, results, signal).then(() => {
-        executingPromises.delete(taskPromise);
-      });
-      executingPromises.add(taskPromise);
-    }
-  }
-
-  /**
-   * Identifies steps that cannot run because a dependency failed.
-   */
-  private handleSkippedTasks(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): void {
-    const pendingSteps = steps.filter(
-      (step) => !results.has(step.name) && !this.running.has(step.name)
-    );
+    const toRemove: TaskStep<TContext>[] = [];
+    const toRun: TaskStep<TContext>[] = [];
 
     for (const step of pendingSteps) {
       const deps = step.dependencies ?? [];
-      const failedDep = deps.find(
-        (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-      );
+      let blocked = false;
+      let failedDep: string | undefined;
+
+      for (const dep of deps) {
+        const depResult = results.get(dep);
+        if (!depResult) {
+          // Dependency not finished yet
+          blocked = true;
+        } else if (depResult.status !== "success") {
+          failedDep = dep;
+          break;
+        }
+      }
 
       if (failedDep) {
         const result: TaskResult = {
@@ -123,22 +119,25 @@ export class WorkflowExecutor<TContext> {
         };
         results.set(step.name, result);
         this.eventBus.emit("taskSkipped", { step, result });
+        toRemove.push(step);
+      } else if (!blocked) {
+        toRun.push(step);
+        toRemove.push(step);
       }
     }
-  }
 
-  /**
-   * Returns steps where all dependencies have finished successfully.
-   */
-  private getReadySteps(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): TaskStep<TContext>[] {
-    return steps.filter((step) => {
-      if (results.has(step.name) || this.running.has(step.name)) return false;
+    // Cleanup pending set
+    for (const step of toRemove) {
+      pendingSteps.delete(step);
+    }
 
-      const deps = step.dependencies ?? [];
-      return deps.every(
-        (dep) => results.has(dep) && results.get(dep)?.status === "success"
-      );
-    });
+    // Execute ready tasks
+    for (const step of toRun) {
+      const taskPromise = this.runStep(step, results, signal).then(() => {
+        executingPromises.delete(taskPromise);
+      });
+      executingPromises.add(taskPromise);
+    }
   }
 
   /**
@@ -190,13 +189,6 @@ export class WorkflowExecutor<TContext> {
           message,
         };
         results.set(step.name, result);
-        // We emit taskSkipped for cancellation as well? Or just leave it?
-        // The spec says "unexecuted TaskSteps SHALL be marked with a 'cancelled' status".
-        // It doesn't explicitly require an event, but consistency is good.
-        // However, 'taskSkipped' implies dependency failure in current logic.
-        // Let's create a result but maybe not emit 'taskSkipped' unless we want to track it.
-        // Given existing events, there isn't a 'taskCancelled' event.
-        // We will just set the result.
       }
     }
   }
