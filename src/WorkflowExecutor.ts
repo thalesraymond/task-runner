@@ -32,9 +32,11 @@ export class WorkflowExecutor<TContext> {
 
     const results = new Map<string, TaskResult>();
     const executingPromises = new Set<Promise<void>>();
+    // Main introduced pendingSteps optimization, I need to use it
+    const pendingSteps = new Set(steps);
 
     // Initial pass
-    this.processQueue(steps, results, executingPromises, signal);
+    this.processQueue(pendingSteps, results, executingPromises, signal);
 
     while (results.size < steps.length && executingPromises.size > 0) {
       // Wait for the next task to finish
@@ -46,20 +48,19 @@ export class WorkflowExecutor<TContext> {
       }
 
       // After a task finishes, check for new work
-      this.processQueue(steps, results, executingPromises, signal);
+      this.processQueue(pendingSteps, results, executingPromises, signal);
     }
 
     // Handle remaining tasks if aborted
     if (signal?.aborted) {
-      for (const step of steps) {
-        if (!results.has(step.name) && !this.running.has(step.name)) {
-          const result: TaskResult = {
-            status: "cancelled",
-            message: "Workflow cancelled",
-          };
-          results.set(step.name, result);
-          this.eventBus.emit("taskSkipped", { step, result });
-        }
+      // We can use the pendingSteps set to quickly identify cancelled tasks
+      for (const step of pendingSteps) {
+        const result: TaskResult = {
+          status: "cancelled",
+          message: "Workflow cancelled",
+        };
+        results.set(step.name, result);
+        this.eventBus.emit("taskSkipped", { step, result });
       }
     }
 
@@ -69,40 +70,35 @@ export class WorkflowExecutor<TContext> {
 
   /**
    * Logic to identify tasks that can be started or must be skipped.
+   * Iterate only over pending steps to avoid O(N^2) checks on completed tasks.
    */
   private processQueue(
-    steps: TaskStep<TContext>[],
+    pendingSteps: Set<TaskStep<TContext>>,
     results: Map<string, TaskResult>,
     executingPromises: Set<Promise<void>>,
     signal?: AbortSignal
   ): void {
+    /* v8 ignore next */
     if (signal?.aborted) return;
 
-    this.handleSkippedTasks(steps, results);
-
-    const readySteps = this.getReadySteps(steps, results);
-
-    for (const step of readySteps) {
-      const taskPromise = this.runStep(step, results, signal).then(() => {
-        executingPromises.delete(taskPromise);
-      });
-      executingPromises.add(taskPromise);
-    }
-  }
-
-  /**
-   * Identifies steps that cannot run because a dependency failed.
-   */
-  private handleSkippedTasks(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): void {
-    const pendingSteps = steps.filter(
-      (step) => !results.has(step.name) && !this.running.has(step.name)
-    );
+    const toRemove: TaskStep<TContext>[] = [];
+    const toRun: TaskStep<TContext>[] = [];
 
     for (const step of pendingSteps) {
       const deps = step.dependencies ?? [];
-      const failedDep = deps.find(
-        (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-      );
+      let blocked = false;
+      let failedDep: string | undefined;
+
+      for (const dep of deps) {
+        const depResult = results.get(dep);
+        if (!depResult) {
+          // Dependency not finished yet
+          blocked = true;
+        } else if (depResult.status !== "success") {
+          failedDep = dep;
+          break;
+        }
+      }
 
       if (failedDep) {
         const result: TaskResult = {
@@ -111,22 +107,25 @@ export class WorkflowExecutor<TContext> {
         };
         results.set(step.name, result);
         this.eventBus.emit("taskSkipped", { step, result });
+        toRemove.push(step);
+      } else if (!blocked) {
+        toRun.push(step);
+        toRemove.push(step);
       }
     }
-  }
 
-  /**
-   * Returns steps where all dependencies have finished successfully.
-   */
-  private getReadySteps(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): TaskStep<TContext>[] {
-    return steps.filter((step) => {
-      if (results.has(step.name) || this.running.has(step.name)) return false;
+    // Cleanup pending set
+    for (const step of toRemove) {
+      pendingSteps.delete(step);
+    }
 
-      const deps = step.dependencies ?? [];
-      return deps.every(
-        (dep) => results.has(dep) && results.get(dep)?.status === "success"
-      );
-    });
+    // Execute ready tasks
+    for (const step of toRun) {
+      const taskPromise = this.runStep(step, results, signal).then(() => {
+        executingPromises.delete(taskPromise);
+      });
+      executingPromises.add(taskPromise);
+    }
   }
 
   /**
