@@ -8,9 +8,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      thresholds: {
-        lines: 100,
-      },
+      lines: 100,
     },
   },
 });

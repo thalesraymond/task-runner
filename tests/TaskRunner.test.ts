@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { TaskRunner } from "../src/TaskRunner.js";
-import { TaskStep } from "../src/TaskStep.js";
+import { TaskRunner } from "../src/TaskRunner";
+import { TaskStep } from "../src/TaskStep";
 
 describe("TaskRunner", () => {
   it("should run tasks in the correct sequential order", async () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { TaskRunner } from "../src/TaskRunner";
-import { TaskStep } from "../src/TaskStep";
+import { TaskRunner } from "../src/TaskRunner.js";
+import { TaskStep } from "../src/TaskStep.js";
 
 describe("TaskRunner Events", () => {
   it("should fire all lifecycle events in a successful run", async () => {
@@ -20,8 +20,12 @@ describe("TaskRunner Events", () => {
     const events: string[] = [];
 
     runner.on("workflowStart", () => events.push("workflowStart"));
-    runner.on("taskStart", ({ step }) => events.push(`taskStart:${step.name}`));
-    runner.on("taskEnd", ({ step }) => events.push(`taskEnd:${step.name}`));
+    runner.on("taskStart", ({ step }: { step: TaskStep<unknown> }) =>
+      events.push(`taskStart:${step.name}`)
+    );
+    runner.on("taskEnd", ({ step }: { step: TaskStep<unknown> }) =>
+      events.push(`taskEnd:${step.name}`)
+    );
     runner.on("workflowEnd", () => events.push("workflowEnd"));
 
     await runner.execute(steps);
@@ -76,7 +80,9 @@ describe("TaskRunner Events", () => {
     ];
 
     const runner = new TaskRunner({});
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(
+      () => {}
+    );
 
     runner.on("taskStart", () => {
       throw new Error("Listener crash");
