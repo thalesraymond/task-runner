@@ -41,7 +41,7 @@ export class TaskRunner {
         // If validation passes, proceed with the actual task execution logic
         console.log("Task graph is valid. Proceeding with execution...");
         // ... actual task execution logic for the graph ...
-        return Promise.resolve("Graph executed successfully."); // Placeholder
+        return Promise.resolve(); // Placeholder
     }
 }
 ```
