@@ -122,7 +122,7 @@ describe("TaskRunner Cancellation", () => {
     // Let's force B to wait.
   });
 
-    it("should correctly mark pending tasks as cancelled even if some are running", async () => {
+  it("should correctly mark pending tasks as cancelled even if some are running", async () => {
     const controller = new AbortController();
 
     const steps: TaskStep<unknown>[] = [
@@ -153,5 +153,47 @@ describe("TaskRunner Cancellation", () => {
     expect(results.get("A")?.status).toBe("success");
     // B should never start
     expect(results.get("B")?.status).toBe("cancelled");
+  });
+
+  it("should wait for in-flight tasks to finish and record their results when aborted", async () => {
+    const controller = new AbortController();
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        run: async () => {
+            await new Promise(r => setTimeout(r, 50));
+            return { status: "success" };
+        },
+      },
+      {
+        name: "B",
+        run: async () => {
+            await new Promise(r => setTimeout(r, 50));
+            return { status: "failure", error: "failed" };
+        },
+      },
+      {
+        name: "C",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      }
+    ];
+
+    const runner = new TaskRunner({});
+    const executionPromise = runner.execute(steps, { signal: controller.signal });
+
+    // Abort while A and B are running
+    setTimeout(() => {
+       controller.abort();
+    }, 10);
+
+    const results = await executionPromise;
+
+    // A and B were in-flight, they should complete
+    expect(results.get("A")?.status).toBe("success");
+    expect(results.get("B")?.status).toBe("failure");
+
+    // C was pending, should be cancelled
+    expect(results.get("C")?.status).toBe("cancelled");
   });
 });

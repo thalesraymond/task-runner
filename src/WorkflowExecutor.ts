@@ -53,14 +53,19 @@ export class WorkflowExecutor<TContext> {
 
     // Handle remaining tasks if aborted
     if (signal?.aborted) {
-      // We can use the pendingSteps set to quickly identify cancelled tasks
-      for (const step of pendingSteps) {
-        const result: TaskResult = {
-          status: "cancelled",
-          message: "Workflow cancelled",
-        };
-        results.set(step.name, result);
-        this.eventBus.emit("taskSkipped", { step, result });
+      // Wait for any in-flight tasks to settle so they can write their results
+      await Promise.allSettled(executingPromises);
+
+      // Mark any remaining steps as cancelled
+      for (const step of steps) {
+        if (!results.has(step.name)) {
+          const result: TaskResult = {
+            status: "cancelled",
+            message: "Workflow cancelled",
+          };
+          results.set(step.name, result);
+          this.eventBus.emit("taskSkipped", { step, result });
+        }
       }
     }
 
