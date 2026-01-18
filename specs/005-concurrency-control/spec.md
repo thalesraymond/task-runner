@@ -48,11 +48,12 @@ As a developer, I want the `TaskRunner` to intelligently queue tasks that are re
 
 -   **FR-001**: The `TaskRunner`'s `execute` (or `runAll`) method's configuration object (`TaskRunnerConfig`) MUST accept an optional `concurrency` property of type `number`.
 -   **FR-002**: When `concurrency` is specified and is a positive number, the `TaskRunner` MUST ensure that no more than `concurrency` tasks are in an 'in-progress' state simultaneously.
--   **FR-003**: When `concurrency` is not specified, or is set to a value that signifies unlimited (e.g., `Infinity` or `0` if 0 is defined as such), the `TaskRunner` MUST execute all independent tasks in parallel (default behavior).
+-   **FR-003**: When `concurrency` is not specified or is set to `Infinity`, the `TaskRunner` MUST execute all independent tasks in parallel (default behavior, unlimited concurrency).
 -   **FR-004**: Tasks whose dependencies are met but cannot start due to `concurrency` limits MUST be held in an internal queue.
 -   **FR-005**: Upon completion or cancellation of a running task, a slot must be freed, and if the queue is not empty, a task from the queue must be moved to an 'in-progress' state.
 -   **FR-006**: The concurrency control mechanism MUST be compatible with the existing cancellation (`AbortSignal`, `timeout`) and dependency management features.
 -   **FR-007**: A `concurrency` value of `0` MUST be interpreted as unlimited concurrency.
+-   **FR-008**: A `concurrency` value less than `0` (negative) MUST be treated as an invalid configuration, leading to an error or defaulting to unlimited concurrency. (Decision to be made during implementation or further refinement).
 
 ### Key Entities _(include if feature involves data)_
 
