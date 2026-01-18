@@ -135,6 +135,7 @@ describe("TaskGraphValidator", () => {
         // "A" depends on "B", but "B" is not in adjacency list
         adjacencyList.set("A", ["B"]);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = (validator as any).detectCycle("A", visited, recursionStack, adjacencyList);
 
         expect(result).toBeNull();
