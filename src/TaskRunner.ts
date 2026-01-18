@@ -62,9 +62,14 @@ export class TaskRunner<TContext> {
     callback: RunnerEventListener<TContext, K>
   ): void {
     if (!this.listeners[event]) {
-      this.listeners[event] = new Set();
+      // Type assertion needed because TypeScript cannot verify that the generic K
+      // matches the specific key in the mapped type during assignment.
+      this.listeners[event] = new Set() as any;
     }
-    this.listeners[event]!.add(callback);
+    // Type assertion needed to tell TS that this specific Set matches the callback type
+    (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).add(
+      callback
+    );
   }
 
   /**
@@ -77,7 +82,9 @@ export class TaskRunner<TContext> {
     callback: RunnerEventListener<TContext, K>
   ): void {
     if (this.listeners[event]) {
-      this.listeners[event]!.delete(callback);
+      (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).delete(
+        callback
+      );
     }
   }
 
@@ -90,7 +97,9 @@ export class TaskRunner<TContext> {
     event: K,
     data: RunnerEventPayloads<TContext>[K]
   ): void {
-    const listeners = this.listeners[event];
+    const listeners = this.listeners[event] as
+      | Set<RunnerEventListener<TContext, K>>
+      | undefined;
     if (listeners) {
       for (const listener of listeners) {
         try {
