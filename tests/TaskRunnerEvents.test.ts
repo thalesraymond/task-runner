@@ -1,8 +1,18 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TaskRunner } from "../src/TaskRunner.js";
 import { TaskStep } from "../src/TaskStep.js";
 
 describe("TaskRunner Events", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("should fire all lifecycle events in a successful run", async () => {
     const steps: TaskStep<unknown>[] = [
       {
@@ -84,9 +94,6 @@ describe("TaskRunner Events", () => {
     ];
 
     const runner = new TaskRunner({});
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(
-      () => {}
-    );
 
     runner.on("taskStart", () => {
       throw new Error("Listener crash");
@@ -97,11 +104,10 @@ describe("TaskRunner Events", () => {
     await runner.execute(steps);
 
     expect(onTaskEnd).toHaveBeenCalled(); // Should still run other listeners/logic
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(console.error).toHaveBeenCalledWith(
       expect.stringContaining("Error in event listener"),
       expect.any(Error)
     );
-    consoleErrorSpy.mockRestore();
   });
 
   it("should fire workflow events even for empty step list", async () => {
