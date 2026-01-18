@@ -1,3 +1,24 @@
+## 2.0.0 (2026-01-18)
+
+* Merge branch 'main' into sentinel/fix-graph-recursion-dos-11616274981510947884 ([b2c204d](https://github.com/thalesraymond/task-runner/commit/b2c204d))
+* Merge branch 'main' into sentinel/fix-graph-recursion-dos-11616274981510947884 ([66535d5](https://github.com/thalesraymond/task-runner/commit/66535d5))
+* Merge pull request #45 from thalesraymond/sentinel/fix-graph-recursion-dos-11616274981510947884 ([a0d8cd5](https://github.com/thalesraymond/task-runner/commit/a0d8cd5)), closes [#45](https://github.com/thalesraymond/task-runner/issues/45)
+* Merge pull request #47 from thalesraymond/test/mock-console-events-8565619574251561488 ([6133778](https://github.com/thalesraymond/task-runner/commit/6133778)), closes [#47](https://github.com/thalesraymond/task-runner/issues/47)
+* Merge pull request #48 from thalesraymond/update-agent-instructions-changelog-9387934573679748509 ([a07d0c3](https://github.com/thalesraymond/task-runner/commit/a07d0c3)), closes [#48](https://github.com/thalesraymond/task-runner/issues/48)
+* Update src/TaskGraphValidator.ts ([85a71c7](https://github.com/thalesraymond/task-runner/commit/85a71c7))
+* fix(security): replace recursive cycle detection with iterative DFS ([2d2e395](https://github.com/thalesraymond/task-runner/commit/2d2e395))
+* fix(security): replace recursive cycle detection with iterative DFS ([1e2d7ca](https://github.com/thalesraymond/task-runner/commit/1e2d7ca))
+* fix(security): replace recursive cycle detection with iterative DFS ([292947f](https://github.com/thalesraymond/task-runner/commit/292947f))
+* chore: update agent instructions with CHANGELOG rule ([8db6a2b](https://github.com/thalesraymond/task-runner/commit/8db6a2b))
+* test: mock console implementations in TaskRunnerEvents tests ([47deacb](https://github.com/thalesraymond/task-runner/commit/47deacb))
+
+
+### BREAKING CHANGE
+
+* none
+* none
+* none
+
 ## <small>1.2.2 (2026-01-18)</small>
 
 * Merge pull request #38 from thalesraymond/refactor-task-runner-7434390989639993181 ([e315cbd](https://github.com/thalesraymond/task-runner/commit/e315cbd)), closes [#38](https://github.com/thalesraymond/task-runner/issues/38)
