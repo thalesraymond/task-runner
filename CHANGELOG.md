@@ -1,3 +1,19 @@
+## 3.3.0 (2026-01-18)
+
+* Merge branch 'main' into feat/concurrency-control-5339998093271172305 ([9fbb19b](https://github.com/thalesraymond/task-runner/commit/9fbb19b))
+* Merge branch 'main' into feat/concurrency-control-5339998093271172305 ([5ee9c84](https://github.com/thalesraymond/task-runner/commit/5ee9c84))
+* Merge pull request #63 from thalesraymond/feat/concurrency-control-5339998093271172305 ([ef64606](https://github.com/thalesraymond/task-runner/commit/ef64606)), closes [#63](https://github.com/thalesraymond/task-runner/issues/63)
+* Merge pull request #64 from thalesraymond/docs-atomic-commit-rule-3016253336492289921 ([d078c81](https://github.com/thalesraymond/task-runner/commit/d078c81)), closes [#64](https://github.com/thalesraymond/task-runner/issues/64)
+* docs: ✏️ archive retry feature since its implemented ([5980511](https://github.com/thalesraymond/task-runner/commit/5980511))
+* docs: add atomic commit rule for complex features ([5557ff9](https://github.com/thalesraymond/task-runner/commit/5557ff9))
+* docs: restore accidentally deleted guidelines ([41114fa](https://github.com/thalesraymond/task-runner/commit/41114fa))
+* feat: add concurrency control to TaskRunner ([90c2b6f](https://github.com/thalesraymond/task-runner/commit/90c2b6f))
+* feat: add concurrency control to TaskRunner ([2a8dfd2](https://github.com/thalesraymond/task-runner/commit/2a8dfd2))
+* chore: 🤖 AI agents new rules ([f6aac8d](https://github.com/thalesraymond/task-runner/commit/f6aac8d))
+* chore: 🤖 explict coverage rule for AGENTS.md ([80f7d87](https://github.com/thalesraymond/task-runner/commit/80f7d87))
+* fix: remove unreachable code and verify single execution in concurrency logic ([7255cee](https://github.com/thalesraymond/task-runner/commit/7255cee))
+* fix: resolve linting errors and verify concurrency control ([9ed2585](https://github.com/thalesraymond/task-runner/commit/9ed2585))
+
 ## 3.2.0 (2026-01-18)
 
 * Merge branch 'main' into feat/add-task-retry-policy-16535599339542244277 ([3f4f855](https://github.com/thalesraymond/task-runner/commit/3f4f855))
