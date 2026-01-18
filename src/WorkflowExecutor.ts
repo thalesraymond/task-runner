@@ -19,7 +19,8 @@ export class WorkflowExecutor<TContext> {
     private context: TContext,
     private eventBus: EventBus<TContext>,
     private stateManager: TaskStateManager<TContext>,
-    private strategy: IExecutionStrategy<TContext>
+    private strategy: IExecutionStrategy<TContext>,
+    private options?: { dryRun?: boolean }
   ) {}
 
   /**
@@ -106,12 +107,23 @@ export class WorkflowExecutor<TContext> {
     for (const step of toRun) {
       this.stateManager.markRunning(step);
 
-      const taskPromise = this.strategy.execute(step, this.context, signal)
+      let executionPromise: Promise<TaskResult>;
+
+      if (this.options?.dryRun) {
+        executionPromise = Promise.resolve().then(() => ({
+          status: "success",
+          message: "Simulated success (dry run)",
+        }));
+      } else {
+        executionPromise = this.strategy.execute(step, this.context, signal);
+      }
+
+      const taskPromise = executionPromise
         .then((result) => {
-            this.stateManager.markCompleted(step, result);
+          this.stateManager.markCompleted(step, result);
         })
         .finally(() => {
-             executingPromises.delete(taskPromise);
+          executingPromises.delete(taskPromise);
         });
 
       executingPromises.add(taskPromise);

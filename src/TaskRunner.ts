@@ -94,7 +94,8 @@ export class TaskRunner<TContext> {
       this.context,
       this.eventBus,
       stateManager,
-      this.executionStrategy
+      this.executionStrategy,
+      { dryRun: config?.dryRun }
     );
 
     // We need to handle the timeout cleanup properly.
@@ -134,5 +135,41 @@ export class TaskRunner<TContext> {
     } else {
        return executor.execute(steps, config?.signal);
     }
+  }
+
+  /**
+   * Generates a Mermaid.js graph definition representing the task dependencies.
+   * @param steps The list of tasks to visualize.
+   * @returns A string containing the Mermaid graph definition (graph TD).
+   */
+  static getMermaidGraph(steps: TaskStep<unknown>[]): string {
+    const lines = ["graph TD"];
+
+    // Helper to sanitize names if needed, though simple replacement is often enough.
+    // For mermaid, we can use the exact name if it doesn't contain special chars,
+    // or we can just use the name as ID if it is simple.
+    // Let's assume names are safe or wrap them in quotes if they contain spaces.
+    const escape = (name: string) => {
+      if (/^[a-zA-Z0-9_]+$/.test(name)) return name;
+      return `"${name}"`;
+    };
+
+    for (const step of steps) {
+      const nodeId = escape(step.name);
+      // If a node has no dependencies, we still want to show it.
+      // But if it's used in edges, it will show up.
+      // We list all nodes to ensure isolated nodes appear.
+      lines.push(`  ${nodeId}`);
+
+      if (step.dependencies) {
+        for (const dep of step.dependencies) {
+          const depId = escape(dep);
+          lines.push(`  ${depId} --> ${nodeId}`);
+        }
+      }
+    }
+
+    // Deduplicate lines (though logic above might produce duplicates for nodes)
+    return Array.from(new Set(lines)).join("\n");
   }
 }

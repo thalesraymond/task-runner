@@ -10,4 +10,8 @@ export interface TaskRunnerExecutionConfig {
    * A timeout in milliseconds for the entire workflow.
    */
   timeout?: number;
+  /**
+   * If true, tasks will be simulated (success) without running side effects.
+   */
+  dryRun?: boolean;
 }
