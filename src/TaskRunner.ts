@@ -7,6 +7,7 @@ import { EventBus } from "./EventBus.js";
 import { WorkflowExecutor } from "./WorkflowExecutor.js";
 import { TaskRunnerExecutionConfig } from "./TaskRunnerExecutionConfig.js";
 import { TaskStateManager } from "./TaskStateManager.js";
+import { TaskGraphValidationError } from "./TaskGraphValidationError.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
 import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
@@ -138,7 +139,10 @@ export class TaskRunner<TContext> {
 
     const validationResult = this.validator.validate(taskGraph);
     if (!validationResult.isValid) {
-      throw new Error(this.validator.createErrorMessage(validationResult));
+      throw new TaskGraphValidationError(
+        validationResult,
+        this.validator.createErrorMessage(validationResult)
+      );
     }
 
     const stateManager = new TaskStateManager(this.eventBus);

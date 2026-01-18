@@ -1,6 +1,7 @@
 export { TaskRunner } from "./TaskRunner.js";
 export { TaskRunnerBuilder } from "./TaskRunnerBuilder.js";
 export { TaskStateManager } from "./TaskStateManager.js";
+export { TaskGraphValidationError } from "./TaskGraphValidationError.js";
 export { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
 export { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
 export type { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";

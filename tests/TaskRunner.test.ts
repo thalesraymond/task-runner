@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TaskRunner } from "../src/TaskRunner.js";
 import { TaskStep } from "../src/TaskStep.js";
+import { TaskGraphValidationError } from "../src/TaskGraphValidationError.js";
 
 describe("TaskRunner", () => {
   it("should run tasks in the correct sequential order", async () => {
@@ -199,5 +200,31 @@ describe("TaskRunner", () => {
     await expect(runner.execute(steps)).rejects.toThrow(
       /Task graph validation failed: Duplicate task detected/
     );
+  });
+
+  it("should throw TaskGraphValidationError with detailed result", async () => {
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        dependencies: ["B"],
+        run: async () => ({ status: "success" }),
+      },
+    ];
+
+    const runner = new TaskRunner({});
+    expect.assertions(4);
+    try {
+      await runner.execute(steps);
+    } catch (error) {
+      expect(error).toBeInstanceOf(TaskGraphValidationError);
+      if (error instanceof TaskGraphValidationError) {
+        expect(error.result.isValid).toBe(false);
+        expect(error.result.errors[0].type).toBe("missing_dependency");
+        expect(error.result.errors[0].details).toEqual({
+          taskId: "A",
+          missingDependencyId: "B",
+        });
+      }
+    }
   });
 });
