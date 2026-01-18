@@ -1,5 +1,10 @@
 # Generic Task Runner
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thalesraymond_task-runner&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thalesraymond_task-runner)
+[![codecov](https://codecov.io/gh/thalesraymond/task-runner/graph/badge.svg)](https://codecov.io/gh/thalesraymond/task-runner)
+[![CI](https://github.com/thalesraymond/task-runner/actions/workflows/ci.yml/badge.svg)](https://github.com/thalesraymond/task-runner/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/@calmo%2Ftask-runner.svg)](https://www.npmjs.com/package/@calmo/task-runner)
+
 A lightweight, type-safe, and domain-agnostic task orchestration engine. It resolves a Directed Acyclic Graph (DAG) of steps, executes independent tasks in parallel, and manages a shared context across the pipeline.
 
 ## Features
@@ -9,6 +14,22 @@ A lightweight, type-safe, and domain-agnostic task orchestration engine. It reso
 - **Parallel Execution**: Automatically identifies and runs independent steps concurrently.
 - **Dependency Management**: Enforces execution order based on dependencies.
 - **Error Handling & Skipping**: robustly handles failures and automatically skips dependent steps.
+- **Event System**: Subscribe to lifecycle events (`workflowStart`, `taskStart`, `taskEnd`, etc.) for logging or monitoring.
+- **Runtime Validation**: Automatically detects circular dependencies and missing dependencies before execution loops.
+
+## Event System
+
+The `TaskRunner` implements an Observer Pattern, allowing you to subscribe to various lifecycle events.
+
+```typescript
+runner.on("taskStart", ({ step }) => {
+  console.log(`Starting step: ${step.name}`);
+});
+
+runner.on("taskEnd", ({ step, result }) => {
+  console.log(`Step ${step.name} finished with status: ${result.status}`);
+});
+```
 
 ## Usage Example
 
@@ -76,6 +97,10 @@ async function main() {
 
 main();
 ```
+
+## Skip Propagation
+
+If a task fails or is skipped, the `TaskRunner` automatically marks all subsequent tasks that depend on it as `skipped`. This ensures that your pipeline doesn't attempt to run steps with missing prerequisites, saving resources and preventing cascading errors.
 
 ## Context Hydration
 
