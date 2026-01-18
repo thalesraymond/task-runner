@@ -56,7 +56,6 @@ type ListenerMap<TContext> = {
  * @template TContext The shape of the shared context object.
  */
 export class TaskRunner<TContext> {
-  private running = new Set<string>();
   private listeners: ListenerMap<TContext> = {};
   private validator = new TaskGraphValidator();
 
@@ -233,9 +232,7 @@ export class TaskRunner<TContext> {
 
     try {
         while (results.size < steps.length) {
-          const pendingSteps = steps.filter(
-            (step) => !results.has(step.name) && !this.running.has(step.name)
-          );
+          const pendingSteps = steps.filter((step) => !results.has(step.name));
 
           // Skip tasks with failed dependencies
           for (const step of pendingSteps) {
@@ -256,7 +253,7 @@ export class TaskRunner<TContext> {
           // Check for cancellation
           if (internalController.signal.aborted) {
             const uncompletedSteps = steps.filter(
-              (step) => !results.has(step.name) && !this.running.has(step.name)
+              (step) => !results.has(step.name)
             );
             for (const step of uncompletedSteps) {
               const result: TaskResult = {
@@ -282,7 +279,6 @@ export class TaskRunner<TContext> {
 
           await Promise.all(
             readySteps.map(async (step) => {
-              this.running.add(step.name);
               this.emit("taskStart", { step });
               try {
                 const result = await step.run(this.context, internalController.signal);
@@ -293,7 +289,6 @@ export class TaskRunner<TContext> {
                   error: e instanceof Error ? e.message : String(e),
                 });
               } finally {
-                this.running.delete(step.name);
                 const result = results.get(step.name)!;
                 this.emit("taskEnd", { step, result });
               }
