@@ -29,77 +29,98 @@ export class WorkflowExecutor<TContext> {
     const results = new Map<string, TaskResult>();
     const executingPromises = new Set<Promise<void>>();
 
-    // Helper to process pending steps and launch ready ones
-    const processPendingSteps = () => {
-      const pendingSteps = steps.filter(
-        (step) => !results.has(step.name) && !this.running.has(step.name)
-      );
-
-      // 1. Identify and mark skipped tasks
-      for (const step of pendingSteps) {
-        const deps = step.dependencies ?? [];
-        const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-        );
-        if (failedDep) {
-          const result: TaskResult = {
-            status: "skipped",
-            message: `Skipped due to failed dependency: ${failedDep}`,
-          };
-          results.set(step.name, result);
-          this.eventBus.emit("taskSkipped", { step, result });
-        }
-      }
-
-      // Re-filter pending steps as some might have been skipped above
-      const readySteps = steps.filter((step) => {
-        if (results.has(step.name) || this.running.has(step.name)) return false;
-        const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
-
-      // 2. Launch ready tasks
-      for (const step of readySteps) {
-        this.running.add(step.name);
-        this.eventBus.emit("taskStart", { step });
-
-        const taskPromise = (async () => {
-          try {
-            const result = await step.run(this.context);
-            results.set(step.name, result);
-          } catch (e) {
-            results.set(step.name, {
-              status: "failure",
-              error: e instanceof Error ? e.message : String(e),
-            });
-          } finally {
-            this.running.delete(step.name);
-            const result = results.get(step.name)!;
-            this.eventBus.emit("taskEnd", { step, result });
-          }
-        })();
-
-        // Wrap the task promise to ensure we can track it in the Set
-        const trackedPromise = taskPromise.then(() => {
-          executingPromises.delete(trackedPromise);
-        });
-        executingPromises.add(trackedPromise);
-      }
-    };
-
-    // Initial check to start independent tasks
-    processPendingSteps();
+    // Initial pass
+    this.processQueue(steps, results, executingPromises);
 
     while (results.size < steps.length && executingPromises.size > 0) {
       // Wait for the next task to finish
       await Promise.race(executingPromises);
       // After a task finishes, check for new work
-      processPendingSteps();
+      this.processQueue(steps, results, executingPromises);
     }
 
     this.eventBus.emit("workflowEnd", { context: this.context, results });
     return results;
+  }
+
+  /**
+   * Logic to identify tasks that can be started or must be skipped.
+   */
+  private processQueue(
+    steps: TaskStep<TContext>[],
+    results: Map<string, TaskResult>,
+    executingPromises: Set<Promise<void>>
+  ): void {
+    this.handleSkippedTasks(steps, results);
+
+    const readySteps = this.getReadySteps(steps, results);
+
+    for (const step of readySteps) {
+      const taskPromise = this.runStep(step, results).then(() => {
+        executingPromises.delete(taskPromise);
+      });
+      executingPromises.add(taskPromise);
+    }
+  }
+
+  /**
+   * Identifies steps that cannot run because a dependency failed.
+   */
+  private handleSkippedTasks(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): void {
+    const pendingSteps = steps.filter(
+      (step) => !results.has(step.name) && !this.running.has(step.name)
+    );
+
+    for (const step of pendingSteps) {
+      const deps = step.dependencies ?? [];
+      const failedDep = deps.find(
+        (dep) => results.has(dep) && results.get(dep)?.status !== "success"
+      );
+
+      if (failedDep) {
+        const result: TaskResult = {
+          status: "skipped",
+          message: `Skipped due to failed dependency: ${failedDep}`,
+        };
+        results.set(step.name, result);
+        this.eventBus.emit("taskSkipped", { step, result });
+      }
+    }
+  }
+
+  /**
+   * Returns steps where all dependencies have finished successfully.
+   */
+  private getReadySteps(steps: TaskStep<TContext>[], results: Map<string, TaskResult>): TaskStep<TContext>[] {
+    return steps.filter((step) => {
+      if (results.has(step.name) || this.running.has(step.name)) return false;
+
+      const deps = step.dependencies ?? [];
+      return deps.every(
+        (dep) => results.has(dep) && results.get(dep)?.status === "success"
+      );
+    });
+  }
+
+  /**
+   * Handles the lifecycle of a single task execution.
+   */
+  private async runStep(step: TaskStep<TContext>, results: Map<string, TaskResult>): Promise<void> {
+    this.running.add(step.name);
+    this.eventBus.emit("taskStart", { step });
+
+    try {
+      const result = await step.run(this.context);
+      results.set(step.name, result);
+    } catch (e) {
+      results.set(step.name, {
+        status: "failure",
+        error: e instanceof Error ? e.message : String(e),
+      });
+    } finally {
+      this.running.delete(step.name);
+      const result = results.get(step.name)!;
+      this.eventBus.emit("taskEnd", { step, result });
+    }
   }
 }
