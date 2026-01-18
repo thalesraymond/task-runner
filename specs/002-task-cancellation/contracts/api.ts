@@ -89,9 +89,5 @@ export interface TaskRunner<TContext extends Record<string, any> = Record<string
    */
   runAll(initialContext?: TContext, config?: TaskRunnerConfig): Promise<TaskStepResult[]>;
 
-  /**
-   * A generic shared context object for tasks.
-   * @template TContext The type of the context.
-   */
-  context: TContext;
+
 }

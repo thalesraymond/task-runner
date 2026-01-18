@@ -55,7 +55,7 @@ As a developer, I want to set a global timeout for the entire `TaskRunner` workf
 -   **FR-005**: The configuration object MUST support a `timeout` property (in milliseconds) for a global workflow timeout.
 -   **FR-006**: When the global `timeout` is reached, the `TaskRunner` MUST cease execution of pending tasks.
 -   **FR-007**: When the global `timeout` is reached, any currently executing task MUST receive a cancellation signal (e.g., via `AbortSignal` or similar mechanism) to allow for graceful interruption.
--   **FR-008**: All tasks that are not executed due to `AbortSignal` or `timeout` MUST be marked with a 'cancelled' or 'skipped' status. (Using 'skipped' for consistency with existing failure handling).
+-   **FR-008**: All tasks that are not executed due to `AbortSignal` or `timeout` MUST be marked with a 'cancelled' status. Tasks skipped due to dependency failures should retain the 'skipped' status.
 -   **FR-009**: If both `AbortSignal` and `timeout` are provided, the first event (abort or timeout) to occur MUST trigger the cancellation.
 
 ### Key Entities _(include if feature involves data)_
@@ -71,5 +71,5 @@ As a developer, I want to set a global timeout for the entire `TaskRunner` workf
 
 -   **SC-001**: A `TaskRunner` workflow with a 5-second long-running task, when cancelled via `AbortSignal` after 1 second, MUST terminate within 100ms of the signal being triggered.
 -   **SC-002**: A `TaskRunner` workflow with tasks totaling 10 seconds of execution, when configured with a 3-second global timeout, MUST terminate within 200ms of the timeout duration being reached.
--   **SC-003**: After cancellation (either by `AbortSignal` or `timeout`), all unstarted tasks in the workflow MUST have a 'skipped' status in the final `TaskStepResult` array.
+-   **SC-003**: After cancellation (either by `AbortSignal` or `timeout`), all unstarted tasks in the workflow MUST have a 'cancelled' status in the final `TaskStepResult` array.
 -   **SC-004**: The integration of cancellation mechanisms MUST NOT introduce more than 5% overhead to the execution time of a successfully completing workflow (without cancellation).
