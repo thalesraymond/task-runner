@@ -3,7 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2026-01-17
 
 ## Active Technologies
-- TypeScript 5.9.3 + vitest (for testing) (004-pre-execution-validation)
+- TypeScript 5.9.3 + vitest 4.0.17 (for testing) (004-pre-execution-validation)
 
 - TypeScript 5.9.3 + vitest 4.0.17 (003-refactor-file-structure)
 
