@@ -131,7 +131,8 @@ describe("Complex Scenario Integration Tests", () => {
     });
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     // Assertions
     expect(results.get("StepA")?.status).toBe("success");
@@ -191,7 +192,8 @@ describe("Complex Scenario Integration Tests", () => {
     });
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
-    const results = await runner.execute(steps);
+    runner.load(steps);
+    const results = await runner.execute();
 
     // Assertions
     expect(results.get("StepA")?.status).toBe("failure");

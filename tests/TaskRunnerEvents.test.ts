@@ -32,7 +32,8 @@ describe("TaskRunner Events", () => {
       events.push("workflowEnd");
     });
 
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(events).toContain("workflowStart");
     expect(events).toContain("taskStart:A");
@@ -64,7 +65,8 @@ describe("TaskRunner Events", () => {
 
     runner.on("taskSkipped", onSkipped);
 
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(onSkipped).toHaveBeenCalledTimes(1);
     expect(onSkipped).toHaveBeenCalledWith(
@@ -94,7 +96,8 @@ describe("TaskRunner Events", () => {
     const onTaskEnd = vi.fn();
     runner.on("taskEnd", onTaskEnd);
 
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(onTaskEnd).toHaveBeenCalled(); // Should still run other listeners/logic
     expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -112,7 +115,8 @@ describe("TaskRunner Events", () => {
     runner.on("workflowStart", onStart);
     runner.on("workflowEnd", onEnd);
 
-    await runner.execute([]);
+    runner.load([]);
+    await runner.execute();
 
     expect(onStart).toHaveBeenCalled();
     expect(onEnd).toHaveBeenCalled();
@@ -128,7 +132,8 @@ describe("TaskRunner Events", () => {
     runner.on("taskStart", onStart);
     runner.off("taskStart", onStart);
 
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(onStart).not.toHaveBeenCalled();
   });
@@ -152,7 +157,8 @@ describe("TaskRunner Events", () => {
     runner.on("taskStart", listenerOne);
     runner.on("taskStart", listenerTwo);
 
-    await runner.execute(steps);
+    runner.load(steps);
+    await runner.execute();
 
     expect(listenerOne).toHaveBeenCalled();
     expect(listenerTwo).toHaveBeenCalled();

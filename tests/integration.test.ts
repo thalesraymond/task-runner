@@ -10,25 +10,25 @@ describe("TaskRunner Validation Integration", () => {
         ];
         const runner = new TaskRunner({});
 
-        await expect(runner.execute(steps)).rejects.toThrow(/Task graph validation failed: Duplicate task detected with ID: A/);
+        expect(() => runner.load(steps)).toThrow(/Task graph validation failed: Duplicate task detected with ID: A/);
     });
 
-    it("should throw validation error with clear message for missing dependencies", async () => {
+    it("should throw validation error with clear message for missing dependencies", () => {
         const steps: TaskStep<unknown>[] = [
             { name: "A", dependencies: ["B"], run: async () => ({ status: "success" }) }
         ];
         const runner = new TaskRunner({});
 
-        await expect(runner.execute(steps)).rejects.toThrow(/Task graph validation failed: Task 'A' depends on missing task 'B'/);
+        expect(() => runner.load(steps)).toThrow(/Task graph validation failed: Task 'A' depends on missing task 'B'/);
     });
 
-    it("should throw validation error with clear message for cycles", async () => {
+    it("should throw validation error with clear message for cycles", () => {
         const steps: TaskStep<unknown>[] = [
             { name: "A", dependencies: ["B"], run: async () => ({ status: "success" }) },
             { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) }
         ];
         const runner = new TaskRunner({});
 
-        await expect(runner.execute(steps)).rejects.toThrow(/Task graph validation failed: Cycle detected: A -> B -> A/);
+        expect(() => runner.load(steps)).toThrow(/Task graph validation failed: Cycle detected: A -> B -> A/);
     });
 });
