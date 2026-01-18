@@ -1,0 +1,17 @@
+## Implementation
+- [x] 1.1 Setup `tests/integration-tests/` directory and test runner config if needed.
+- [x] 1.2 Implement Scenario 1: Basic linear workflow (A -> B -> C) success.
+- [x] 1.3 Implement Scenario 2: Branching workflow (A -> [B, C] -> D) success.
+- [x] 1.4 Implement Scenario 3: Task failure and downstream skipping (A -> B(fail) -> C(skip)).
+- [x] 1.5 Implement Scenario 4: Shared context mutation (A writes, B reads).
+- [x] 1.6 Implement Scenario 5: Large graph execution (e.g., 20+ nodes).
+- [x] 1.7 Implement Scenario 6: Mixed duration tasks (verifying parallel efficiency).
+- [x] 1.8 Implement Scenario 7: Cancellation via AbortSignal in mid-execution.
+- [x] 1.9 Implement Scenario 8: Global timeout interrupting long tasks.
+- [x] 1.10 Implement Scenario 9: Dynamic context validation (tasks validating context state).
+- [x] 1.11 Implement Scenario 10: Circular dependency detection (at runtime validation).
+- [x] 1.12 Implement Scenario 11: Missing dependency handling.
+- [x] 1.13 Implement Scenario 12: Complex "Diamond" dependency graph.
+- [x] 1.14 Implement Scenario 13: Tasks with side-effects (e.g., file I/O or simulated network).
+- [x] 1.15 Implement Scenario 14: Zero-dependency parallel burst (all run at once).
+- [x] 1.16 Verification: Ensure all integration tests pass consistently.
