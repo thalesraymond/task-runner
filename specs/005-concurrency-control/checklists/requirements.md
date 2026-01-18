@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-01-17
-**Feature**: /home/thales/projects/task-runner/specs/005-concurrency-control/spec.md
+**Feature**: specs/005-concurrency-control/spec.md
 
 ## Content Quality
 
