@@ -151,6 +151,7 @@ export class TaskRunner<TContext> {
       stateManager,
       strategy,
       config?.concurrency
+      strategy
     );
 
     // We need to handle the timeout cleanup properly.
