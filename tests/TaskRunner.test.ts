@@ -98,7 +98,7 @@ describe("TaskRunner", () => {
         },
       ],
       expectedError:
-        "Circular dependency or missing dependency detected. Unable to run tasks: A, B",
+        /Task graph validation failed: Cycle detected: A -> B -> A/,
     },
     {
       name: "missing dependency",
@@ -110,7 +110,7 @@ describe("TaskRunner", () => {
         },
       ],
       expectedError:
-        "Circular dependency or missing dependency detected. Unable to run tasks: A",
+        /Task graph validation failed: Task 'A' depends on missing task 'B'/,
     },
   ])("should throw an error for $name", async ({ steps, expectedError }) => {
     const runner = new TaskRunner({});
@@ -197,7 +197,7 @@ describe("TaskRunner", () => {
     const runner = new TaskRunner({});
 
     await expect(runner.execute(steps)).rejects.toThrow(
-      /Circular dependency or missing dependency detected/
+      /Task graph validation failed: Duplicate task detected/
     );
   });
 });

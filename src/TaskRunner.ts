@@ -65,41 +65,7 @@ export class TaskRunner<TContext> {
 
     const validationResult = this.validator.validate(taskGraph);
     if (!validationResult.isValid) {
-      // Construct error message compatible with legacy tests
-      const affectedTasks = new Set<string>();
-      const errorDetails: string[] = [];
-
-      for (const error of validationResult.errors) {
-        errorDetails.push(error.message);
-        switch (error.type) {
-          case "cycle": {
-            // details is { cyclePath: string[] }
-            const path = (error.details as { cyclePath: string[] }).cyclePath;
-            // The last element duplicates the first in the path representation, so valid unique tasks are slice(0, -1) or just all as Set handles uniq
-            path.forEach((t) => affectedTasks.add(t));
-            break;
-          }
-          case "missing_dependency": {
-            // details is { taskId: string, missingDependencyId: string }
-            const d = error.details as { taskId: string };
-            affectedTasks.add(d.taskId);
-            break;
-          }
-          case "duplicate_task": {
-            const d = error.details as { taskId: string };
-            affectedTasks.add(d.taskId);
-            break;
-          }
-        }
-      }
-
-      // Legacy error format: "Circular dependency or missing dependency detected. Unable to run tasks: A, B"
-      const taskList = Array.from(affectedTasks).join(", ");
-      const legacyMessage = `Circular dependency or missing dependency detected. Unable to run tasks: ${taskList}`;
-      const detailedMessage = `Task graph validation failed: ${errorDetails.join("; ")}`;
-
-      // Combine them to satisfy both legacy tests (checking for legacy message) and new requirements (clear details)
-      throw new Error(`${legacyMessage} | ${detailedMessage}`);
+      throw new Error(this.validator.createErrorMessage(validationResult));
     }
 
     const executor = new WorkflowExecutor(this.context, this.eventBus);
