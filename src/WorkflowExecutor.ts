@@ -15,11 +15,21 @@ export class WorkflowExecutor<TContext> {
    * @param stateManager Manages execution state.
    * @param strategy Execution strategy.
    */
+  private readyQueue: TaskStep<TContext>[] = [];
+
+  /**
+   * @param context The shared context object.
+   * @param eventBus The event bus to emit events.
+   * @param stateManager Manages execution state.
+   * @param strategy Execution strategy.
+   * @param concurrency Maximum number of concurrent tasks.
+   */
   constructor(
     private context: TContext,
     private eventBus: EventBus<TContext>,
     private stateManager: TaskStateManager<TContext>,
-    private strategy: IExecutionStrategy<TContext>
+    private strategy: IExecutionStrategy<TContext>,
+    private concurrency?: number
   ) {}
 
   /**
@@ -60,7 +70,8 @@ export class WorkflowExecutor<TContext> {
 
       while (
         this.stateManager.hasPendingTasks() ||
-        this.stateManager.hasRunningTasks()
+        this.stateManager.hasRunningTasks() ||
+        this.readyQueue.length > 0
       ) {
         // Safety check: if no tasks are running and we still have pending tasks,
         // it means we are stuck (e.g. cycle or unhandled dependency).
@@ -100,18 +111,33 @@ export class WorkflowExecutor<TContext> {
     executingPromises: Set<Promise<void>>,
     signal?: AbortSignal
   ): void {
-    const toRun = this.stateManager.processDependencies();
+    const newReady = this.stateManager.processDependencies();
+    // Filter out tasks that are already in the queue to avoid duplicates
+    for (const task of newReady) {
+      if (!this.readyQueue.includes(task)) {
+        this.readyQueue.push(task);
+      }
+    }
 
-    // Execute ready tasks
-    for (const step of toRun) {
+    // Execute ready tasks respecting concurrency limit
+    while (
+      this.readyQueue.length > 0 &&
+      (this.concurrency === undefined ||
+        executingPromises.size < this.concurrency)
+    ) {
+      const step = this.readyQueue.shift();
+      /* v8 ignore next 1 */
+      if (!step) break;
+
       this.stateManager.markRunning(step);
 
-      const taskPromise = this.strategy.execute(step, this.context, signal)
+      const taskPromise = this.strategy
+        .execute(step, this.context, signal)
         .then((result) => {
-            this.stateManager.markCompleted(step, result);
+          this.stateManager.markCompleted(step, result);
         })
         .finally(() => {
-             executingPromises.delete(taskPromise);
+          executingPromises.delete(taskPromise);
         });
 
       executingPromises.add(taskPromise);
