@@ -79,56 +79,78 @@ describe("Complex Scenario Integration Tests", () => {
     const runner = new TaskRunner(context);
 
     // Step A: Hydrates StepAContext
-    const StepA = createStep<BaseContext & Partial<StepAContext>>("StepA", undefined, (ctx) => {
-      console.log("Running StepA");
-      ctx.stepAData = "dataA";
-    });
-
-    // Step B: Hydrates StepBContext
-    const StepB = createStep<BaseContext & Partial<StepBContext>>("StepB", undefined, (ctx) => {
-      console.log("Running StepB");
-      ctx.stepBData = "dataB";
-    });
-
-    // Step C: Hydrates StepCContext
-    const StepC = createStep<BaseContext & Partial<StepCContext>>("StepC", undefined, (ctx) => {
-      console.log("Running StepC");
-      ctx.stepCData = "dataC";
-    });
-
-    // Step D: Depends on A, requires StepAContext, hydrates StepDContext
-    const StepD = createStep<StepAContext & Partial<StepDContext>>("StepD", ["StepA"], (ctx) => {
-      console.log("Running StepD");
-      if (!ctx.stepAData) throw new Error("Missing stepAData");
-      ctx.stepDData = "dataD";
-    });
-
-    // Step E: Depends on A, B, D. Requires their contexts. Hydrates StepEContext
-    const StepE = createStep<StepAContext & StepBContext & StepDContext & Partial<StepEContext>>(
-      "StepE",
-      ["StepA", "StepB", "StepD"],
+    const StepA = createStep<BaseContext & Partial<StepAContext>>(
+      "StepA",
+      undefined,
       (ctx) => {
-        console.log("Running StepE");
-        if (!ctx.stepAData) throw new Error("Missing stepAData");
-        if (!ctx.stepBData) throw new Error("Missing stepBData");
-        if (!ctx.stepDData) throw new Error("Missing stepDData");
-        ctx.stepEData = "dataE";
+        console.log("Running StepA");
+        ctx.stepAData = "dataA";
       }
     );
 
-    // Step F: Depends on C, requires StepCContext, hydrates StepFContext
-    const StepF = createStep<StepCContext & Partial<StepFContext>>("StepF", ["StepC"], (ctx) => {
-      console.log("Running StepF");
-      if (!ctx.stepCData) throw new Error("Missing stepCData");
-      ctx.stepFData = "dataF";
+    // Step B: Hydrates StepBContext
+    const StepB = createStep<BaseContext & Partial<StepBContext>>(
+      "StepB",
+      undefined,
+      (ctx) => {
+        console.log("Running StepB");
+        ctx.stepBData = "dataB";
+      }
+    );
+
+    // Step C: Hydrates StepCContext
+    const StepC = createStep<BaseContext & Partial<StepCContext>>(
+      "StepC",
+      undefined,
+      (ctx) => {
+        console.log("Running StepC");
+        ctx.stepCData = "dataC";
+      }
+    );
+
+    // Step D: Depends on A, requires StepAContext, hydrates StepDContext
+    const StepD = createStep<StepAContext & Partial<StepDContext>>(
+      "StepD",
+      ["StepA"],
+      (ctx) => {
+        console.log("Running StepD");
+        if (!ctx.stepAData) throw new Error("Missing stepAData");
+        ctx.stepDData = "dataD";
+      }
+    );
+
+    // Step E: Depends on A, B, D. Requires their contexts. Hydrates StepEContext
+    const StepE = createStep<
+      StepAContext & StepBContext & StepDContext & Partial<StepEContext>
+    >("StepE", ["StepA", "StepB", "StepD"], (ctx) => {
+      console.log("Running StepE");
+      if (!ctx.stepAData) throw new Error("Missing stepAData");
+      if (!ctx.stepBData) throw new Error("Missing stepBData");
+      if (!ctx.stepDData) throw new Error("Missing stepDData");
+      ctx.stepEData = "dataE";
     });
 
+    // Step F: Depends on C, requires StepCContext, hydrates StepFContext
+    const StepF = createStep<StepCContext & Partial<StepFContext>>(
+      "StepF",
+      ["StepC"],
+      (ctx) => {
+        console.log("Running StepF");
+        if (!ctx.stepCData) throw new Error("Missing stepCData");
+        ctx.stepFData = "dataF";
+      }
+    );
+
     // Step G: Depends on F, requires StepFContext, hydrates StepGContext
-    const StepG = createStep<StepFContext & Partial<StepGContext>>("StepG", ["StepF"], (ctx) => {
-      console.log("Running StepG");
-      if (!ctx.stepFData) throw new Error("Missing stepFData");
-      ctx.stepGData = "dataG";
-    });
+    const StepG = createStep<StepFContext & Partial<StepGContext>>(
+      "StepG",
+      ["StepF"],
+      (ctx) => {
+        console.log("Running StepG");
+        if (!ctx.stepFData) throw new Error("Missing stepFData");
+        ctx.stepGData = "dataG";
+      }
+    );
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
     const results = await runner.execute(steps);
@@ -159,36 +181,60 @@ describe("Complex Scenario Integration Tests", () => {
     const runner = new TaskRunner(context);
 
     // StepA will fail
-    const StepA = createStep<BaseContext & Partial<StepAContext>>("StepA", undefined, (ctx) => {
-      ctx.stepAData = "dataA";
-    }, true);
-
-    const StepB = createStep<BaseContext & Partial<StepBContext>>("StepB", undefined, (ctx) => {
-      ctx.stepBData = "dataB";
-    });
-
-    const StepC = createStep<BaseContext & Partial<StepCContext>>("StepC", undefined, (ctx) => {
-      ctx.stepCData = "dataC";
-    });
-
-    const StepD = createStep<StepAContext & Partial<StepDContext>>("StepD", ["StepA"], (ctx) => {
-      ctx.stepDData = "dataD";
-    });
-
-    const StepE = createStep<StepAContext & StepBContext & StepDContext & Partial<StepEContext>>(
-      "StepE",
-      ["StepA", "StepB", "StepD"],
+    const StepA = createStep<BaseContext & Partial<StepAContext>>(
+      "StepA",
+      undefined,
       (ctx) => {
+        ctx.stepAData = "dataA";
+      },
+      true
+    );
+
+    const StepB = createStep<BaseContext & Partial<StepBContext>>(
+      "StepB",
+      undefined,
+      (ctx) => {
+        ctx.stepBData = "dataB";
+      }
+    );
+
+    const StepC = createStep<BaseContext & Partial<StepCContext>>(
+      "StepC",
+      undefined,
+      (ctx) => {
+        ctx.stepCData = "dataC";
+      }
+    );
+
+    const StepD = createStep<StepAContext & Partial<StepDContext>>(
+      "StepD",
+      ["StepA"],
+      (ctx) => {
+        ctx.stepDData = "dataD";
+      }
+    );
+
+    const StepE = createStep<
+      StepAContext & StepBContext & StepDContext & Partial<StepEContext>
+    >("StepE", ["StepA", "StepB", "StepD"], (ctx) => {
       ctx.stepEData = "dataE";
     });
 
-    const StepF = createStep<StepCContext & Partial<StepFContext>>("StepF", ["StepC"], (ctx) => {
-      ctx.stepFData = "dataF";
-    });
+    const StepF = createStep<StepCContext & Partial<StepFContext>>(
+      "StepF",
+      ["StepC"],
+      (ctx) => {
+        ctx.stepFData = "dataF";
+      }
+    );
 
-    const StepG = createStep<StepFContext & Partial<StepGContext>>("StepG", ["StepF"], (ctx) => {
-      ctx.stepGData = "dataG";
-    });
+    const StepG = createStep<StepFContext & Partial<StepGContext>>(
+      "StepG",
+      ["StepF"],
+      (ctx) => {
+        ctx.stepGData = "dataG";
+      }
+    );
 
     const steps = [StepA, StepB, StepC, StepD, StepE, StepF, StepG];
     const results = await runner.execute(steps);

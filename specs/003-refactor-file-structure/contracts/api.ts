@@ -8,9 +8,9 @@
  */
 
 // Core class for running tasks
-export { TaskRunner } from '../src/TaskRunner';
+export { TaskRunner } from "../src/TaskRunner";
 
 // Key interfaces and types for defining tasks and interpreting results
-export type { TaskStep } from '../src/TaskStep';
-export type { TaskResult } from '../src/TaskResult';
-export type { TaskStatus } from '../src/TaskStatus';
+export type { TaskStep } from "../src/TaskStep";
+export type { TaskResult } from "../src/TaskResult";
+export type { TaskStatus } from "../src/TaskStatus";

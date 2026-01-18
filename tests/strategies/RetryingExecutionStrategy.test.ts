@@ -44,7 +44,8 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should retry task if it fails and has retry config (fixed backoff)", async () => {
-    const runMock = vi.fn()
+    const runMock = vi
+      .fn()
       .mockResolvedValueOnce({ status: "failure", error: "fail 1" })
       .mockResolvedValueOnce({ status: "success" });
 
@@ -75,7 +76,9 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should fail after max attempts reached", async () => {
-    const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
+    const runMock = vi
+      .fn()
+      .mockResolvedValue({ status: "failure", error: "fail" });
 
     const task: TaskStep<unknown> = {
       name: "task1",
@@ -108,7 +111,9 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should use exponential backoff", async () => {
-    const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
+    const runMock = vi
+      .fn()
+      .mockResolvedValue({ status: "failure", error: "fail" });
 
     const task: TaskStep<unknown> = {
       name: "task1",
@@ -143,7 +148,9 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should handle cancellation during delay", async () => {
-    const runMock = vi.fn().mockResolvedValue({ status: "failure", error: "fail" });
+    const runMock = vi
+      .fn()
+      .mockResolvedValue({ status: "failure", error: "fail" });
     const task: TaskStep<unknown> = {
       name: "task1",
       retry: {
@@ -186,17 +193,22 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should propagate error if sleep throws non-abort error", async () => {
-     // This test is theoretical as sleep currently only throws AbortError or standard errors if setTimeout fails (unlikely)
-     // But we want to ensure try/catch block coverage if we modify sleep
-     const mockStrategy = {
-         execute: vi.fn().mockResolvedValue({ status: "failure" })
-     };
-     const strategy = new RetryingExecutionStrategy(mockStrategy as unknown as IExecutionStrategy<unknown>);
+    // This test is theoretical as sleep currently only throws AbortError or standard errors if setTimeout fails (unlikely)
+    // But we want to ensure try/catch block coverage if we modify sleep
+    const mockStrategy = {
+      execute: vi.fn().mockResolvedValue({ status: "failure" }),
+    };
+    const strategy = new RetryingExecutionStrategy(
+      mockStrategy as unknown as IExecutionStrategy<unknown>
+    );
 
-     // Mocking sleep to throw
-     vi.spyOn(strategy as unknown as { sleep: () => Promise<void> }, "sleep").mockRejectedValue(new Error("Random error"));
+    // Mocking sleep to throw
+    vi.spyOn(
+      strategy as unknown as { sleep: () => Promise<void> },
+      "sleep"
+    ).mockRejectedValue(new Error("Random error"));
 
-     const task: TaskStep<unknown> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: { attempts: 1, delay: 100 },
       run: vi.fn(),
@@ -217,9 +229,9 @@ describe("RetryingExecutionStrategy", () => {
     // 5. Sleep sees cancellation immediately.
 
     const runMock = vi.fn().mockImplementation(async () => {
-        // Abort while task is "running"
-        controller.abort();
-        return { status: "failure", error: "fail" };
+      // Abort while task is "running"
+      controller.abort();
+      return { status: "failure", error: "fail" };
     });
 
     const task: TaskStep<unknown> = {

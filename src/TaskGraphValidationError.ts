@@ -5,7 +5,10 @@ import { ValidationResult } from "./contracts/ValidationResult.js";
  * Contains the validation result with detailed error information.
  */
 export class TaskGraphValidationError extends Error {
-  constructor(public result: ValidationResult, message: string) {
+  constructor(
+    public result: ValidationResult,
+    message: string
+  ) {
     super(message);
     this.name = "TaskGraphValidationError";
   }

@@ -1,4 +1,5 @@
 ## Implementation
+
 - [x] 1.1 Create `TaskRetryConfig` interface with `attempts`, `delay`, and `backoff`.
 - [x] 1.2 Update `TaskStep` interface to include optional `retry: TaskRetryConfig`.
 - [x] 1.3 Update execution logic to catch task failures.

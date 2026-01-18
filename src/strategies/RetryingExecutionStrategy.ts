@@ -5,7 +5,9 @@ import { TaskResult } from "../TaskResult.js";
 /**
  * Execution strategy that retries tasks upon failure based on their retry configuration.
  */
-export class RetryingExecutionStrategy<TContext> implements IExecutionStrategy<TContext> {
+export class RetryingExecutionStrategy<
+  TContext,
+> implements IExecutionStrategy<TContext> {
   constructor(private innerStrategy: IExecutionStrategy<TContext>) {}
 
   async execute(
@@ -30,7 +32,11 @@ export class RetryingExecutionStrategy<TContext> implements IExecutionStrategy<T
 
       const result = await this.innerStrategy.execute(step, context, signal);
 
-      if (result.status === "success" || result.status === "cancelled" || result.status === "skipped") {
+      if (
+        result.status === "success" ||
+        result.status === "cancelled" ||
+        result.status === "skipped"
+      ) {
         return result;
       }
 
@@ -51,13 +57,13 @@ export class RetryingExecutionStrategy<TContext> implements IExecutionStrategy<T
       try {
         await this.sleep(delay, signal);
       } catch (e) {
-      if (signal?.aborted) {
-        return {
-          status: "cancelled",
-          message: "Task cancelled during retry delay",
-        };
-      }
-      throw e;
+        if (signal?.aborted) {
+          return {
+            status: "cancelled",
+            message: "Task cancelled during retry delay",
+          };
+        }
+        throw e;
       }
     }
   }

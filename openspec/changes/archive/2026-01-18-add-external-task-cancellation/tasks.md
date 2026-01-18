@@ -1,4 +1,5 @@
 ## Implementation
+
 - [x] 1.1 Update `TaskRunner.execute` signature to accept an optional config object.
 - [x] 1.2 Implement logic within `TaskRunner` to listen for `AbortSignal` and initiate cancellation.
 - [x] 1.3 Implement global timeout mechanism using `AbortController` and `setTimeout`.

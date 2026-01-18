@@ -61,23 +61,25 @@ export class EventBus<TContext> {
       | undefined;
     if (listeners) {
       for (const listener of listeners) {
-        try {
-          const result = listener(data);
-          if (result instanceof Promise) {
-            result.catch((error) => {
-              console.error(
-                `Error in event listener for ${String(event)}:`,
-                error
-              );
-            });
+        Promise.resolve().then(() => {
+          try {
+            const result = listener(data);
+            if (result instanceof Promise) {
+              result.catch((error) => {
+                console.error(
+                  `Error in event listener for ${String(event)}:`,
+                  error
+                );
+              });
+            }
+          } catch (error) {
+            // Prevent listener errors from bubbling up
+            console.error(
+              `Error in event listener for ${String(event)}:`,
+              error
+            );
           }
-        } catch (error) {
-          // Prevent listener errors from bubbling up
-          console.error(
-            `Error in event listener for ${String(event)}:`,
-            error
-          );
-        }
+        });
       }
     }
   }

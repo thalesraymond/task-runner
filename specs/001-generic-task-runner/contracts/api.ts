@@ -6,7 +6,7 @@
 /**
  * Represents the completion status of a task.
  */
-export type TaskStatus = 'success' | 'failure' | 'skipped';
+export type TaskStatus = "success" | "failure" | "skipped";
 
 /**
  * Defines the result object returned by a single task step.

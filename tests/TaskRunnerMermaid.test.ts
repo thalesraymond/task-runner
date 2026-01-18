@@ -20,9 +20,21 @@ describe("TaskRunner Mermaid Graph", () => {
   it("should generate a graph with dependencies", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "A", run: async () => ({ status: "success" }) },
-      { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) },
-      { name: "C", dependencies: ["A"], run: async () => ({ status: "success" }) },
-      { name: "D", dependencies: ["B", "C"], run: async () => ({ status: "success" }) },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+      {
+        name: "C",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
+      {
+        name: "D",
+        dependencies: ["B", "C"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
@@ -39,7 +51,11 @@ describe("TaskRunner Mermaid Graph", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Independent", run: async () => ({ status: "success" }) },
       { name: "A", run: async () => ({ status: "success" }) },
-      { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) },
+      {
+        name: "B",
+        dependencies: ["A"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);
@@ -53,7 +69,11 @@ describe("TaskRunner Mermaid Graph", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Task With Space", run: async () => ({ status: "success" }) },
       { name: "Task\"Quote\"", run: async () => ({ status: "success" }) },
-      { name: "Task:Colon", dependencies: ["Task With Space"], run: async () => ({ status: "success" }) },
+      {
+        name: "Task:Colon",
+        dependencies: ["Task With Space"],
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const graph = TaskRunner.getMermaidGraph(steps);

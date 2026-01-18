@@ -1,4 +1,5 @@
 ## Implementation
+
 - [x] 1.1 Setup `tests/integration-tests/` directory and test runner config if needed.
 - [x] 1.2 Implement Scenario 1: Basic linear workflow (A -> B -> C) success.
 - [x] 1.3 Implement Scenario 2: Branching workflow (A -> [B, C] -> D) success.

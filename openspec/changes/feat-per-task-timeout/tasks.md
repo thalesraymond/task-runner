@@ -11,7 +11,7 @@
     - If yes, create an `AbortController`.
     - Set a `setTimeout` to trigger the controller.
     - Use `Promise.race` (or simply pass the new signal and wait) to handle the timeout.
-    - **Crucial**: Ensure the new signal respects the *parent* `signal` (if global cancel happens, local signal must also abort).
+    - **Crucial**: Ensure the new signal respects the _parent_ `signal` (if global cancel happens, local signal must also abort).
     - **Crucial**: Clean up the timer (`clearTimeout`) in a `finally` block.
 
 - [ ] **Task 3: Unit Tests**

@@ -2,7 +2,10 @@ import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { TaskGraphValidator } from "./TaskGraphValidator.js";
 import { TaskGraph } from "./TaskGraph.js";
-import { RunnerEventPayloads, RunnerEventListener } from "./contracts/RunnerEvents.js";
+import {
+  RunnerEventPayloads,
+  RunnerEventListener,
+} from "./contracts/RunnerEvents.js";
 import { EventBus } from "./EventBus.js";
 import { WorkflowExecutor } from "./WorkflowExecutor.js";
 import { TaskRunnerExecutionConfig } from "./TaskRunnerExecutionConfig.js";
@@ -24,9 +27,8 @@ export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
 export class TaskRunner<TContext> {
   private eventBus = new EventBus<TContext>();
   private validator = new TaskGraphValidator();
-  private executionStrategy: IExecutionStrategy<TContext> = new RetryingExecutionStrategy(
-    new StandardExecutionStrategy()
-  );
+  private executionStrategy: IExecutionStrategy<TContext> =
+    new RetryingExecutionStrategy(new StandardExecutionStrategy());
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -85,7 +87,6 @@ export class TaskRunner<TContext> {
     const safeId = (name: string) => JSON.stringify(name);
     const sanitize = (name: string) => this.sanitizeMermaidId(name);
 
-
     // Add all nodes first to ensure they exist
     for (const step of steps) {
       // Using the name as both ID and Label for simplicity
@@ -98,9 +99,7 @@ export class TaskRunner<TContext> {
     for (const step of steps) {
       if (step.dependencies) {
         for (const dep of step.dependencies) {
-          graphLines.push(
-            `  ${sanitize(dep)} --> ${sanitize(step.name)}`
-          );
+          graphLines.push(`  ${sanitize(dep)} --> ${sanitize(step.name)}`);
         }
       }
     }
@@ -162,40 +161,42 @@ export class TaskRunner<TContext> {
 
     // We need to handle the timeout cleanup properly.
     if (config?.timeout !== undefined) {
-       const controller = new AbortController();
-       const timeoutId = setTimeout(() => {
-         controller.abort(new Error(`Workflow timed out after ${config.timeout}ms`));
-       }, config.timeout);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort(
+          new Error(`Workflow timed out after ${config.timeout}ms`)
+        );
+      }, config.timeout);
 
-       let effectiveSignal = controller.signal;
-       let onAbort: (() => void) | undefined;
+      let effectiveSignal = controller.signal;
+      let onAbort: (() => void) | undefined;
 
-       // Handle combination of signals if user provided one
-       if (config.signal) {
-          if (config.signal.aborted) {
-             // If already aborted, use it directly (WorkflowExecutor handles early abort)
-             // We can cancel timeout immediately
-             clearTimeout(timeoutId);
-             effectiveSignal = config.signal;
-          } else {
-             // Listen to user signal to abort our controller
-             onAbort = () => {
-                controller.abort(config.signal?.reason);
-             };
-             config.signal.addEventListener("abort", onAbort);
-          }
-       }
+      // Handle combination of signals if user provided one
+      if (config.signal) {
+        if (config.signal.aborted) {
+          // If already aborted, use it directly (WorkflowExecutor handles early abort)
+          // We can cancel timeout immediately
+          clearTimeout(timeoutId);
+          effectiveSignal = config.signal;
+        } else {
+          // Listen to user signal to abort our controller
+          onAbort = () => {
+            controller.abort(config.signal?.reason);
+          };
+          config.signal.addEventListener("abort", onAbort);
+        }
+      }
 
-       try {
-         return await executor.execute(steps, effectiveSignal);
-       } finally {
-         clearTimeout(timeoutId);
-         if (config.signal && onAbort) {
-            config.signal.removeEventListener("abort", onAbort);
-         }
-       }
+      try {
+        return await executor.execute(steps, effectiveSignal);
+      } finally {
+        clearTimeout(timeoutId);
+        if (config.signal && onAbort) {
+          config.signal.removeEventListener("abort", onAbort);
+        }
+      }
     } else {
-       return executor.execute(steps, config?.signal);
+      return executor.execute(steps, config?.signal);
     }
   }
 }

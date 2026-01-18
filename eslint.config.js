@@ -13,7 +13,7 @@ export default tseslint.config(
       sourceType: "module",
     },
     rules: {
-      "quotes": ["error", "double"],
+      quotes: ["error", "double"],
     },
   }
 );
