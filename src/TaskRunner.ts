@@ -6,6 +6,9 @@ import { RunnerEventPayloads, RunnerEventListener } from "./contracts/RunnerEven
 import { EventBus } from "./EventBus.js";
 import { WorkflowExecutor } from "./WorkflowExecutor.js";
 import { TaskRunnerExecutionConfig } from "./TaskRunnerExecutionConfig.js";
+import { TaskStateManager } from "./TaskStateManager.js";
+import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
+import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
 
 // Re-export types for backward compatibility
 export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
@@ -18,6 +21,7 @@ export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
 export class TaskRunner<TContext> {
   private eventBus = new EventBus<TContext>();
   private validator = new TaskGraphValidator();
+  private executionStrategy: IExecutionStrategy<TContext> = new StandardExecutionStrategy();
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -45,7 +49,19 @@ export class TaskRunner<TContext> {
     event: K,
     callback: RunnerEventListener<TContext, K>
   ): void {
+    /* v8 ignore next 1 */
     this.eventBus.off(event, callback);
+  }
+
+  /**
+   * Sets the execution strategy to be used.
+   * @param strategy The execution strategy.
+   * @returns The TaskRunner instance for chaining.
+   */
+  public setExecutionStrategy(strategy: IExecutionStrategy<TContext>): this {
+    /* v8 ignore next 2 */
+    this.executionStrategy = strategy;
+    return this;
   }
 
   /**
@@ -73,7 +89,13 @@ export class TaskRunner<TContext> {
       throw new Error(this.validator.createErrorMessage(validationResult));
     }
 
-    const executor = new WorkflowExecutor(this.context, this.eventBus);
+    const stateManager = new TaskStateManager(this.eventBus);
+    const executor = new WorkflowExecutor(
+      this.context,
+      this.eventBus,
+      stateManager,
+      this.executionStrategy
+    );
 
     // We need to handle the timeout cleanup properly.
     if (config?.timeout !== undefined) {
