@@ -1,3 +1,17 @@
+## 1.1.0 (2026-01-18)
+
+* Merge branch 'main' into feat/task-runner-observer-pattern-15088823676344229252 ([d38d6f8](https://github.com/thalesraymond/task-runner/commit/d38d6f8))
+* Merge branch 'main' into feat/task-runner-observer-pattern-15088823676344229252 ([2638801](https://github.com/thalesraymond/task-runner/commit/2638801))
+* Merge pull request #22 from thalesraymond/feat/task-runner-observer-pattern-15088823676344229252 ([06e0049](https://github.com/thalesraymond/task-runner/commit/06e0049)), closes [#22](https://github.com/thalesraymond/task-runner/issues/22)
+* fix: add file extensions and types to test file to fix CI errors ([54b186f](https://github.com/thalesraymond/task-runner/commit/54b186f))
+* fix: remove any type usage in TaskRunner to satisfy linter ([b0a21a7](https://github.com/thalesraymond/task-runner/commit/b0a21a7))
+* fix: revert unauthorized changes to package.json and tsconfig.test.json ([cd44f9e](https://github.com/thalesraymond/task-runner/commit/cd44f9e))
+* test: 💍 force 100% coverage ([2e489f0](https://github.com/thalesraymond/task-runner/commit/2e489f0))
+* test: increase coverage to 100% ([5cd1a44](https://github.com/thalesraymond/task-runner/commit/5cd1a44))
+* feat: implement Observer Pattern event system in TaskRunner ([d682983](https://github.com/thalesraymond/task-runner/commit/d682983))
+* feat: implement Observer Pattern event system in TaskRunner ([48bd3d0](https://github.com/thalesraymond/task-runner/commit/48bd3d0))
+* chore: add typescript check for tests ([9b6c5d4](https://github.com/thalesraymond/task-runner/commit/9b6c5d4))
+
 ## <small>1.0.1 (2026-01-17)</small>
 
 * fix: 🐛 fixing commit script and adding a fix to test auto relea ([97cedf4](https://github.com/thalesraymond/task-runner/commit/97cedf4))
