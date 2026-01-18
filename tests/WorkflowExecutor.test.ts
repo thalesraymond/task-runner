@@ -28,7 +28,6 @@ describe("WorkflowExecutor", () => {
     // After t1 -> true
     // After t2 -> true
     // After t3 -> false (loop end)
-    pendingSpy.mockReturnValue(true);
 
     vi.spyOn(stateManager, "hasRunningTasks").mockReturnValue(false);
 
@@ -39,15 +38,7 @@ describe("WorkflowExecutor", () => {
       .mockReturnValue([]);           // After t3
 
     const executeSpy = vi.spyOn(strategy, "execute").mockResolvedValue({ status: "success" });
-    vi.spyOn(stateManager, "markCompleted").mockImplementation(() => {
-        // Decrease pending count implicitly handled by hasPendingTasks mock logic if complex,
-        // but here we just return true until done.
-        // We need to make sure the loop terminates.
-        // We'll use a counter or inspecting call count for hasPendingTasks if needed,
-        // but simple mockReturnValue(true) might infinite loop if we are not careful.
-        // The loop condition is hasPending || hasRunning || readyQueue > 0.
-        // We need hasPending to eventually be false.
-    });
+    vi.spyOn(stateManager, "markCompleted").mockImplementation(() => {});
 
     // Fix hasPendingTasks to return false eventually
     pendingSpy.mockReturnValueOnce(true) // Initial

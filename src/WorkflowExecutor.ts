@@ -113,10 +113,11 @@ export class WorkflowExecutor<TContext> {
   ): void {
     const newReady = this.stateManager.processDependencies();
     // Filter out tasks that are already in the queue to avoid duplicates
+    const readyQueueSet = new Set(this.readyQueue);
     for (const task of newReady) {
-      const isAlreadyInQueue = this.readyQueue.includes(task);
-      if (!isAlreadyInQueue) {
+      if (!readyQueueSet.has(task)) {
         this.readyQueue.push(task);
+        readyQueueSet.add(task);
       }
     }
 

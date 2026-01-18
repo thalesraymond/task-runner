@@ -9,7 +9,6 @@ import { TaskRunnerExecutionConfig } from "./TaskRunnerExecutionConfig.js";
 import { TaskStateManager } from "./TaskStateManager.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
-import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
 // Re-export types for backward compatibility
@@ -23,9 +22,7 @@ export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
 export class TaskRunner<TContext> {
   private eventBus = new EventBus<TContext>();
   private validator = new TaskGraphValidator();
-  private executionStrategy: IExecutionStrategy<TContext> = new RetryingExecutionStrategy(
-    new StandardExecutionStrategy()
-  );
+  private executionStrategy: IExecutionStrategy<TContext> = new StandardExecutionStrategy();
 
   /**
    * @param context The shared context object to be passed to each task.
