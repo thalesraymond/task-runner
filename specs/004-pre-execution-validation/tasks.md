@@ -25,8 +25,8 @@
 
 - [ ] T001 Create `TaskGraphValidator` class file in `src/TaskGraphValidator.ts`
 - [ ] T002 Create test file for `TaskGraphValidator` in `tests/TaskGraphValidator.test.ts`
-- [ ] T003 [P] Copy `Task` and `TaskGraph` interfaces to a shared utility or directly import from `specs/004-pre-execution-validation/contracts/api.ts` into `src/TaskGraphValidator.ts` or a new `src/types.ts` if a central types file is preferred. For now, directly import in `src/TaskGraphValidator.ts`.
-- [ ] T004 [P] Copy `ValidationError` and `ValidationResult` interfaces to a shared utility or directly import from `specs/004-pre-execution-validation/contracts/api.ts` into `src/TaskGraphValidator.ts`. For now, directly import in `src/TaskGraphValidator.ts`.
+- [ ] T003 [P] Copy `Task` and `TaskGraph` interfaces to `src/validation-contracts.ts` and import them into `src/TaskGraphValidator.ts`.
+- [ ] T004 [P] Copy `ValidationError` and `ValidationResult` interfaces to `src/validation-contracts.ts` and import them into `src/TaskGraphValidator.ts`.
 - [ ] T005 Define the `ITaskGraphValidator` interface in `src/TaskGraphValidator.ts` and implement its `validate` method signature in `TaskGraphValidator` class.
 
 ---
