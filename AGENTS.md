@@ -21,6 +21,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - Never edit CHANGELOG.md manually. This file is for semantic release and is filled automatically.
 - Avoid using 'any' type at all costs.
 - Always prefer to add more tests instead of simply bypassing coverage validation with comments.
+- Its forbidden to have coverage drop below 100%, thats non negotiable.
 
 # task-runner Development Guidelines
 
