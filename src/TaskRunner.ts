@@ -1,5 +1,6 @@
 import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
+import { TaskGraph, TaskGraphValidator } from "./TaskGraphValidator.js";
 
 /**
  * Define the payload for every possible event in the lifecycle.
@@ -51,6 +52,7 @@ type ListenerMap<TContext> = {
 export class TaskRunner<TContext> {
   private running = new Set<string>();
   private listeners: ListenerMap<TContext> = {};
+  private validator = new TaskGraphValidator();
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -128,6 +130,53 @@ export class TaskRunner<TContext> {
    * and values are the corresponding TaskResult objects.
    */
   async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+    // Validate the task graph before execution
+    const taskGraph: TaskGraph = {
+      tasks: steps.map((step) => ({
+        id: step.name,
+        dependencies: step.dependencies ?? [],
+      })),
+    };
+
+    const validationResult = this.validator.validate(taskGraph);
+    if (!validationResult.isValid) {
+      // Construct error message compatible with legacy tests
+      const affectedTasks = new Set<string>();
+      const errorDetails: string[] = [];
+
+      for (const error of validationResult.errors) {
+        errorDetails.push(error.message);
+        switch (error.type) {
+          case "cycle": {
+            // details is { cyclePath: string[] }
+            const path = (error.details as { cyclePath: string[] }).cyclePath;
+            // The last element duplicates the first in the path representation, so valid unique tasks are slice(0, -1) or just all as Set handles uniq
+            path.forEach((t) => affectedTasks.add(t));
+            break;
+          }
+          case "missing_dependency": {
+            // details is { taskId: string, missingDependencyId: string }
+            const d = error.details as { taskId: string };
+            affectedTasks.add(d.taskId);
+            break;
+          }
+          case "duplicate_task": {
+            const d = error.details as { taskId: string };
+            affectedTasks.add(d.taskId);
+            break;
+          }
+        }
+      }
+
+      // Legacy error format: "Circular dependency or missing dependency detected. Unable to run tasks: A, B"
+      const taskList = Array.from(affectedTasks).join(", ");
+      const legacyMessage = `Circular dependency or missing dependency detected. Unable to run tasks: ${taskList}`;
+      const detailedMessage = `Task graph validation failed: ${errorDetails.join("; ")}`;
+
+      // Combine them to satisfy both legacy tests (checking for legacy message) and new requirements (clear details)
+      throw new Error(`${legacyMessage} | ${detailedMessage}`);
+    }
+
     this.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
@@ -146,7 +195,6 @@ export class TaskRunner<TContext> {
 
       // Skip tasks with failed dependencies
       for (const step of pendingSteps) {
-        if (results.has(step.name)) continue;
         const deps = step.dependencies ?? [];
         const failedDep = deps.find(
           (dep) => results.has(dep) && results.get(dep)?.status !== "success"
@@ -159,18 +207,6 @@ export class TaskRunner<TContext> {
           results.set(step.name, result);
           this.emit("taskSkipped", { step, result });
         }
-      }
-
-      if (
-        readySteps.length === 0 &&
-        this.running.size === 0 &&
-        results.size < steps.length
-      ) {
-        const unrunnableSteps = steps.filter((s) => !results.has(s.name));
-        const unrunnableStepNames = unrunnableSteps.map((s) => s.name);
-        throw new Error(
-          `Circular dependency or missing dependency detected. Unable to run tasks: ${unrunnableStepNames.join(", ")}`
-        );
       }
 
       await Promise.all(
