@@ -32,3 +32,13 @@ Do NOT modify or delete the following unless explicitly instructed to fix a crit
 - **URL**: `https://github.com/thalesraymond/task-runner`
 - **Branch**: `main`
 - **Package Manager**: `pnpm`
+
+## 6. Pre-Submission Checklist
+Before marking a task as concluded, YOU MUST:
+
+1. run pnpm install
+2. run pnpm build
+3. run pnpm test
+4. run pnpm lint
+
+If any of those command fail, review your changes.
