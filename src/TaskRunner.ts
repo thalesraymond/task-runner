@@ -181,20 +181,15 @@ export class TaskRunner<TContext> {
     this.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
+    const executingPromises = new Set<Promise<void>>();
 
-    while (results.size < steps.length) {
+    // Helper to process pending steps and launch ready ones
+    const processPendingSteps = () => {
       const pendingSteps = steps.filter(
         (step) => !results.has(step.name) && !this.running.has(step.name)
       );
 
-      const readySteps = pendingSteps.filter((step) => {
-        const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
-
-      // Skip tasks with failed dependencies
+      // 1. Identify and mark skipped tasks
       for (const step of pendingSteps) {
         const deps = step.dependencies ?? [];
         const failedDep = deps.find(
@@ -210,10 +205,21 @@ export class TaskRunner<TContext> {
         }
       }
 
-      await Promise.all(
-        readySteps.map(async (step) => {
-          this.running.add(step.name);
-          this.emit("taskStart", { step });
+      // Re-filter pending steps as some might have been skipped above
+      const readySteps = steps.filter((step) => {
+        if (results.has(step.name) || this.running.has(step.name)) return false;
+        const deps = step.dependencies ?? [];
+        return deps.every(
+          (dep) => results.has(dep) && results.get(dep)?.status === "success"
+        );
+      });
+
+      // 2. Launch ready tasks
+      for (const step of readySteps) {
+        this.running.add(step.name);
+        this.emit("taskStart", { step });
+
+        const taskPromise = (async () => {
           try {
             const result = await step.run(this.context);
             results.set(step.name, result);
@@ -227,8 +233,24 @@ export class TaskRunner<TContext> {
             const result = results.get(step.name)!;
             this.emit("taskEnd", { step, result });
           }
-        })
-      );
+        })();
+
+        // Wrap the task promise to ensure we can track it in the Set
+        const trackedPromise = taskPromise.then(() => {
+          executingPromises.delete(trackedPromise);
+        });
+        executingPromises.add(trackedPromise);
+      }
+    };
+
+    // Initial check to start independent tasks
+    processPendingSteps();
+
+    while (results.size < steps.length && executingPromises.size > 0) {
+      // Wait for the next task to finish
+      await Promise.race(executingPromises);
+      // After a task finishes, check for new work
+      processPendingSteps();
     }
 
     this.emit("workflowEnd", { context: this.context, results });
