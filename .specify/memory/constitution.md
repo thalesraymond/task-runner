@@ -21,6 +21,7 @@ Do NOT modify or delete the following unless explicitly instructed to fix a crit
 - `.github/dependabot.yml`
 - `tests/TaskRunner.test.ts` (Core logic tests)
 - `README.md` (Only append/update, do not rewrite the core description)
+- `CHANGELOG.md` (Never edit manually. This file is for semantic release and is filled automatically.)
 
 ## 4. Process
 1.  **Plan**: Always explore first, then create a plan using `set_plan`.
