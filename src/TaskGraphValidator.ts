@@ -1,4 +1,5 @@
-import { ITaskGraphValidator, TaskGraph, ValidationResult, ValidationError } from "./validation-contracts.js";
+import { ITaskGraphValidator, ValidationResult, ValidationError } from "./validation-contracts.js";
+import { TaskGraph } from "./TaskGraph.js";
 
 export class TaskGraphValidator implements ITaskGraphValidator {
     /**
@@ -121,4 +122,3 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         return false;
     }
 }
-export { TaskGraph };

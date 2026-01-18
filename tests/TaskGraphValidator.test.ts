@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TaskGraphValidator } from "../src/TaskGraphValidator.js";
-import { TaskGraph } from "../src/validation-contracts.js";
+import { TaskGraph } from "../src/TaskGraph.js";
 
 describe("TaskGraphValidator", () => {
     it("should be instantiated", () => {

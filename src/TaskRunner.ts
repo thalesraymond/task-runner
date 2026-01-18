@@ -1,6 +1,7 @@
 import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
-import { TaskGraph, TaskGraphValidator } from "./TaskGraphValidator.js";
+import { TaskGraphValidator } from "./TaskGraphValidator.js";
+import { TaskGraph } from "./TaskGraph.js";
 
 /**
  * Define the payload for every possible event in the lifecycle.
