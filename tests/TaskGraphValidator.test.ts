@@ -124,4 +124,23 @@ describe("TaskGraphValidator", () => {
         const result = validator.validate(graph);
         expect(result.isValid).toBe(true);
     });
+
+    it("should handle missing node in adjacency list safely (coverage for defensive coding)", () => {
+        const validator = new TaskGraphValidator();
+        // Manually invoke detectCycle with an incomplete adjacency list
+        // to hit the `adjacencyList.get(taskId) ?? []` branch.
+        const visited = new Set<string>();
+        const recursionStack = new Set<string>();
+        const adjacencyList = new Map<string, string[]>();
+        // "A" depends on "B", but "B" is not in adjacency list
+        adjacencyList.set("A", ["B"]);
+
+        const result = (validator as any).detectCycle("A", visited, recursionStack, adjacencyList);
+
+        expect(result).toBeNull();
+        expect(visited.has("A")).toBe(true);
+        // B should be visited as part of traversal attempt
+        // Wait, if B is not in map, get returns undefined -> [], so it has 0 dependencies.
+        // It will be processed as a leaf node.
+    });
 });

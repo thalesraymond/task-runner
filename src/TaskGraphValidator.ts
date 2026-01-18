@@ -69,8 +69,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
                 continue;
             }
 
-            const path: string[] = [];
-            if (this.detectCycle(task.id, path, visited, recursionStack, adjacencyList)) {
+            const path = this.detectCycle(task.id, visited, recursionStack, adjacencyList);
+            if (path) {
                 // Extract the actual cycle from the path
                 // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)
                 const cycleStart = path[path.length - 1];
@@ -95,14 +95,14 @@ export class TaskGraphValidator implements ITaskGraphValidator {
 
     private detectCycle(
         startNode: string,
-        path: string[],
         visited: Set<string>,
         recursionStack: Set<string>,
         adjacencyList: Map<string, string[]>
-    ): boolean {
+    ): string[] | null {
         // Use parallel stacks to simulate recursion and avoid object allocation per frame
         const nodeStack: string[] = [startNode];
         const indexStack: number[] = [0];
+        const path: string[] = [];
 
         while (nodeStack.length > 0) {
             const taskId = nodeStack[nodeStack.length - 1];
@@ -116,7 +116,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
                 path.push(taskId);
             }
 
-            const dependencies = adjacencyList.get(taskId)!;
+            const dependencies = adjacencyList.get(taskId) ?? [];
 
             if (nextDepIndex < dependencies.length) {
                 const depId = dependencies[nextDepIndex];
@@ -131,7 +131,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
                 } else if (recursionStack.has(depId)) {
                     // Cycle detected
                     path.push(depId);
-                    return true;
+                    return path;
                 }
                 // If visited but not in recursionStack, it's a cross edge to an already processed node.
                 // We just ignore it and loop again to process next dependency of current frame.
@@ -145,6 +145,6 @@ export class TaskGraphValidator implements ITaskGraphValidator {
             }
         }
 
-        return false;
+        return null;
     }
 }
