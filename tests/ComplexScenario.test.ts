@@ -220,4 +220,63 @@ describe("Complex Scenario Integration Tests", () => {
     expect(context.stepFData).toBe("dataF");
     expect(context.stepGData).toBe("dataG");
   });
+
+  it("should respect concurrency limit in complex graph", async () => {
+    // Graph:
+    // A -> B
+    // A -> C
+    // D
+    // E
+    // With concurrency 2, we expect:
+    // T=0: Start A, D (running: 2)
+    // T=1: A done. B, C ready. D done.
+    //      Start B, E (running: 2). C queued.
+    //      (or Start C, E or B, C - depending on order)
+    // T=2: B done. Start C.
+
+    // We can simulate this with delays and tracking
+    const activeTasks = new Set<string>();
+    let maxConcurrent = 0;
+    const executionOrder: string[] = [];
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    const createConcurrencyStep = (
+      name: string,
+      ms: number,
+      deps: string[] = []
+    ): TaskStep<unknown> => ({
+      name,
+      dependencies: deps,
+      run: async () => {
+        activeTasks.add(name);
+        executionOrder.push(`${name}-start`);
+        maxConcurrent = Math.max(maxConcurrent, activeTasks.size);
+        await delay(ms);
+        activeTasks.delete(name);
+        executionOrder.push(`${name}-end`);
+        return { status: "success" };
+      },
+    });
+
+    const steps = [
+      createConcurrencyStep("A", 50),
+      createConcurrencyStep("B", 50, ["A"]),
+      createConcurrencyStep("C", 50, ["A"]),
+      createConcurrencyStep("D", 50),
+      createConcurrencyStep("E", 50),
+    ];
+
+    const runner = new TaskRunner({});
+    await runner.execute(steps, { concurrency: 2 });
+
+    expect(maxConcurrent).toBeLessThanOrEqual(2);
+
+    // B and C depend on A, so they can't start until A ends.
+    const aEndIndex = executionOrder.indexOf("A-end");
+    const bStartIndex = executionOrder.indexOf("B-start");
+    const cStartIndex = executionOrder.indexOf("C-start");
+
+    expect(bStartIndex).toBeGreaterThan(aEndIndex);
+    expect(cStartIndex).toBeGreaterThan(aEndIndex);
+  });
 });

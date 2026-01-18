@@ -2,6 +2,7 @@ import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { TaskGraphValidator } from "./TaskGraphValidator.js";
 import { TaskGraph } from "./TaskGraph.js";
+import { TaskRunnerConfig } from "./TaskRunnerConfig.js";
 
 /**
  * Define the payload for every possible event in the lifecycle.
@@ -127,10 +128,14 @@ export class TaskRunner<TContext> {
    * Executes a list of tasks, respecting their dependencies and running
    * independent tasks in parallel.
    * @param steps An array of TaskStep objects to be executed.
+   * @param config Optional configuration for execution, including concurrency limits.
    * @returns A Promise that resolves to a Map where keys are task names
    * and values are the corresponding TaskResult objects.
    */
-  async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+  async execute(
+    steps: TaskStep<TContext>[],
+    config?: TaskRunnerConfig
+  ): Promise<Map<string, TaskResult>> {
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
@@ -181,20 +186,19 @@ export class TaskRunner<TContext> {
     this.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
+    const activePromises = new Set<Promise<void>>();
+    const concurrencyLimit =
+      config?.concurrency !== undefined && config.concurrency > 0
+        ? config.concurrency
+        : Infinity;
 
     while (results.size < steps.length) {
       const pendingSteps = steps.filter(
         (step) => !results.has(step.name) && !this.running.has(step.name)
       );
 
-      const readySteps = pendingSteps.filter((step) => {
-        const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
-
       // Skip tasks with failed dependencies
+      let skippedAny = false;
       for (const step of pendingSteps) {
         const deps = step.dependencies ?? [];
         const failedDep = deps.find(
@@ -207,13 +211,31 @@ export class TaskRunner<TContext> {
           };
           results.set(step.name, result);
           this.emit("taskSkipped", { step, result });
+          skippedAny = true;
         }
       }
 
-      await Promise.all(
-        readySteps.map(async (step) => {
-          this.running.add(step.name);
-          this.emit("taskStart", { step });
+      // If we skipped any, we should re-evaluate pendingSteps immediately to possibly skip downstream
+      if (skippedAny) {
+        continue;
+      }
+
+      const readySteps = pendingSteps.filter((step) => {
+        const deps = step.dependencies ?? [];
+        return deps.every(
+          (dep) => results.has(dep) && results.get(dep)?.status === "success"
+        );
+      });
+
+      // Start tasks up to concurrency limit
+      const freeSlots = concurrencyLimit - this.running.size;
+      const tasksToStart = readySteps.slice(0, freeSlots);
+
+      for (const step of tasksToStart) {
+        this.running.add(step.name);
+        this.emit("taskStart", { step });
+
+        const promise = (async () => {
           try {
             const result = await step.run(this.context);
             results.set(step.name, result);
@@ -227,8 +249,28 @@ export class TaskRunner<TContext> {
             const result = results.get(step.name)!;
             this.emit("taskEnd", { step, result });
           }
-        })
-      );
+        })();
+
+        activePromises.add(promise);
+        // When promise completes, remove from active set
+        promise.then(() => activePromises.delete(promise));
+      }
+
+      // If we are at capacity OR we have no ready tasks but things are running, wait for something to finish
+      if (
+        (this.running.size >= concurrencyLimit || tasksToStart.length === 0) &&
+        activePromises.size > 0
+      ) {
+        await Promise.race(activePromises);
+      } else if (
+        results.size < steps.length &&
+        tasksToStart.length === 0 &&
+        activePromises.size === 0
+      ) {
+        // Deadlock or logic error, though validation should catch deadlocks.
+        // This case might happen if dependencies are not met but not failed (shouldn't happen with correct logic)
+        break;
+      }
     }
 
     this.emit("workflowEnd", { context: this.context, results });
