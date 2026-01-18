@@ -10,4 +10,9 @@ export interface TaskRunnerExecutionConfig {
    * A timeout in milliseconds for the entire workflow.
    */
   timeout?: number;
+  /**
+   * If true, the runner will simulate execution without running the actual tasks.
+   * Useful for verifying the execution order and graph structure.
+   */
+  dryRun?: boolean;
 }
