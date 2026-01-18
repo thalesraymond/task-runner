@@ -62,7 +62,15 @@ export class EventBus<TContext> {
     if (listeners) {
       for (const listener of listeners) {
         try {
-          listener(data);
+          const result = listener(data);
+          if (result instanceof Promise) {
+            result.catch((error) => {
+              console.error(
+                `Error in event listener for ${String(event)}:`,
+                error
+              );
+            });
+          }
         } catch (error) {
           // Prevent listener errors from bubbling up
           console.error(
