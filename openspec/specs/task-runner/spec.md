@@ -95,4 +95,3 @@ The system SHALL provide a utility to generate a Mermaid.js graph from task step
 - **THEN** it SHALL return a valid Mermaid flowchart syntax string.
 - **AND** dependencies SHALL be represented as arrows (`-->`).
 - **AND** independent tasks SHALL appear as nodes.
-
