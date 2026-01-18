@@ -128,4 +128,29 @@ describe("TaskRunner Events", () => {
 
     expect(onStart).not.toHaveBeenCalled();
   });
+
+  it("should safely handle off() when no listeners exist", () => {
+    const runner = new TaskRunner({});
+    const cb = vi.fn();
+    // Should not throw
+    runner.off("taskStart", cb);
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("should support multiple listeners for the same event", async () => {
+    const steps: TaskStep<unknown>[] = [
+      { name: "A", run: async () => ({ status: "success" }) },
+    ];
+    const runner = new TaskRunner({});
+    const listenerOne = vi.fn();
+    const listenerTwo = vi.fn();
+
+    runner.on("taskStart", listenerOne);
+    runner.on("taskStart", listenerTwo);
+
+    await runner.execute(steps);
+
+    expect(listenerOne).toHaveBeenCalled();
+    expect(listenerTwo).toHaveBeenCalled();
+  });
 });
