@@ -12,7 +12,8 @@ export interface TaskStep<TContext> {
   /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
+   * @param signal An optional AbortSignal to listen for cancellation.
    * @returns A Promise that resolves to a TaskResult.
    */
-  run(context: TContext): Promise<TaskResult>;
+  run(context: TContext, signal?: AbortSignal): Promise<TaskResult>;
 }
