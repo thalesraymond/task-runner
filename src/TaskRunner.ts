@@ -181,55 +181,65 @@ export class TaskRunner<TContext> {
     this.emit("workflowStart", { context: this.context, steps });
 
     const results = new Map<string, TaskResult>();
+    const taskPromises = new Map<string, Promise<TaskResult>>();
+    const stepMap = new Map(steps.map((s) => [s.name, s]));
 
-    while (results.size < steps.length) {
-      const pendingSteps = steps.filter(
-        (step) => !results.has(step.name) && !this.running.has(step.name)
-      );
+    const getTaskPromise = (name: string): Promise<TaskResult> => {
+      if (taskPromises.has(name)) {
+        return taskPromises.get(name)!;
+      }
 
-      const readySteps = pendingSteps.filter((step) => {
+      const promise = (async () => {
+        const step = stepMap.get(name)!;
         const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
 
-      // Skip tasks with failed dependencies
-      for (const step of pendingSteps) {
-        const deps = step.dependencies ?? [];
-        const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-        );
+        // Wait for all dependencies to complete
+        await Promise.all(deps.map((d) => getTaskPromise(d)));
+
+        // Check if any dependency failed or was skipped
+        const failedDep = deps.find((d) => {
+          const res = results.get(d);
+          return !res || res.status !== "success";
+        });
+
         if (failedDep) {
           const result: TaskResult = {
             status: "skipped",
             message: `Skipped due to failed dependency: ${failedDep}`,
           };
-          results.set(step.name, result);
+          results.set(name, result);
           this.emit("taskSkipped", { step, result });
+          return result;
         }
-      }
 
-      await Promise.all(
-        readySteps.map(async (step) => {
-          this.running.add(step.name);
-          this.emit("taskStart", { step });
-          try {
-            const result = await step.run(this.context);
-            results.set(step.name, result);
-          } catch (e) {
-            results.set(step.name, {
-              status: "failure",
-              error: e instanceof Error ? e.message : String(e),
-            });
-          } finally {
-            this.running.delete(step.name);
-            const result = results.get(step.name)!;
-            this.emit("taskEnd", { step, result });
-          }
-        })
-      );
-    }
+        // Run the task
+        this.running.add(name);
+        this.emit("taskStart", { step });
+        let result: TaskResult;
+        try {
+          result = await step.run(this.context);
+          results.set(name, result);
+        } catch (e) {
+          result = {
+            status: "failure",
+            error: e instanceof Error ? e.message : String(e),
+          };
+          results.set(name, result);
+        } finally {
+          this.running.delete(name);
+        }
+
+        const finalResult = results.get(name)!;
+        this.emit("taskEnd", { step, result: finalResult });
+        return finalResult;
+      })();
+
+      taskPromises.set(name, promise);
+      return promise;
+    };
+
+    // Trigger all tasks
+    await Promise.all(steps.map((step) => getTaskPromise(step.name)));
 
     this.emit("workflowEnd", { context: this.context, results });
     return results;
