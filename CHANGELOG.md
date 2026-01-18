@@ -1,19 +1,3 @@
-## <small>1.2.3 (2026-01-18)</small>
-
-* Merge branch 'main' into docs-update-submission-checklist-16079815502818519329 ([0ed1af6](https://github.com/thalesraymond/task-runner/commit/0ed1af6))
-* Merge branch 'main' into refactor/task-runner-validation-8459777436030683584 ([3c189e7](https://github.com/thalesraymond/task-runner/commit/3c189e7))
-* Merge pull request #39 from thalesraymond/docs-update-submission-checklist-16079815502818519329 ([864d2f9](https://github.com/thalesraymond/task-runner/commit/864d2f9)), closes [#39](https://github.com/thalesraymond/task-runner/issues/39)
-* Merge pull request #40 from thalesraymond/refactor/task-runner-validation-8459777436030683584 ([16ad832](https://github.com/thalesraymond/task-runner/commit/16ad832)), closes [#40](https://github.com/thalesraymond/task-runner/issues/40)
-* Merge pull request #41 from thalesraymond/workflow-executor-refactor-9584682544999313681 ([3064100](https://github.com/thalesraymond/task-runner/commit/3064100)), closes [#41](https://github.com/thalesraymond/task-runner/issues/41)
-* Merge pull request #42 from thalesraymond/feature/openspec ([7ba134e](https://github.com/thalesraymond/task-runner/commit/7ba134e)), closes [#42](https://github.com/thalesraymond/task-runner/issues/42)
-* Merge pull request #44 from thalesraymond/bolt/optimize-executor-pending-set-13299418823186084784 ([45c3803](https://github.com/thalesraymond/task-runner/commit/45c3803)), closes [#44](https://github.com/thalesraymond/task-runner/issues/44)
-* perf(executor): optimize processQueue loop using pending set ([2924700](https://github.com/thalesraymond/task-runner/commit/2924700))
-* docs: ✏️ task cancelation spec using open spec ([0f34aab](https://github.com/thalesraymond/task-runner/commit/0f34aab))
-* docs: update constitution and GEMINI with pre-submission checklist ([ffeb9f1](https://github.com/thalesraymond/task-runner/commit/ffeb9f1))
-* chore: 🤖 enabling openspec as a alternative to speckit ([ef69a09](https://github.com/thalesraymond/task-runner/commit/ef69a09))
-* refactor: decompose WorkflowExecutor for modularity ([2a2f0ed](https://github.com/thalesraymond/task-runner/commit/2a2f0ed))
-* refactor: move validation error logic to validator ([4c10f6b](https://github.com/thalesraymond/task-runner/commit/4c10f6b))
-
 ## <small>1.2.2 (2026-01-18)</small>
 
 * Merge pull request #38 from thalesraymond/refactor-task-runner-7434390989639993181 ([e315cbd](https://github.com/thalesraymond/task-runner/commit/e315cbd)), closes [#38](https://github.com/thalesraymond/task-runner/issues/38)

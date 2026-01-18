@@ -111,8 +111,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         adjacencyList: Map<string, string[]>
     ): boolean {
         // Use an explicit stack to avoid maximum call stack size exceeded errors
-        type DfsFrame = { taskId: string; index: number; dependencies: string[] };
-        const stack: DfsFrame[] = [];
+        const stack: { taskId: string; index: number; dependencies: string[] }[] = [];
 
         visited.add(startTaskId);
         recursionStack.add(startTaskId);
