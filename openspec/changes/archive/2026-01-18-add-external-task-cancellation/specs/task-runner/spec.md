@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 ### Requirement: TaskRunner Execution
 The `TaskRunner` SHALL execute a sequence of `TaskStep`s based on their dependencies, processing inputs and producing outputs.
 
@@ -14,7 +14,6 @@ The `TaskRunner` SHALL execute a sequence of `TaskStep`s based on their dependen
 - **WHEN** `TaskRunner.execute` is called with a `timeout` option
 - **THEN** the `TaskRunner` monitors the elapsed time for the workflow.
 
-## ADDED Requirements
 ### Requirement: External Workflow Cancellation
 The `TaskRunner` SHALL allow external cancellation of an ongoing workflow.
 
