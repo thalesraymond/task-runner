@@ -51,13 +51,13 @@ export class RetryingExecutionStrategy<TContext> implements IExecutionStrategy<T
       try {
         await this.sleep(delay, signal);
       } catch (e) {
-         if (signal?.aborted) {
-            return {
-                status: "cancelled",
-                message: "Task cancelled during retry delay"
-            }
-         }
-         throw e;
+      if (signal?.aborted) {
+        return {
+          status: "cancelled",
+          message: "Task cancelled during retry delay",
+        };
+      }
+      throw e;
       }
     }
   }
