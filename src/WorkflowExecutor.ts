@@ -120,9 +120,7 @@ export class WorkflowExecutor<TContext> {
         break;
       }
 
-      const step = this.readyQueue.shift();
-      /* v8 ignore next 1 */
-      if (!step) break;
+      const step = this.readyQueue.shift()!;
 
       this.stateManager.markRunning(step);
 
