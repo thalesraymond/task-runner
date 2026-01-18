@@ -1,3 +1,24 @@
+## 3.0.0 (2026-01-18)
+
+* feat: 🎸 Generating 3.0.0 since automation wrongly skiped ([c545f25](https://github.com/thalesraymond/task-runner/commit/c545f25))
+* docs: ✏️ Add integration verification requirements to the spec ([2904524](https://github.com/thalesraymond/task-runner/commit/2904524))
+* docs: ✏️ Add specifications for core architecture refactor ([4162e3e](https://github.com/thalesraymond/task-runner/commit/4162e3e))
+* docs: ✏️ archive refactor spec ([f90a883](https://github.com/thalesraymond/task-runner/commit/f90a883))
+* docs: ✏️ archive spec and write first spec ([6c7e09e](https://github.com/thalesraymond/task-runner/commit/6c7e09e))
+* Merge branch 'main' into refactor-core-architecture-3606470332965189794 ([4a88ccf](https://github.com/thalesraymond/task-runner/commit/4a88ccf))
+* Merge branch 'origin/main' into pr-46 ([1109537](https://github.com/thalesraymond/task-runner/commit/1109537))
+* Merge pull request #49 from thalesraymond/pr-46-merge-conflicts-4682914261020497037 ([c95e62d](https://github.com/thalesraymond/task-runner/commit/c95e62d)), closes [#49](https://github.com/thalesraymond/task-runner/issues/49)
+* Merge pull request #50 from thalesraymond/add-integration-tests-14774431792140556914 ([841a76e](https://github.com/thalesraymond/task-runner/commit/841a76e)), closes [#50](https://github.com/thalesraymond/task-runner/issues/50)
+* Merge pull request #51 from thalesraymond/refactor-core-architecture-3606470332965189794 ([7403371](https://github.com/thalesraymond/task-runner/commit/7403371)), closes [#51](https://github.com/thalesraymond/task-runner/issues/51)
+* refactor: decouple core architecture using strategy and state manager ([3de1ce1](https://github.com/thalesraymond/task-runner/commit/3de1ce1))
+* refactor: decouple core architecture using strategy and state manager ([65dc1ef](https://github.com/thalesraymond/task-runner/commit/65dc1ef))
+* test: add comprehensive integration test suite ([e8170c0](https://github.com/thalesraymond/task-runner/commit/e8170c0))
+
+
+### BREAKING CHANGE
+
+* 🧨 Major refactor in the engine, added strategy pattern support
+
 ## 2.0.0 (2026-01-18)
 
 * Merge branch 'main' into sentinel/fix-graph-recursion-dos-11616274981510947884 ([b2c204d](https://github.com/thalesraymond/task-runner/commit/b2c204d))
