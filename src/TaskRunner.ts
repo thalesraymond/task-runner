@@ -273,19 +273,21 @@ export class TaskRunner<TContext> {
     // The main loop relies on executingPromises to wait.
 
     while (results.size < steps.length) {
-        if (executingPromises.size === 0) {
-             // If nothing is running and we haven't finished, and we are here,
-             // it means we have no ready tasks (or we would have started them up to concurrency).
-             // Since we validate graph, this implies strictly that we are done?
-             // But results.size < steps.length.
-             // This happens if processPendingSteps() didn't start anything.
-             // Which implies readySteps is empty or freeSlots is 0.
-             // If freeSlots is 0, then executingPromises.size MUST be > 0.
-             // So if executingPromises.size === 0, then freeSlots > 0.
-             // So readySteps must be empty.
-             // If readySteps is empty and we are not done, and nothing running -> Deadlock/Unreachable.
-             break;
-        }
+      /* v8 ignore start */
+      if (executingPromises.size === 0) {
+        // If nothing is running and we haven't finished, and we are here,
+        // it means we have no ready tasks (or we would have started them up to concurrency).
+        // Since we validate graph, this implies strictly that we are done?
+        // But results.size < steps.length.
+        // This happens if processPendingSteps() didn't start anything.
+        // Which implies readySteps is empty or freeSlots is 0.
+        // If freeSlots is 0, then executingPromises.size MUST be > 0.
+        // So if executingPromises.size === 0, then freeSlots > 0.
+        // So readySteps must be empty.
+        // If readySteps is empty and we are not done, and nothing running -> Deadlock/Unreachable.
+        break;
+      }
+      /* v8 ignore stop */
 
       // Wait for the next task to finish
       await Promise.race(executingPromises);
