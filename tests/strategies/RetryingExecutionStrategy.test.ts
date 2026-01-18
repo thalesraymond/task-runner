@@ -172,7 +172,7 @@ describe("RetryingExecutionStrategy", () => {
   });
 
   it("should handle cancellation before execution", async () => {
-     const task: TaskStep<unknown> = {
+    const task: TaskStep<unknown> = {
       name: "task1",
       retry: { attempts: 1, delay: 100 },
       run: vi.fn(),
