@@ -1,3 +1,19 @@
+## <small>1.2.1 (2026-01-18)</small>
+
+* Merge branch 'main' into docs-add-status-badges-11560890930810516706 ([8baab4c](https://github.com/thalesraymond/task-runner/commit/8baab4c))
+* Merge pull request #30 from thalesraymond/docs-add-status-badges-11560890930810516706 ([aac9c4b](https://github.com/thalesraymond/task-runner/commit/aac9c4b)), closes [#30](https://github.com/thalesraymond/task-runner/issues/30)
+* Merge pull request #31 from thalesraymond/005-concurrency-control ([db15b27](https://github.com/thalesraymond/task-runner/commit/db15b27)), closes [#31](https://github.com/thalesraymond/task-runner/issues/31)
+* Merge pull request #34 from thalesraymond/task-runner-performance-optimization-3405178555713715639 ([bb76050](https://github.com/thalesraymond/task-runner/commit/bb76050)), closes [#34](https://github.com/thalesraymond/task-runner/issues/34)
+* Merge remote-tracking branch 'origin/main' into 005-concurrency-control ([63d3cbe](https://github.com/thalesraymond/task-runner/commit/63d3cbe))
+* Update specs/005-concurrency-control/checklists/requirements.md ([97496b1](https://github.com/thalesraymond/task-runner/commit/97496b1))
+* Update specs/005-concurrency-control/contracts/api.ts ([a05cbb5](https://github.com/thalesraymond/task-runner/commit/a05cbb5))
+* perf: optimize task scheduling to prevent pipeline stalls ([37c52f7](https://github.com/thalesraymond/task-runner/commit/37c52f7))
+* docs: ✏️ clarify edge case handling for negative concurrency val ([05187c4](https://github.com/thalesraymond/task-runner/commit/05187c4))
+* docs: ✏️ concurrency control spec, plan, and tasks ([f27464c](https://github.com/thalesraymond/task-runner/commit/f27464c))
+* docs: ✏️ fix ambiguos docs ([a3aae83](https://github.com/thalesraymond/task-runner/commit/a3aae83))
+* docs: ✏️ spec ([cdb7287](https://github.com/thalesraymond/task-runner/commit/cdb7287))
+* docs(readme): add status badges ([b549b05](https://github.com/thalesraymond/task-runner/commit/b549b05))
+
 ## 1.2.0 (2026-01-18)
 
 * Merge branch 'main' into 004-pre-execution-validation-14850747355617832302 ([cc01409](https://github.com/thalesraymond/task-runner/commit/cc01409))
