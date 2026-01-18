@@ -1,3 +1,17 @@
+## 3.5.0 (2026-01-18)
+
+* Merge pull request #69 from thalesraymond/feat/conditional-execution ([dd1dd8d](https://github.com/thalesraymond/task-runner/commit/dd1dd8d)), closes [#69](https://github.com/thalesraymond/task-runner/issues/69)
+* Update README.md ([8808f94](https://github.com/thalesraymond/task-runner/commit/8808f94))
+* docs: ✏️ archive conditional specs since its implemented ([b3db067](https://github.com/thalesraymond/task-runner/commit/b3db067))
+* docs: ✏️ conditional execution spec ([5a670c4](https://github.com/thalesraymond/task-runner/commit/5a670c4))
+* docs: ✏️ fix typo ([d969ff5](https://github.com/thalesraymond/task-runner/commit/d969ff5))
+* docs: ✏️ rewriting readme with latest changes ([c968fc3](https://github.com/thalesraymond/task-runner/commit/c968fc3))
+* docs: ✏️ update readme with example of conditional execution ([da9a818](https://github.com/thalesraymond/task-runner/commit/da9a818))
+* feat: 🎸 new conditional execution feature ([e936ad7](https://github.com/thalesraymond/task-runner/commit/e936ad7))
+* chore: 🤖 add AI skills ([5feacc6](https://github.com/thalesraymond/task-runner/commit/5feacc6))
+* chore: 🤖 removed skill md file, general skills moved to workspa ([5a8bd0e](https://github.com/thalesraymond/task-runner/commit/5a8bd0e))
+* chore: 🤖 removed workspace skills ([e819e00](https://github.com/thalesraymond/task-runner/commit/e819e00))
+
 ## <small>3.4.1 (2026-01-18)</small>
 
 * Merge pull request #65 from thalesraymond/perf/async-event-listeners-3002139613350975332 ([77edbc7](https://github.com/thalesraymond/task-runner/commit/77edbc7)), closes [#65](https://github.com/thalesraymond/task-runner/issues/65)
