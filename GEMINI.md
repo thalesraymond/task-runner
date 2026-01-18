@@ -25,7 +25,7 @@ tests/
 : Follow standard conventions
 
 ## Recent Changes
-- 004-pre-execution-validation: Added TypeScript 5.9.3 + vitest (for testing)
+- 004-pre-execution-validation: Added TypeScript 5.9.3 + vitest 4.0.17 (for testing)
 
 - 003-refactor-file-structure: Added TypeScript 5.9.3 + vitest 4.0.17
 
