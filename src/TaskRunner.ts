@@ -79,13 +79,15 @@ export class TaskRunner<TContext> {
     // We will wrap names in quotes for the label, but use the name as the ID.
     // Actually, Mermaid ID cannot have spaces without quotes.
     const safeId = (name: string) => JSON.stringify(name);
+    const sanitize = (name: string) => this.sanitizeMermaidId(name);
+
 
     // Add all nodes first to ensure they exist
     for (const step of steps) {
       // Using the name as both ID and Label for simplicity
       // Format: ID["Label"]
       // safeId returns a quoted string (e.g. "Task Name"), so we use it directly as the label
-      graphLines.push(`  ${safeId(step.name)}[${safeId(step.name)}]`);
+      graphLines.push(`  ${sanitize(step.name)}[${safeId(step.name)}]`);
     }
 
     // Add edges
@@ -93,13 +95,22 @@ export class TaskRunner<TContext> {
       if (step.dependencies) {
         for (const dep of step.dependencies) {
           graphLines.push(
-            `  ${safeId(dep)} --> ${safeId(step.name)}`
+            `  ${sanitize(dep)} --> ${sanitize(step.name)}`
           );
         }
       }
     }
 
     return [...new Set(graphLines)].join("\n");
+  }
+
+  /**
+   * Sanitizes a string for use as a Mermaid node ID.
+   * @param id The string to sanitize.
+   * @returns The sanitized string.
+   */
+  private static sanitizeMermaidId(id: string): string {
+    return id.replaceAll(/ /g, "_").replaceAll(/:/g, "_").replaceAll(/"/g, "_");
   }
 
   /**
