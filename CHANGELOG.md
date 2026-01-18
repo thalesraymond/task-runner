@@ -1,3 +1,17 @@
+## 3.2.0 (2026-01-18)
+
+* Merge branch 'main' into feat/add-task-retry-policy-16535599339542244277 ([3f4f855](https://github.com/thalesraymond/task-runner/commit/3f4f855))
+* Merge pull request #59 from thalesraymond/feat/add-task-retry-policy-16535599339542244277 ([3ebe1c2](https://github.com/thalesraymond/task-runner/commit/3ebe1c2)), closes [#59](https://github.com/thalesraymond/task-runner/issues/59)
+* Update src/strategies/RetryingExecutionStrategy.ts ([dfe5860](https://github.com/thalesraymond/task-runner/commit/dfe5860))
+* Update src/strategies/RetryingExecutionStrategy.ts ([714dca5](https://github.com/thalesraymond/task-runner/commit/714dca5))
+* Update tests/strategies/RetryingExecutionStrategy.test.ts ([202328c](https://github.com/thalesraymond/task-runner/commit/202328c))
+* merge: origin/main and resolve conflicts ([7dbc0cf](https://github.com/thalesraymond/task-runner/commit/7dbc0cf))
+* merge: origin/main and resolve conflicts ([bf3aeb0](https://github.com/thalesraymond/task-runner/commit/bf3aeb0))
+* docs: ✏️ archive dryrun/preview proposal since its done ([624354a](https://github.com/thalesraymond/task-runner/commit/624354a))
+* fix: address pr feedback ([4a23576](https://github.com/thalesraymond/task-runner/commit/4a23576))
+* fix: address pr feedback ([97cf83f](https://github.com/thalesraymond/task-runner/commit/97cf83f))
+* feat: add task retry policy ([81d4bd3](https://github.com/thalesraymond/task-runner/commit/81d4bd3))
+
 ## 3.1.0 (2026-01-18)
 
 * Merge branch 'main' into add-workflow-preview-16392950418245316538 ([249d5a8](https://github.com/thalesraymond/task-runner/commit/249d5a8))
