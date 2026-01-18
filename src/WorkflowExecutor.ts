@@ -26,11 +26,13 @@ export class WorkflowExecutor<TContext> {
    * Executes the given steps.
    * @param steps The list of steps to execute.
    * @param signal Optional AbortSignal for cancellation.
+   * @param dryRun If true, simulates execution without running tasks.
    * @returns A Promise that resolves to a map of task results.
    */
   async execute(
     steps: TaskStep<TContext>[],
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    dryRun = false
   ): Promise<Map<string, TaskResult>> {
     this.eventBus.emit("workflowStart", { context: this.context, steps });
     this.stateManager.initialize(steps);
@@ -56,7 +58,7 @@ export class WorkflowExecutor<TContext> {
 
     try {
       // Initial pass
-      this.processLoop(executingPromises, signal);
+      this.processLoop(executingPromises, signal, dryRun);
 
       while (
         this.stateManager.hasPendingTasks() ||
@@ -76,7 +78,7 @@ export class WorkflowExecutor<TContext> {
            this.stateManager.cancelAllPending("Workflow cancelled.");
         } else {
            // After a task finishes, check for new work
-           this.processLoop(executingPromises, signal);
+           this.processLoop(executingPromises, signal, dryRun);
         }
       }
 
@@ -98,7 +100,8 @@ export class WorkflowExecutor<TContext> {
    */
   private processLoop(
     executingPromises: Set<Promise<void>>,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    dryRun = false
   ): void {
     const toRun = this.stateManager.processDependencies();
 
@@ -106,12 +109,21 @@ export class WorkflowExecutor<TContext> {
     for (const step of toRun) {
       this.stateManager.markRunning(step);
 
-      const taskPromise = this.strategy.execute(step, this.context, signal)
+      let executionPromise: Promise<TaskResult>;
+
+      if (dryRun) {
+        // Simulate execution
+        executionPromise = Promise.resolve({ status: "success" });
+      } else {
+        executionPromise = this.strategy.execute(step, this.context, signal);
+      }
+
+      const taskPromise = executionPromise
         .then((result) => {
-            this.stateManager.markCompleted(step, result);
+          this.stateManager.markCompleted(step, result);
         })
         .finally(() => {
-             executingPromises.delete(taskPromise);
+          executingPromises.delete(taskPromise);
         });
 
       executingPromises.add(taskPromise);

@@ -124,7 +124,7 @@ export class TaskRunner<TContext> {
        }
 
        try {
-         return await executor.execute(steps, effectiveSignal);
+         return await executor.execute(steps, effectiveSignal, config?.dryRun);
        } finally {
          clearTimeout(timeoutId);
          if (config.signal && onAbort) {
@@ -132,7 +132,44 @@ export class TaskRunner<TContext> {
          }
        }
     } else {
-       return executor.execute(steps, config?.signal);
+       return executor.execute(steps, config?.signal, config?.dryRun);
     }
+  }
+
+  /**
+   * Generates a Mermaid.js graph representation of the workflow.
+   * @param steps The list of task steps.
+   * @returns A string containing the Mermaid graph definition.
+   */
+  static getMermaidGraph(steps: TaskStep<unknown>[]): string {
+    const lines = ["graph TD"];
+    const addedTasks = new Set<string>();
+
+    for (const step of steps) {
+      if (!step.dependencies || step.dependencies.length === 0) {
+        if (!addedTasks.has(step.name)) {
+          lines.push(`  ${step.name}`);
+          addedTasks.add(step.name);
+        }
+      } else {
+        for (const dep of step.dependencies) {
+          lines.push(`  ${dep} --> ${step.name}`);
+          addedTasks.add(step.name);
+          addedTasks.add(dep);
+        }
+      }
+    }
+
+    // Ensure all tasks are mentioned even if they are isolated (though the logic above covers it mostly,
+    // if a task is not in dependencies and has no dependencies, it's covered by the first if)
+    // However, if a task is listed in 'steps' but only appears as a dependency of another task (which shouldn't happen in valid input ideally but possible),
+    // or if the loop missed something.
+    // The current loop covers:
+    // 1. Tasks with no dependencies -> added as node.
+    // 2. Tasks with dependencies -> edges added.
+    // If a task is not in 'steps' but is a dependency, it will be added as part of the edge.
+    // So this should be fine.
+
+    return lines.join("\n");
   }
 }
