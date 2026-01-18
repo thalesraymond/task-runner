@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { WorkflowExecutor } from "../src/WorkflowExecutor.js";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
@@ -6,6 +6,69 @@ import { TaskStateManager } from "../src/TaskStateManager.js";
 import { StandardExecutionStrategy } from "../src/strategies/StandardExecutionStrategy.js";
 
 describe("WorkflowExecutor", () => {
+  it("should prevent duplicate task execution when queued tasks are rediscovered", async () => {
+    const eventBus = new EventBus<unknown>();
+    const stateManager = new TaskStateManager(eventBus);
+    const strategy = new StandardExecutionStrategy();
+    const context = {};
+
+    const t1: TaskStep<unknown> = { name: "t1", run: async () => ({ status: "success" }) };
+    const t2: TaskStep<unknown> = { name: "t2", run: async () => ({ status: "success" }) };
+    const t3: TaskStep<unknown> = { name: "t3", run: async () => ({ status: "success" }) };
+
+    // Sequence to simulate:
+    // 1. Initial: [t1] ready. t1 runs.
+    // 2. t1 finishes. [t2, t3] ready. t2 runs. t3 queued.
+    // 3. t2 finishes. [t3] ready (rediscovered!). t3 should be deduped. t3 runs.
+    // 4. t3 finishes. [] ready. Stop.
+
+    vi.spyOn(stateManager, "initialize").mockImplementation(() => {});
+    const pendingSpy = vi.spyOn(stateManager, "hasPendingTasks");
+    // Initial check (loop start) -> true
+    // After t1 -> true
+    // After t2 -> true
+    // After t3 -> false (loop end)
+    pendingSpy.mockReturnValue(true);
+
+    vi.spyOn(stateManager, "hasRunningTasks").mockReturnValue(false);
+
+    const processDepsSpy = vi.spyOn(stateManager, "processDependencies")
+      .mockReturnValueOnce([t1])      // Initial
+      .mockReturnValueOnce([t2, t3])  // After t1
+      .mockReturnValueOnce([t3])      // After t2 (t3 is the duplicate)
+      .mockReturnValue([]);           // After t3
+
+    const executeSpy = vi.spyOn(strategy, "execute").mockResolvedValue({ status: "success" });
+    vi.spyOn(stateManager, "markCompleted").mockImplementation(() => {
+        // Decrease pending count implicitly handled by hasPendingTasks mock logic if complex,
+        // but here we just return true until done.
+        // We need to make sure the loop terminates.
+        // We'll use a counter or inspecting call count for hasPendingTasks if needed,
+        // but simple mockReturnValue(true) might infinite loop if we are not careful.
+        // The loop condition is hasPending || hasRunning || readyQueue > 0.
+        // We need hasPending to eventually be false.
+    });
+
+    // Fix hasPendingTasks to return false eventually
+    pendingSpy.mockReturnValueOnce(true) // Initial
+              .mockReturnValueOnce(true) // Loop 1 (t1 running)
+              .mockReturnValueOnce(true) // Loop 2 (t2 running)
+              .mockReturnValueOnce(true) // Loop 3 (t3 running)
+              .mockReturnValue(false);   // End
+
+    const executor = new WorkflowExecutor(context, eventBus, stateManager, strategy, 1);
+
+    await executor.execute([t1, t2, t3]);
+
+    // t1, t2, t3 should run exactly once
+    expect(executeSpy).toHaveBeenCalledTimes(3);
+    // Use specific checks or simpler assertions
+    const calls = executeSpy.mock.calls;
+    expect(calls[0][0]).toEqual(t1);
+    expect(calls[1][0]).toEqual(t2);
+    expect(calls[2][0]).toEqual(t3);
+  });
+
   it("should execute steps sequentially when dependencies exist", async () => {
     const eventBus = new EventBus<unknown>();
     const stateManager = new TaskStateManager(eventBus);

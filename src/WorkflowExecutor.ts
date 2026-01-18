@@ -114,7 +114,8 @@ export class WorkflowExecutor<TContext> {
     const newReady = this.stateManager.processDependencies();
     // Filter out tasks that are already in the queue to avoid duplicates
     for (const task of newReady) {
-      if (!this.readyQueue.includes(task)) {
+      const isAlreadyInQueue = this.readyQueue.includes(task);
+      if (!isAlreadyInQueue) {
         this.readyQueue.push(task);
       }
     }
@@ -126,8 +127,11 @@ export class WorkflowExecutor<TContext> {
         executingPromises.size < this.concurrency)
     ) {
       const step = this.readyQueue.shift();
-      /* v8 ignore next 1 */
-      if (!step) break;
+      /* v8 ignore start */
+      if (!step) {
+        break;
+      }
+      /* v8 ignore stop */
 
       this.stateManager.markRunning(step);
 
