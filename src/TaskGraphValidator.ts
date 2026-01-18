@@ -1,4 +1,6 @@
-import { ITaskGraphValidator, ValidationResult, ValidationError } from "./validation-contracts.js";
+import { ITaskGraphValidator } from "./contracts/ITaskGraphValidator.js";
+import { ValidationResult } from "./contracts/ValidationResult.js";
+import { ValidationError } from "./contracts/ValidationError.js";
 import { TaskGraph } from "./TaskGraph.js";
 
 export class TaskGraphValidator implements ITaskGraphValidator {
