@@ -27,8 +27,8 @@ describe("TaskRunner Cancellation", () => {
     const results = await runner.execute(steps, { signal: controller.signal });
 
     expect(results.get("A")?.status).toBe("success");
-    // B should not run because execution was stopped
-    expect(results.has("B")).toBe(false);
+    // B should be cancelled
+    expect(results.get("B")?.status).toBe("cancelled");
   });
 
   it("should pass abort signal to tasks", async () => {
@@ -36,18 +36,24 @@ describe("TaskRunner Cancellation", () => {
     const steps: TaskStep<unknown>[] = [
       {
         name: "LongRunning",
-        run: async (_ctx, signal) => {
-          if (signal?.aborted) return { status: "cancelled" };
-
+        run: (_ctx, signal) => {
           return new Promise((resolve) => {
-             const timeout = setTimeout(() => {
-                resolve({ status: "success" });
-             }, 100);
+            const abortHandler = () => {
+              clearTimeout(timeout);
+              resolve({ status: "cancelled" });
+            };
 
-             signal?.addEventListener("abort", () => {
-                clearTimeout(timeout);
-                resolve({ status: "cancelled" });
-             });
+            signal?.addEventListener("abort", abortHandler);
+
+            if (signal?.aborted) {
+              signal?.removeEventListener("abort", abortHandler);
+              return resolve({ status: "cancelled" });
+            }
+
+            const timeout = setTimeout(() => {
+              signal?.removeEventListener("abort", abortHandler);
+              resolve({ status: "success" });
+            }, 100);
           });
         },
       },
@@ -77,6 +83,6 @@ describe("TaskRunner Cancellation", () => {
     const runner = new TaskRunner({});
     const results = await runner.execute(steps, { signal: controller.signal });
 
-    expect(results.size).toBe(0);
+    expect(results.get("A")?.status).toBe("cancelled");
   });
 });

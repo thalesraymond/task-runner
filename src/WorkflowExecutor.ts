@@ -49,6 +49,20 @@ export class WorkflowExecutor<TContext> {
       this.processQueue(steps, results, executingPromises, signal);
     }
 
+    // Handle remaining tasks if aborted
+    if (signal?.aborted) {
+      for (const step of steps) {
+        if (!results.has(step.name) && !this.running.has(step.name)) {
+          const result: TaskResult = {
+            status: "cancelled",
+            message: "Workflow cancelled",
+          };
+          results.set(step.name, result);
+          this.eventBus.emit("taskSkipped", { step, result });
+        }
+      }
+    }
+
     this.eventBus.emit("workflowEnd", { context: this.context, results });
     return results;
   }
