@@ -65,7 +65,8 @@ export class RetryingExecutionStrategy<TContext> implements IExecutionStrategy<T
   private sleep(ms: number, signal?: AbortSignal): Promise<void> {
     return new Promise((resolve, reject) => {
       if (signal?.aborted) {
-        return reject(new Error("AbortError"));
+        reject(new Error("AbortError"));
+        return;
       }
 
       const timer = setTimeout(() => {
