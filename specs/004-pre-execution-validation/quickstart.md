@@ -10,7 +10,7 @@ The `TaskGraphValidator` is designed to be an internal component, primarily used
 // In TaskRunner.ts (conceptual integration)
 
 // Import the necessary interfaces and the validator implementation
-import { ITaskGraphValidator, TaskGraph, ValidationResult } from '../../specs/004-pre-execution-validation/contracts/api';
+import { ITaskGraphValidator, TaskGraph, ValidationResult } from '../specs/004-pre-execution-validation/contracts/api';
 import { TaskGraphValidator } from '../../src/TaskGraphValidator'; // Assuming implementation path
 
 export class TaskRunner {
