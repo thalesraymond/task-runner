@@ -141,4 +141,4 @@ vite.config.ts.timestamp-*
 
 
 #pnpm
-package-lock.json
+package-lock.jsontest-report.xml
