@@ -1,3 +1,13 @@
+## 1.2.0 (2026-01-18)
+
+* Merge branch 'main' into 004-pre-execution-validation-14850747355617832302 ([cc01409](https://github.com/thalesraymond/task-runner/commit/cc01409))
+* Merge branch 'main' into 004-pre-execution-validation-14850747355617832302 ([0a31f84](https://github.com/thalesraymond/task-runner/commit/0a31f84))
+* Merge pull request #25 from thalesraymond/004-pre-execution-validation-14850747355617832302 ([8c022d1](https://github.com/thalesraymond/task-runner/commit/8c022d1)), closes [#25](https://github.com/thalesraymond/task-runner/issues/25)
+* refactor: address PR comments, extract TaskGraph ([f2d506f](https://github.com/thalesraymond/task-runner/commit/f2d506f))
+* refactor: address PR review feedback ([38e7878](https://github.com/thalesraymond/task-runner/commit/38e7878))
+* refactor: split validation contracts into individual files ([c9caea0](https://github.com/thalesraymond/task-runner/commit/c9caea0))
+* feat: pre-validation of task graph for cycles and missing deps ([4680c1b](https://github.com/thalesraymond/task-runner/commit/4680c1b)), closes [#004](https://github.com/thalesraymond/task-runner/issues/004)
+
 ## <small>1.1.1 (2026-01-18)</small>
 
 * Merge branch 'main' into chore/configure-sonar-quality-gate-6593988281334866666 ([fe5c88d](https://github.com/thalesraymond/task-runner/commit/fe5c88d))
