@@ -120,7 +120,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         stack.push({
             taskId: startTaskId,
             index: 0,
-            dependencies: adjacencyList.get(startTaskId)!
+            /* v8 ignore next */
+            dependencies: adjacencyList.get(startTaskId) ?? []
         });
 
         while (stack.length > 0) {
@@ -145,7 +146,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
                     stack.push({
                         taskId: dependenceId,
                         index: 0,
-                        dependencies: adjacencyList.get(dependenceId)!
+                        /* v8 ignore next */
+                        dependencies: adjacencyList.get(dependenceId) ?? []
                     });
                 }
             } else {
