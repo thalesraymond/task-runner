@@ -29,7 +29,7 @@ export interface ValidationError {
     /** A human-readable message describing the error. */
     message: string;
     /** Optional detailed information about the error, e.g., the cycle path, or the task with a missing dependency. */
-    details?: any;
+    details?: unknown;
 }
 
 /**
