@@ -69,7 +69,8 @@ export interface TaskRunnerConfig {
   timeout?: number;
   /**
    * The maximum number of tasks that can run simultaneously.
-   * If not specified, or set to 0 or Infinity, concurrency will be unlimited.
+   * A positive integer limits concurrency. Values less than or equal to 0,
+   * as well as `Infinity` or `undefined`, are treated as unlimited concurrency.
    */
   concurrency?: number;
 }
