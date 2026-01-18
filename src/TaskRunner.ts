@@ -2,6 +2,7 @@ import { TaskStep } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { TaskGraphValidator } from "./TaskGraphValidator.js";
 import { TaskGraph } from "./TaskGraph.js";
+import { TaskRunnerConfig } from "./TaskRunnerConfig.js";
 
 /**
  * Define the payload for every possible event in the lifecycle.
@@ -126,11 +127,20 @@ export class TaskRunner<TContext> {
   /**
    * Executes a list of tasks, respecting their dependencies and running
    * independent tasks in parallel.
+   *
+   * If a `timeout` is provided in the configuration, the workflow will be cancelled
+   * if it exceeds the specified duration. An `AbortSignal` can also be provided
+   * to externally cancel the workflow.
+   *
    * @param steps An array of TaskStep objects to be executed.
+   * @param config Optional configuration for the execution (e.g., cancellation signal, timeout).
    * @returns A Promise that resolves to a Map where keys are task names
    * and values are the corresponding TaskResult objects.
    */
-  async execute(steps: TaskStep<TContext>[]): Promise<Map<string, TaskResult>> {
+  async execute(
+    steps: TaskStep<TContext>[],
+    config?: TaskRunnerConfig
+  ): Promise<Map<string, TaskResult>> {
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
@@ -182,53 +192,114 @@ export class TaskRunner<TContext> {
 
     const results = new Map<string, TaskResult>();
 
-    while (results.size < steps.length) {
-      const pendingSteps = steps.filter(
-        (step) => !results.has(step.name) && !this.running.has(step.name)
-      );
+    // Setup global cancellation controller
+    const internalController = new AbortController();
+    let timeoutId: NodeJS.Timeout | undefined;
 
-      const readySteps = pendingSteps.filter((step) => {
-        const deps = step.dependencies ?? [];
-        return deps.every(
-          (dep) => results.has(dep) && results.get(dep)?.status === "success"
-        );
-      });
+    // Handle external signal
+    const externalSignal = config?.signal;
+    const abortHandler = () => {
+      internalController.abort(externalSignal?.reason);
+    };
 
-      // Skip tasks with failed dependencies
-      for (const step of pendingSteps) {
-        const deps = step.dependencies ?? [];
-        const failedDep = deps.find(
-          (dep) => results.has(dep) && results.get(dep)?.status !== "success"
-        );
-        if (failedDep) {
-          const result: TaskResult = {
-            status: "skipped",
-            message: `Skipped due to failed dependency: ${failedDep}`,
-          };
-          results.set(step.name, result);
-          this.emit("taskSkipped", { step, result });
-        }
+    if (externalSignal) {
+      if (externalSignal.aborted) {
+        internalController.abort(externalSignal.reason);
+      } else {
+        externalSignal.addEventListener("abort", abortHandler, { once: true });
       }
+    }
 
-      await Promise.all(
-        readySteps.map(async (step) => {
-          this.running.add(step.name);
-          this.emit("taskStart", { step });
-          try {
-            const result = await step.run(this.context);
-            results.set(step.name, result);
-          } catch (e) {
-            results.set(step.name, {
-              status: "failure",
-              error: e instanceof Error ? e.message : String(e),
-            });
-          } finally {
-            this.running.delete(step.name);
-            const result = results.get(step.name)!;
-            this.emit("taskEnd", { step, result });
+    // Handle timeout
+    if (config?.timeout) {
+      timeoutId = setTimeout(() => {
+        internalController.abort(
+          new Error(`Timeout of ${config.timeout}ms exceeded`)
+        );
+      }, config.timeout);
+    }
+
+    // Ensure cleanup of listener and timeout
+    const cleanup = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (externalSignal) {
+        externalSignal.removeEventListener("abort", abortHandler);
+      }
+    };
+
+    try {
+        while (results.size < steps.length) {
+          const pendingSteps = steps.filter(
+            (step) => !results.has(step.name) && !this.running.has(step.name)
+          );
+
+          // Skip tasks with failed dependencies
+          for (const step of pendingSteps) {
+            const deps = step.dependencies ?? [];
+            const failedDep = deps.find(
+              (dep) => results.has(dep) && results.get(dep)?.status !== "success"
+            );
+            if (failedDep) {
+              const result: TaskResult = {
+                status: "skipped",
+                message: `Skipped due to failed dependency: ${failedDep}`,
+              };
+              results.set(step.name, result);
+              this.emit("taskSkipped", { step, result });
+            }
           }
-        })
-      );
+
+          // Check for cancellation
+          if (internalController.signal.aborted) {
+            const uncompletedSteps = steps.filter(
+              (step) => !results.has(step.name) && !this.running.has(step.name)
+            );
+            for (const step of uncompletedSteps) {
+              const result: TaskResult = {
+                status: "cancelled",
+                message: "Workflow cancelled",
+              };
+              results.set(step.name, result);
+              this.emit("taskSkipped", { step, result });
+            }
+            continue;
+          }
+
+          const readySteps = pendingSteps.filter((step) => {
+            // Re-check pending steps as some might have been skipped above
+            if (results.has(step.name)) return false;
+
+            const deps = step.dependencies ?? [];
+            return deps.every(
+              (dep) => results.has(dep) && results.get(dep)?.status === "success"
+            );
+          });
+
+
+          if (readySteps.length > 0) {
+              await Promise.all(
+                readySteps.map(async (step) => {
+                  this.running.add(step.name);
+                  this.emit("taskStart", { step });
+                  try {
+                    const result = await step.run(this.context, internalController.signal);
+                    results.set(step.name, result);
+                  } catch (e) {
+                    results.set(step.name, {
+                      status: "failure",
+                      error: e instanceof Error ? e.message : String(e),
+                    });
+                  } finally {
+                    this.running.delete(step.name);
+                    const result = results.get(step.name)!;
+                    this.emit("taskEnd", { step, result });
+                  }
+                })
+              );
+          }
+        }
+    } finally {
+        cleanup();
     }
 
     this.emit("workflowEnd", { context: this.context, results });
