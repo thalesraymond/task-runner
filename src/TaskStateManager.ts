@@ -94,6 +94,22 @@ export class TaskStateManager<TContext> {
   }
 
   /**
+   * Cancels a specific task that hasn't started yet.
+   * @param step The task to cancel.
+   * @param message The cancellation message.
+   */
+  cancelTask(step: TaskStep<TContext>, message: string): void {
+    /* v8 ignore next 1 */
+    if (!this.results.has(step.name) && !this.running.has(step.name)) {
+      const result: TaskResult = {
+        status: "cancelled",
+        message,
+      };
+      this.results.set(step.name, result);
+    }
+  }
+
+  /**
    * Cancels all pending tasks that haven't started yet.
    * @param message The cancellation message.
    */

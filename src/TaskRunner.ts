@@ -94,7 +94,8 @@ export class TaskRunner<TContext> {
       this.context,
       this.eventBus,
       stateManager,
-      this.executionStrategy
+      this.executionStrategy,
+      config?.concurrency
     );
 
     // We need to handle the timeout cleanup properly.
