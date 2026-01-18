@@ -1,3 +1,15 @@
+## 3.1.0 (2026-01-18)
+
+* Merge branch 'main' into add-workflow-preview-16392950418245316538 ([249d5a8](https://github.com/thalesraymond/task-runner/commit/249d5a8))
+* Merge pull request #60 from thalesraymond/nexus/per-task-timeout-2298370472207213824 ([1b64fe1](https://github.com/thalesraymond/task-runner/commit/1b64fe1)), closes [#60](https://github.com/thalesraymond/task-runner/issues/60)
+* Merge pull request #61 from thalesraymond/add-workflow-preview-16392950418245316538 ([1f08dba](https://github.com/thalesraymond/task-runner/commit/1f08dba)), closes [#61](https://github.com/thalesraymond/task-runner/issues/61)
+* fix: 🐛 fix sanitization of mermaid function ([b09db63](https://github.com/thalesraymond/task-runner/commit/b09db63))
+* feat: add workflow preview and dry-run capabilities ([e1ccda9](https://github.com/thalesraymond/task-runner/commit/e1ccda9))
+* feat: add workflow preview and dry-run capabilities ([138f4ae](https://github.com/thalesraymond/task-runner/commit/138f4ae))
+* docs: ✏️ update specs after project refactoring ([5f35f18](https://github.com/thalesraymond/task-runner/commit/5f35f18))
+* docs: propose per-task timeout feature ([088cf42](https://github.com/thalesraymond/task-runner/commit/088cf42))
+* docs: propose per-task timeout feature ([2615635](https://github.com/thalesraymond/task-runner/commit/2615635))
+
 ## 3.0.0 (2026-01-18)
 
 * feat: 🎸 Generating 3.0.0 since automation wrongly skiped ([c545f25](https://github.com/thalesraymond/task-runner/commit/c545f25))
