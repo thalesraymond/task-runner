@@ -26,9 +26,10 @@ export class TaskStateManager<TContext> {
   /**
    * Processes the pending steps to identify tasks that can be started or must be skipped.
    * Emits `taskSkipped` for skipped tasks.
+   * @param limit The maximum number of ready tasks to return.
    * @returns An array of tasks that are ready to run.
    */
-  processDependencies(): TaskStep<TContext>[] {
+  processDependencies(limit: number = Number.POSITIVE_INFINITY): TaskStep<TContext>[] {
     const toRemove: TaskStep<TContext>[] = [];
     const toRun: TaskStep<TContext>[] = [];
 
@@ -59,8 +60,10 @@ export class TaskStateManager<TContext> {
         this.eventBus.emit("taskSkipped", { step, result });
         toRemove.push(step);
       } else if (!blocked) {
-        toRun.push(step);
-        toRemove.push(step);
+        if (toRun.length < limit) {
+          toRun.push(step);
+          toRemove.push(step);
+        }
       }
     }
 

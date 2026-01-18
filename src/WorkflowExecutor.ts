@@ -19,7 +19,8 @@ export class WorkflowExecutor<TContext> {
     private context: TContext,
     private eventBus: EventBus<TContext>,
     private stateManager: TaskStateManager<TContext>,
-    private strategy: IExecutionStrategy<TContext>
+    private strategy: IExecutionStrategy<TContext>,
+    private concurrencyLimit?: number
   ) {}
 
   /**
@@ -100,7 +101,16 @@ export class WorkflowExecutor<TContext> {
     executingPromises: Set<Promise<void>>,
     signal?: AbortSignal
   ): void {
-    const toRun = this.stateManager.processDependencies();
+    // If we are at capacity, don't even check for new work yet
+    if (this.concurrencyLimit && executingPromises.size >= this.concurrencyLimit) {
+      return;
+    }
+
+    const availableSlots = this.concurrencyLimit
+      ? this.concurrencyLimit - executingPromises.size
+      : Number.POSITIVE_INFINITY;
+
+    const toRun = this.stateManager.processDependencies(availableSlots);
 
     // Execute ready tasks
     for (const step of toRun) {
@@ -108,10 +118,10 @@ export class WorkflowExecutor<TContext> {
 
       const taskPromise = this.strategy.execute(step, this.context, signal)
         .then((result) => {
-            this.stateManager.markCompleted(step, result);
+          this.stateManager.markCompleted(step, result);
         })
         .finally(() => {
-             executingPromises.delete(taskPromise);
+          executingPromises.delete(taskPromise);
         });
 
       executingPromises.add(taskPromise);
