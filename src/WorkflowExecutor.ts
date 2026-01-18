@@ -66,7 +66,8 @@ export class WorkflowExecutor<TContext> {
 
       while (
         this.stateManager.hasPendingTasks() ||
-        this.stateManager.hasRunningTasks()
+        this.stateManager.hasRunningTasks() ||
+        executingPromises.size > 0
       ) {
         // Safety check: if no tasks are running and we still have pending tasks,
         // it means we are stuck (e.g. cycle or unhandled dependency).
@@ -124,18 +125,62 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.shift()!;
 
-      this.stateManager.markRunning(step);
+      const taskPromise = (async () => {
+        try {
+          if (step.condition) {
+            const check = step.condition(this.context);
+            const shouldRun = check instanceof Promise ? await check : check;
 
-      const taskPromise = this.strategy
-        .execute(step, this.context, signal)
-        .then((result) => {
+            if (signal?.aborted) {
+              this.stateManager.markCompleted(step, {
+                status: "cancelled",
+                message: "Cancelled during condition evaluation.",
+              });
+              return;
+            }
+
+            if (!shouldRun) {
+              const result: TaskResult = {
+                status: "skipped",
+                message: "Skipped by condition evaluation.",
+              };
+              this.stateManager.markSkipped(step, result);
+              return;
+            }
+          }
+        } catch (error) {
+          const result: TaskResult = {
+            status: "failure",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Condition evaluation failed",
+            error: error instanceof Error ? error.message : String(error),
+          };
           this.stateManager.markCompleted(step, result);
-        })
-        .finally(() => {
-          executingPromises.delete(taskPromise);
-          // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
-        });
+          return;
+        }
+
+        if (signal?.aborted) {
+          this.stateManager.markCompleted(step, {
+            status: "cancelled",
+            message: "Cancelled before execution started.",
+          });
+          return;
+        }
+
+        this.stateManager.markRunning(step);
+
+        await this.strategy
+          .execute(step, this.context, signal)
+          .then((result) => {
+            this.stateManager.markCompleted(step, result);
+          });
+      })().finally(() => {
+        executingPromises.delete(taskPromise);
+        // When a task finishes, we try to run more
+        this.processLoop(executingPromises, signal);
+      });
 
       executingPromises.add(taskPromise);
     }

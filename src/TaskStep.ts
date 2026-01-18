@@ -13,6 +13,12 @@ export interface TaskStep<TContext> {
   /** Optional retry configuration for the task. */
   retry?: TaskRetryConfig;
   /**
+   * Optional function to determine if the task should run.
+   * If it returns false (synchronously or asynchronously), the task is skipped.
+   */
+  condition?: (context: TContext) => boolean | Promise<boolean>;
+
+  /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
    * @param signal An optional AbortSignal to listen for cancellation.

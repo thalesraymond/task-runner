@@ -20,6 +20,7 @@
     "test": "tsc --noEmit -p tsconfig.test.json && vitest run --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "all": "pnpm run build && pnpm run test && pnpm run lint",
     "format": "prettier --write .",
     "prepare": "husky",
     "commit": "git add . &&git-cz"

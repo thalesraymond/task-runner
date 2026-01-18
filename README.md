@@ -18,6 +18,7 @@ A lightweight, type-safe, and domain-agnostic task orchestration engine. It reso
 - **Visualization**: Generate Mermaid.js diagrams of your task graph.
 - **Event System**: Subscribe to lifecycle events for logging or monitoring.
 - **Runtime Validation**: Automatically detects circular dependencies and missing dependencies.
+- **Conditional Execution**: Skip tasks dynamically based on context state.
 
 ## Usage Example
 
@@ -139,6 +140,21 @@ console.log(graph);
 ## Skip Propagation
 
 If a task fails or is skipped, the `TaskRunner` automatically marks all subsequent tasks that depend on it as `skipped`. This ensures that your pipeline doesn't attempt to run steps with missing prerequisites.
+
+## Conditional Execution
+
+You can define a `condition` function for a task. If it returns `false`, the task is marked as `skipped`, and its dependencies are also skipped.
+
+```typescript
+const deployStep: TaskStep<MyContext> = {
+  name: "deploy",
+  condition: (ctx) => ctx.env === "production",
+  run: async () => {
+    // Deploy logic
+    return { status: "success" };
+  }
+};
+```
 
 ## Why I did this?
 

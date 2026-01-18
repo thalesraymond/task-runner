@@ -55,8 +55,7 @@ export class TaskStateManager<TContext> {
           status: "skipped",
           message: `Skipped because dependency '${failedDep}' failed${depError}`,
         };
-        this.results.set(step.name, result);
-        this.eventBus.emit("taskSkipped", { step, result });
+        this.markSkipped(step, result);
         toRemove.push(step);
       } else if (!blocked) {
         toRun.push(step);
@@ -138,5 +137,16 @@ export class TaskStateManager<TContext> {
    */
   hasPendingTasks(): boolean {
     return this.pendingSteps.size > 0;
+  }
+
+  /**
+   * Marks a task as skipped and emits `taskSkipped`.
+   * @param step The task that was skipped.
+   * @param result The result object (status: skipped).
+   */
+  markSkipped(step: TaskStep<TContext>, result: TaskResult): void {
+    this.running.delete(step.name);
+    this.results.set(step.name, result);
+    this.eventBus.emit("taskSkipped", { step, result });
   }
 }
