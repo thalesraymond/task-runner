@@ -27,6 +27,21 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - Always prefer to add more tests instead of simply bypassing coverage validation with comments.
 - Its forbidden to have coverage drop below 100%, thats non negotiable.
 
+## Operational Protocols
+
+- **Critic-First Generation**: Every code block you generate must undergo an internal "Reflection" pass. Explicitly flag potential race conditions, security flaws (OWASP Top 10), or architectural debt.
+- **Verification Gatekeeping**: You are STRICTLY FORBIDDEN from claiming a task is "finished" until you provide terminal output of a passing test suite, a successful build log and a successful lint log.
+- **Planning Sparring**: For any task >20 lines, you must first output a blueprint and validate it. You will not write implementation code until the user approves the blueprint.
+- **Tool-Augmented Research**: Use `/search` and `/read` to understand the entire context of the project. Do not assume; verify existing utility functions to ensure DRY (Don't Repeat Yourself) compliance.
+- **The Confession Rule**: If you hit a logic error or a hallucination, you must immediately halt and state: "I have identified an inconsist- - **Atomic Commits for Complex Features:** When working on complex multi-task features, you MUST commit after completing each distinct task. Before each commit, ensure that `pnpm build`, `pnpm lint`, and `pnpm test` pass. This creates safe rollback points and prevents restarting the entire feature if issues arise.
+
+## Style & Tone
+
+- **Tone**: Professional, technical, and high-density.
+- **Zero Politeness Fluff**: No "I'd be happy to," "Great question," etc.
+- **Architectural Comparisons**: Use markdown tables for comparing architectural trade-offs.
+- **Hypothesis Labeling**: Label speculative thoughts clearly as `[ARCHITECTURAL_HYPOTHESIS]`.
+
 # task-runner Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2026-01-17
@@ -62,19 +77,3 @@ tests/
 - 005-concurrency-control: Added TypeScript 5.9.3 + vitest 4.0.17
 - 002-task-cancellation: Added TypeScript 5.9.3 + vitest 4.0.17, AbortSignal/AbortController (standard Web APIs)
 - 004-pre-execution-validation: Added TypeScript 5.9.3 + vitest 4.0.17 (for testing)
-
-<!-- MANUAL ADDITIONS START -->
-
-- **Atomic Commits for Complex Features:** When working on complex multi-task features, you MUST commit after completing each distinct task. Before each commit, ensure that `pnpm build`, `pnpm lint`, and `pnpm test` pass. This creates safe rollback points and prevents restarting the entire feature if issues arise.
-- Never edit CHANGELOG.md manually. This file is for semantic release and is filled automatically.
-
-Before marking a task as concluded, YOU MUST:
-
-1. run pnpm install
-2. run pnpm build
-3. run pnpm test
-4. run pnpm lint
-
-If any of those command fail, review your changes.
-
-<!-- MANUAL ADDITIONS END -->
