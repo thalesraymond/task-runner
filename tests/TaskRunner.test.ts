@@ -212,9 +212,9 @@ describe("TaskRunner", () => {
     ];
 
     const runner = new TaskRunner({});
+    expect.assertions(4);
     try {
       await runner.execute(steps);
-      throw new Error("Should have thrown");
     } catch (error) {
       expect(error).toBeInstanceOf(TaskGraphValidationError);
       if (error instanceof TaskGraphValidationError) {
