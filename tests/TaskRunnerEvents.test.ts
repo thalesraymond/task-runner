@@ -14,28 +14,29 @@ describe("TaskRunner Events", () => {
   });
 
   it("should fire all lifecycle events in a successful run", async () => {
-    const steps: TaskStep<unknown>[] = [
+    const context = {};
+    const steps: TaskStep<typeof context>[] = [
       {
         name: "A",
-        run: async () => ({ status: "success" }),
+        run: async () => ({ status: "success", context }),
       },
       {
         name: "B",
         dependencies: ["A"],
-        run: async () => ({ status: "success" }),
+        run: async () => ({ status: "success", context }),
       },
     ];
 
-    const runner = new TaskRunner({});
+    const runner = new TaskRunner(context);
     const events: string[] = [];
 
     runner.on("workflowStart", () => {
       events.push("workflowStart");
     });
-    runner.on("taskStart", ({ step }: { step: TaskStep<unknown> }) => {
+    runner.on("taskStart", ({ step }: { step: TaskStep<typeof context> }) => {
       events.push(`taskStart:${step.name}`);
     });
-    runner.on("taskEnd", ({ step }: { step: TaskStep<unknown> }) => {
+    runner.on("taskEnd", ({ step }: { step: TaskStep<typeof context> }) => {
       events.push(`taskEnd:${step.name}`);
     });
     runner.on("workflowEnd", () => {
