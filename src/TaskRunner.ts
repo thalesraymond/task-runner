@@ -35,17 +35,22 @@ export type RunnerEventListener<
 > = (data: RunnerEventPayloads<TContext>[K]) => void | Promise<void>;
 
 /**
+ * Helper type for the listeners map to avoid private access issues in generic contexts.
+ */
+type ListenerMap<TContext> = {
+  [K in keyof RunnerEventPayloads<TContext>]?: Set<
+    RunnerEventListener<TContext, K>
+  >;
+};
+
+/**
  * The main class that orchestrates the execution of a list of tasks
  * based on their dependencies, with support for parallel execution.
  * @template TContext The shape of the shared context object.
  */
 export class TaskRunner<TContext> {
   private running = new Set<string>();
-  private listeners: {
-    [K in keyof RunnerEventPayloads<TContext>]?: Set<
-      RunnerEventListener<TContext, K>
-    >;
-  } = {};
+  private listeners: ListenerMap<TContext> = {};
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -64,7 +69,7 @@ export class TaskRunner<TContext> {
     if (!this.listeners[event]) {
       // Type assertion needed because TypeScript cannot verify that the generic K
       // matches the specific key in the mapped type during assignment.
-      this.listeners[event] = new Set() as any;
+      this.listeners[event] = new Set() as unknown as ListenerMap<TContext>[K];
     }
     // Type assertion needed to tell TS that this specific Set matches the callback type
     (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).add(
