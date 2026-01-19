@@ -81,9 +81,6 @@ export class WorkflowExecutor<TContext> {
 
         if (signal?.aborted) {
           this.stateManager.cancelAllPending("Workflow cancelled.");
-        } else {
-          // After a task finishes, check for new work
-          this.processLoop(executingPromises, signal);
         }
       }
 

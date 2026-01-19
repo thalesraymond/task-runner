@@ -26,10 +26,12 @@ export class TaskStateManager<TContext> {
 
     for (const step of steps) {
       for (const depName of step.dependencies || []) {
-        if (!this.dependencyGraph.has(depName)) {
-          this.dependencyGraph.set(depName, new Set());
+        const dependents = this.dependencyGraph.get(depName);
+        if (dependents) {
+          dependents.add(step);
+        } else {
+          this.dependencyGraph.set(depName, new Set([step]));
         }
-        this.dependencyGraph.get(depName)!.add(step);
       }
     }
   }
@@ -96,9 +98,7 @@ export class TaskStateManager<TContext> {
         // Propagate: Add dependents to queue to ensure they are also skipped in this pass
         const dependents = this.dependencyGraph.get(step.name);
         if (dependents) {
-          for (const depStep of dependents) {
-            queue.push(depStep);
-          }
+          queue.push(...dependents);
         }
       } else if (!blocked) {
         toRun.push(step);
