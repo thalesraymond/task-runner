@@ -1,3 +1,16 @@
+## 3.6.0 (2026-01-19)
+
+* Add CodeQL analysis workflow configuration ([b2ee976](https://github.com/thalesraymond/task-runner/commit/b2ee976))
+* Merge pull request #66 from thalesraymond/dependabot/github_actions/actions/checkout-6 ([cb6e75f](https://github.com/thalesraymond/task-runner/commit/cb6e75f)), closes [#66](https://github.com/thalesraymond/task-runner/issues/66)
+* Merge pull request #67 from thalesraymond/dependabot/github_actions/pnpm/action-setup-4 ([4c9e9f3](https://github.com/thalesraymond/task-runner/commit/4c9e9f3)), closes [#67](https://github.com/thalesraymond/task-runner/issues/67)
+* Merge pull request #68 from thalesraymond/dependabot/github_actions/SonarSource/sonarqube-scan-actio ([9980f4d](https://github.com/thalesraymond/task-runner/commit/9980f4d)), closes [#68](https://github.com/thalesraymond/task-runner/issues/68)
+* Merge pull request #71 from thalesraymond/chore/codeQLworkflow ([db4f46a](https://github.com/thalesraymond/task-runner/commit/db4f46a)), closes [#71](https://github.com/thalesraymond/task-runner/issues/71)
+* Merge pull request #72 from thalesraymond/setup-issue-templates-6661562951039014259 ([f3281bf](https://github.com/thalesraymond/task-runner/commit/f3281bf)), closes [#72](https://github.com/thalesraymond/task-runner/issues/72)
+* feat: add issue templates ([6ff97f1](https://github.com/thalesraymond/task-runner/commit/6ff97f1))
+* chore(deps): bump actions/checkout from 4 to 6 ([f0b2f0e](https://github.com/thalesraymond/task-runner/commit/f0b2f0e))
+* chore(deps): bump pnpm/action-setup from 2 to 4 ([2a5c3e1](https://github.com/thalesraymond/task-runner/commit/2a5c3e1))
+* chore(deps): bump SonarSource/sonarqube-scan-action from 6 to 7 ([df236cd](https://github.com/thalesraymond/task-runner/commit/df236cd))
+
 ## 3.5.0 (2026-01-18)
 
 * Merge pull request #69 from thalesraymond/feat/conditional-execution ([dd1dd8d](https://github.com/thalesraymond/task-runner/commit/dd1dd8d)), closes [#69](https://github.com/thalesraymond/task-runner/issues/69)
