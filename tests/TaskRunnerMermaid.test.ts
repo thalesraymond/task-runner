@@ -84,4 +84,22 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
+
+  it("should sanitize potentially dangerous characters for Mermaid IDs", () => {
+    const steps: TaskStep<unknown>[] = [
+      { name: "Task(1)", run: async () => ({ status: "success" }) },
+      { name: "Task[2]", run: async () => ({ status: "success" }) },
+      { name: "Task{3}", run: async () => ({ status: "success" }) },
+      { name: "Task.4", run: async () => ({ status: "success" }) },
+    ];
+
+    const graph = TaskRunner.getMermaidGraph(steps);
+    const lines = graph.split("\n");
+
+    // We expect them to be sanitized to underscores or similar safe chars
+    expect(lines).toContain("  Task_1_[\"Task(1)\"]");
+    expect(lines).toContain("  Task_2_[\"Task[2]\"]");
+    expect(lines).toContain("  Task_3_[\"Task{3}\"]");
+    expect(lines).toContain("  Task_4[\"Task.4\"]");
+  });
 });
