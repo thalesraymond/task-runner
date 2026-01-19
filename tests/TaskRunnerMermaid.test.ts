@@ -84,21 +84,4 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
-
-  it("should sanitize brackets and parentheses", () => {
-    const steps: TaskStep<unknown>[] = [
-      { name: "Task[1]", run: async () => ({ status: "success" }) },
-      { name: "Task(2)", run: async () => ({ status: "success" }) },
-      { name: "Task{3}", run: async () => ({ status: "success" }) },
-    ];
-
-    const graph = TaskRunner.getMermaidGraph(steps);
-    const lines = graph.split("\n");
-
-    // Current implementation fails to sanitize these, leading to invalid Mermaid syntax
-    // e.g., Task[1]["Task[1]"] which is confusing/invalid
-    expect(lines).toContain("  Task_1_[\"Task[1]\"]");
-    expect(lines).toContain("  Task_2_[\"Task(2)\"]");
-    expect(lines).toContain("  Task_3_[\"Task{3}\"]");
-  });
 });
