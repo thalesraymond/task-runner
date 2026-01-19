@@ -1,3 +1,8 @@
+## 3.7.0 (2026-01-19)
+
+* Merge pull request #82 from thalesraymond/nexus-feature-state-persistence-17975676824428491411 ([1137981](https://github.com/thalesraymond/task-runner/commit/1137981)), closes [#82](https://github.com/thalesraymond/task-runner/issues/82)
+* feat: add workflow state persistence proposal ([b62769e](https://github.com/thalesraymond/task-runner/commit/b62769e))
+
 ## 3.6.0 (2026-01-19)
 
 * Add CodeQL analysis workflow configuration ([b2ee976](https://github.com/thalesraymond/task-runner/commit/b2ee976))
