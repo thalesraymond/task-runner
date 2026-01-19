@@ -10,6 +10,7 @@ export class TaskStateManager<TContext> {
   private results = new Map<string, TaskResult>();
   private pendingSteps = new Set<TaskStep<TContext>>();
   private running = new Set<string>();
+  private dependencyGraph = new Map<string, Set<TaskStep<TContext>>>();
 
   constructor(private eventBus: EventBus<TContext>) {}
 
@@ -21,18 +22,52 @@ export class TaskStateManager<TContext> {
     this.pendingSteps = new Set(steps);
     this.results.clear();
     this.running.clear();
+    this.dependencyGraph.clear();
+
+    for (const step of steps) {
+      for (const depName of step.dependencies || []) {
+        if (!this.dependencyGraph.has(depName)) {
+          this.dependencyGraph.set(depName, new Set());
+        }
+        this.dependencyGraph.get(depName)!.add(step);
+      }
+    }
   }
 
   /**
    * Processes the pending steps to identify tasks that can be started or must be skipped.
    * Emits `taskSkipped` for skipped tasks.
+   * @param triggerTaskName Optional name of the task that just finished, to optimize the check.
    * @returns An array of tasks that are ready to run.
    */
-  processDependencies(): TaskStep<TContext>[] {
-    const toRemove: TaskStep<TContext>[] = [];
+  processDependencies(triggerTaskName?: string): TaskStep<TContext>[] {
     const toRun: TaskStep<TContext>[] = [];
 
-    for (const step of this.pendingSteps) {
+    // Queue of steps to check.
+    // If triggered by a task, start with its dependents.
+    // Otherwise (initial), check all pending steps.
+    let queue: TaskStep<TContext>[];
+
+    if (triggerTaskName) {
+      const dependents = this.dependencyGraph.get(triggerTaskName);
+      queue = dependents ? Array.from(dependents) : [];
+    } else {
+      queue = Array.from(this.pendingSteps);
+    }
+
+    const processedInThisPass = new Set<string>();
+    let head = 0;
+
+    while (head < queue.length) {
+      const step = queue[head++];
+
+      // Optimization: Avoid re-checking the same step multiple times in one pass
+      if (processedInThisPass.has(step.name)) continue;
+      processedInThisPass.add(step.name);
+
+      // Verify it's still pending
+      if (!this.pendingSteps.has(step)) continue;
+
       const deps = step.dependencies ?? [];
       let blocked = false;
       let failedDep: string | undefined;
@@ -56,16 +91,19 @@ export class TaskStateManager<TContext> {
           message: `Skipped because dependency '${failedDep}' failed${depError}`,
         };
         this.markSkipped(step, result);
-        toRemove.push(step);
+        this.pendingSteps.delete(step);
+
+        // Propagate: Add dependents to queue to ensure they are also skipped in this pass
+        const dependents = this.dependencyGraph.get(step.name);
+        if (dependents) {
+          for (const depStep of dependents) {
+            queue.push(depStep);
+          }
+        }
       } else if (!blocked) {
         toRun.push(step);
-        toRemove.push(step);
+        this.pendingSteps.delete(step);
       }
-    }
-
-    // Cleanup pending set
-    for (const step of toRemove) {
-      this.pendingSteps.delete(step);
     }
 
     return toRun;
@@ -99,8 +137,6 @@ export class TaskStateManager<TContext> {
   cancelAllPending(message: string): void {
     // Iterate over pendingSteps to cancel them
     for (const step of this.pendingSteps) {
-      // Also check running? No, running tasks are handled by AbortSignal in Executor.
-      // We only cancel what is pending and hasn't started.
       /* v8 ignore next 1 */
       if (!this.results.has(step.name) && !this.running.has(step.name)) {
         const result: TaskResult = {
@@ -110,11 +146,6 @@ export class TaskStateManager<TContext> {
         this.results.set(step.name, result);
       }
     }
-    // Clear pending set as they are now "done" (cancelled)
-    // Wait, if we clear pending steps, processDependencies won't pick them up.
-    // The loop in Executor relies on results.size or pendingSteps.
-    // The previous implementation iterated `steps` (all steps) to cancel.
-    // Here we iterate `pendingSteps`.
     this.pendingSteps.clear();
   }
 

@@ -105,9 +105,11 @@ export class WorkflowExecutor<TContext> {
    */
   private processLoop(
     executingPromises: Set<Promise<void>>,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    finishedTaskName?: string
   ): void {
-    const newlyReady = this.stateManager.processDependencies();
+    const newlyReady =
+      this.stateManager.processDependencies(finishedTaskName);
 
     // Add newly ready tasks to the queue
     for (const task of newlyReady) {
@@ -179,7 +181,7 @@ export class WorkflowExecutor<TContext> {
       })().finally(() => {
         executingPromises.delete(taskPromise);
         // When a task finishes, we try to run more
-        this.processLoop(executingPromises, signal);
+        this.processLoop(executingPromises, signal, step.name);
       });
 
       executingPromises.add(taskPromise);
