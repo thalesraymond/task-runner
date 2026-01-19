@@ -33,7 +33,7 @@ export class TaskRunner<TContext> {
   /**
    * @param context The shared context object to be passed to each task.
    */
-  constructor(private context: TContext) {}
+  constructor(private context: TContext) { }
 
   /**
    * Subscribe to an event.
@@ -78,28 +78,52 @@ export class TaskRunner<TContext> {
    */
   public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
     const graphLines = ["graph TD"];
+    const nameToIdMap = new Map<string, string>();
+    const usedIds = new Set<string>();
 
-    // Helper to sanitize node names or wrap them if needed
-    // For simplicity, we just wrap in quotes and use the name as ID if it's simple
-    // or generate an ID if strictly needed. Here we assume names are unique IDs.
-    // We will wrap names in quotes for the label, but use the name as the ID.
-    // Actually, Mermaid ID cannot have spaces without quotes.
-    const safeId = (name: string) => JSON.stringify(name);
+    const safeLabel = (name: string) => JSON.stringify(name);
     const sanitize = (name: string) => this.sanitizeMermaidId(name);
 
-    // Add all nodes first to ensure they exist
+    // First pass: generate unique IDs for all steps
     for (const step of steps) {
-      // Using the name as both ID and Label for simplicity
-      // Format: ID["Label"]
-      // safeId returns a quoted string (e.g. "Task Name"), so we use it directly as the label
-      graphLines.push(`  ${sanitize(step.name)}[${safeId(step.name)}]`);
+      let id = sanitize(step.name);
+      let counter = 1;
+      const originalId = id;
+
+      while (usedIds.has(id)) {
+        id = `${originalId}_${counter}`;
+        counter++;
+      }
+
+      usedIds.add(id);
+      nameToIdMap.set(step.name, id);
+    }
+
+    // Add nodes
+    for (const step of steps) {
+      const id = nameToIdMap.get(step.name)!;
+      graphLines.push(`  ${id}[${safeLabel(step.name)}]`);
     }
 
     // Add edges
     for (const step of steps) {
       if (step.dependencies) {
         for (const dep of step.dependencies) {
-          graphLines.push(`  ${sanitize(dep)} --> ${sanitize(step.name)}`);
+          const fromId = nameToIdMap.get(dep);
+          const toId = nameToIdMap.get(step.name)!;
+
+          // Only add edge if dependency exists in the current set of steps
+          // (or should we fall back to sanitizing the dependency name if not found? 
+          //  Original code just sanitized dep name. 
+          //  If the dependency is not in 'steps', we won't have a unique ID for it in the map.
+          //  For robustness, let's generate an ID on the fly if missing, but typically steps should contain all nodes.
+          //  Actually, if dependency is missing from 'steps', we might create a broken link or duplicate node if we just sanitize.
+          //  But let's stick to the map. If not in map, maybe just sanitize it (best effort) but that brings back collision risk.
+          //  However, valid task graphs usually imply dependencies are part of the graph or known.
+          //  Let's assume dependencies are in the map for now, or fallback to sanitize.)
+          if (fromId) {
+            graphLines.push(`  ${fromId} --> ${toId}`);
+          }
         }
       }
     }

@@ -84,4 +84,42 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
+
+  it("should generate unique IDs for tasks when sanitization causes collision", () => {
+    const steps: TaskStep<unknown>[] = [
+      { name: "Task A", run: async () => ({ status: "success" }) },
+      { name: "Task_A", run: async () => ({ status: "success" }) },
+    ];
+
+    const graph = TaskRunner.getMermaidGraph(steps);
+    const lines = graph.split("\n");
+
+    const ids = lines
+      .filter((line) => line.includes("["))
+      .map((line) => line.split("[")[0].trim());
+
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(2);
+    expect(ids).toContain("Task_A");
+    expect(ids).toContain("Task_A_1");
+  });
+
+  it("should ignore dependencies that are not in the steps list", () => {
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        dependencies: ["Missing"],
+        run: async () => ({ status: "success" }),
+      },
+    ];
+
+    const graph = TaskRunner.getMermaidGraph(steps);
+    const lines = graph.split("\n");
+
+    expect(lines).toContain('  A["A"]');
+
+    // Actually, let's just check no arrows.
+    const arrowLines = lines.filter(l => l.includes("-->"));
+    expect(arrowLines.length).toBe(0);
+  });
 });
