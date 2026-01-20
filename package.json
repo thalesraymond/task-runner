@@ -1,7 +1,7 @@
 {
   "name": "@calmo/task-runner",
   "version": "3.7.0",
-  "description": "",
+  "description": "A lightweight, type-safe, and domain-agnostic task orchestration engine. It resolves a Directed Acyclic Graph (DAG) of steps, executes independent tasks in parallel, and manages a shared context across the pipeline.",
   "repository": {
     "type": "git",
     "url": "https://github.com/thalesraymond/task-runner.git"
@@ -30,7 +30,18 @@
       "path": "git-cz"
     }
   },
-  "keywords": [],
+  "keywords": [
+    "task-runner",
+    "workflow",
+    "pipeline",
+    "orchestration",
+    "dag",
+    "typescript",
+    "parallel-execution",
+    "dependency-graph",
+    "async",
+    "type-safe"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.28.0",
