@@ -7,6 +7,8 @@
 
 A lightweight, type-safe, and domain-agnostic task orchestration engine. It resolves a Directed Acyclic Graph (DAG) of steps, executes independent tasks in parallel, and manages a shared context across the pipeline.
 
+Try the [Showcase App](https://task-runner-mu.vercel.app/) to see the runner in action.
+
 ## Features
 
 - **Domain Agnostic**: Separate your business logic ("What") from the execution engine ("How").
