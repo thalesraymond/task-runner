@@ -114,6 +114,9 @@ export class WorkflowExecutor<TContext> {
       this.readyQueue.push(task);
     }
 
+    // Sort by priority (descending) once after adding new tasks
+    this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
     // Execute ready tasks while respecting concurrency limit
     while (this.readyQueue.length > 0) {
       if (
@@ -123,8 +126,6 @@ export class WorkflowExecutor<TContext> {
         break;
       }
 
-      // Sort by priority (descending) before picking.
-      this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
       const step = this.readyQueue.shift()!;
 
       const taskPromise = (async () => {
