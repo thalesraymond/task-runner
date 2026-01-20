@@ -123,6 +123,8 @@ export class WorkflowExecutor<TContext> {
         break;
       }
 
+      // Sort by priority (descending) before picking.
+      this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
       const step = this.readyQueue.shift()!;
 
       const taskPromise = (async () => {
