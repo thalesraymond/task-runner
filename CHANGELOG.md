@@ -1,3 +1,13 @@
+## 3.8.0 (2026-01-21)
+
+* feat: add task priority for concurrency scheduling (#87) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4)), closes [#87](https://github.com/thalesraymond/task-runner/issues/87) [#74](https://github.com/thalesraymond/task-runner/issues/74)
+* docs: add link to showcase app in README (#85) ([e4c10ca](https://github.com/thalesraymond/task-runner/commit/e4c10ca)), closes [#85](https://github.com/thalesraymond/task-runner/issues/85)
+* docs: add Task Execution Metrics proposal (#86) ([9a9661f](https://github.com/thalesraymond/task-runner/commit/9a9661f)), closes [#86](https://github.com/thalesraymond/task-runner/issues/86)
+* chore: Add guideline for commit prefix 'docs:' ([99635dc](https://github.com/thalesraymond/task-runner/commit/99635dc))
+* chore: Potential fix for code scanning alert no. 1: Workflow does not contain permissions (#78) ([b8fb2b4](https://github.com/thalesraymond/task-runner/commit/b8fb2b4)), closes [#78](https://github.com/thalesraymond/task-runner/issues/78)
+* chore: update package.json description and keywords (#84) ([757b254](https://github.com/thalesraymond/task-runner/commit/757b254)), closes [#84](https://github.com/thalesraymond/task-runner/issues/84)
+* fix:🛡️ Sentinel: Fix Mermaid graph identifier sanitization (#81) ([a8bebe3](https://github.com/thalesraymond/task-runner/commit/a8bebe3)), closes [#81](https://github.com/thalesraymond/task-runner/issues/81)
+
 ## 3.7.0 (2026-01-19)
 
 * Merge pull request #82 from thalesraymond/nexus-feature-state-persistence-17975676824428491411 ([1137981](https://github.com/thalesraymond/task-runner/commit/1137981)), closes [#82](https://github.com/thalesraymond/task-runner/issues/82)
