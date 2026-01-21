@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, MockInstance } from "vitest";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
-import { TaskResult } from "../src/TaskResult.js";
 
 describe("EventBus", () => {
-  let eventBus: EventBus<any>;
-  let consoleSpy: any;
+  let eventBus: EventBus<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleSpy: MockInstance<any>;
 
   beforeEach(() => {
     eventBus = new EventBus();
@@ -20,7 +20,7 @@ describe("EventBus", () => {
     const callback = vi.fn();
     eventBus.on("taskStart", callback);
 
-    const step = {} as TaskStep<any>;
+    const step = {} as TaskStep<unknown>;
     eventBus.emit("taskStart", { step });
 
     // Wait for microtasks
@@ -34,7 +34,7 @@ describe("EventBus", () => {
     eventBus.on("taskStart", callback);
     eventBus.off("taskStart", callback);
 
-    const step = {} as TaskStep<any>;
+    const step = {} as TaskStep<unknown>;
     eventBus.emit("taskStart", { step });
 
     // Wait for microtasks
@@ -50,6 +50,7 @@ describe("EventBus", () => {
     });
 
     eventBus.on("taskStart", callback);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eventBus.emit("taskStart", { step: {} as any });
 
     // Wait for microtasks
@@ -68,6 +69,7 @@ describe("EventBus", () => {
     });
 
     eventBus.on("taskStart", callback);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eventBus.emit("taskStart", { step: {} as any });
 
     // Wait for microtasks
@@ -81,6 +83,7 @@ describe("EventBus", () => {
 
   it("should handle emit with no listeners", () => {
     expect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       eventBus.emit("taskStart", { step: {} as any });
     }).not.toThrow();
   });
@@ -127,6 +130,7 @@ describe("EventBus", () => {
     });
 
     eventBus.on("taskStart", callback);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eventBus.emit("taskStart", { step: {} as any });
 
     // Wait for microtasks
@@ -150,6 +154,7 @@ describe("EventBus", () => {
     eventBus.on("taskStart", callback1);
     eventBus.on("taskStart", callback2); // This hits the 'else' branch (listeners already exist)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eventBus.emit("taskStart", { step: {} as any });
 
     // Wait for microtasks
