@@ -61,25 +61,37 @@ export class EventBus<TContext> {
       | undefined;
     if (listeners) {
       for (const listener of listeners) {
-        Promise.resolve().then(() => {
-          try {
-            const result = listener(data);
-            if (result instanceof Promise) {
-              result.catch((error) => {
-                console.error(
-                  `Error in event listener for ${String(event)}:`,
-                  error
-                );
-              });
+        // We use Promise.resolve().then() to schedule the listener on the microtask queue,
+        // ensuring the emit method remains non-blocking.
+        // The final .catch() ensures that any errors in the promise infrastructure itself are logged.
+        Promise.resolve()
+          .then(() => {
+            try {
+              const result = listener(data);
+              if (result instanceof Promise) {
+                // Handle async listener rejections
+                result.catch((error) => {
+                  console.error(
+                    `Error in event listener for ${String(event)}:`,
+                    error
+                  );
+                });
+              }
+            } catch (error) {
+              // Handle sync listener errors
+              console.error(
+                `Error in event listener for ${String(event)}:`,
+                error
+              );
             }
-          } catch (error) {
-            // Prevent listener errors from bubbling up
+          })
+          .catch((error) => {
+            // detailed handling for the promise chain itself
             console.error(
-              `Error in event listener for ${String(event)}:`,
+              `Unexpected error in event bus execution for ${String(event)}:`,
               error
             );
-          }
-        });
+          });
       }
     }
   }
