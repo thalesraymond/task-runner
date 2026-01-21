@@ -2,6 +2,11 @@ import { ITaskGraphValidator } from "./contracts/ITaskGraphValidator.js";
 import { ValidationResult } from "./contracts/ValidationResult.js";
 import { ValidationError } from "./contracts/ValidationError.js";
 import { TaskGraph } from "./TaskGraph.js";
+import {
+  ERROR_CYCLE,
+  ERROR_DUPLICATE_TASK,
+  ERROR_MISSING_DEPENDENCY,
+} from "./contracts/ErrorTypes.js";
 
 export class TaskGraphValidator implements ITaskGraphValidator {
   /**
@@ -18,11 +23,46 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     const errors: ValidationError[] = [];
 
     // 1. Check for duplicate tasks
+    const taskIds = this.checkDuplicateTasks(taskGraph, errors);
+
+    // 2. Check for missing dependencies
+    this.checkMissingDependencies(taskGraph, taskIds, errors);
+
+    // 3. Check for cycles
+    // Only run cycle detection if there are no missing dependencies, otherwise we might chase non-existent nodes.
+    const hasMissingDependencies = errors.some(
+      (e) => e.type === ERROR_MISSING_DEPENDENCY
+    );
+
+    if (!hasMissingDependencies) {
+      this.checkCycles(taskGraph, errors);
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
+  /**
+   * Creates a human-readable error message from a validation result.
+   * @param result The validation result containing errors.
+   * @returns A formatted error string.
+   */
+  createErrorMessage(result: ValidationResult): string {
+    const errorDetails = result.errors.map((e) => e.message);
+    return `Task graph validation failed: ${errorDetails.join("; ")}`;
+  }
+
+  private checkDuplicateTasks(
+    taskGraph: TaskGraph,
+    errors: ValidationError[]
+  ): Set<string> {
     const taskIds = new Set<string>();
     for (const task of taskGraph.tasks) {
       if (taskIds.has(task.id)) {
         errors.push({
-          type: "duplicate_task",
+          type: ERROR_DUPLICATE_TASK,
           message: `Duplicate task detected with ID: ${task.id}`,
           details: { taskId: task.id },
         });
@@ -30,33 +70,28 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         taskIds.add(task.id);
       }
     }
+    return taskIds;
+  }
 
-    // 2. Check for missing dependencies
+  private checkMissingDependencies(
+    taskGraph: TaskGraph,
+    taskIds: Set<string>,
+    errors: ValidationError[]
+  ): void {
     for (const task of taskGraph.tasks) {
       for (const dependenceId of task.dependencies) {
         if (!taskIds.has(dependenceId)) {
           errors.push({
-            type: "missing_dependency",
+            type: ERROR_MISSING_DEPENDENCY,
             message: `Task '${task.id}' depends on missing task '${dependenceId}'`,
             details: { taskId: task.id, missingDependencyId: dependenceId },
           });
         }
       }
     }
+  }
 
-    // 3. Check for cycles
-    // Only run cycle detection if there are no missing dependencies, otherwise we might chase non-existent nodes.
-    const hasMissingDependencies = errors.some(
-      (e) => e.type === "missing_dependency"
-    );
-
-    if (hasMissingDependencies) {
-      return {
-        isValid: errors.length === 0,
-        errors,
-      };
-    }
-
+  private checkCycles(taskGraph: TaskGraph, errors: ValidationError[]): void {
     // Build adjacency list
     const adjacencyList = new Map<string, string[]>();
     for (const task of taskGraph.tasks) {
@@ -82,7 +117,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         const cyclePath = path.slice(cycleStartIndex);
 
         errors.push({
-          type: "cycle",
+          type: ERROR_CYCLE,
           message: `Cycle detected: ${cyclePath.join(" -> ")}`,
           details: { cyclePath },
         });
@@ -90,21 +125,6 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         break;
       }
     }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-    };
-  }
-
-  /**
-   * Creates a human-readable error message from a validation result.
-   * @param result The validation result containing errors.
-   * @returns A formatted error string.
-   */
-  createErrorMessage(result: ValidationResult): string {
-    const errorDetails = result.errors.map((e) => e.message);
-    return `Task graph validation failed: ${errorDetails.join("; ")}`;
   }
 
   private detectCycle(
