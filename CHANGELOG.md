@@ -1,3 +1,9 @@
+## <small>3.8.1 (2026-01-21)</small>
+
+* fix: Fix missing event emission on task cancellation (#92) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa)), closes [#92](https://github.com/thalesraymond/task-runner/issues/92)
+* refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
+* Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
+
 ## 3.8.0 (2026-01-21)
 
 * feat: add task priority for concurrency scheduling (#87) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4)), closes [#87](https://github.com/thalesraymond/task-runner/issues/87) [#74](https://github.com/thalesraymond/task-runner/issues/74)
