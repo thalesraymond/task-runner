@@ -79,23 +79,14 @@ export class TaskRunner<TContext> {
   public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
     const graphLines = ["graph TD"];
 
-    // Helper to sanitize node names or wrap them if needed
-    // For simplicity, we just wrap in quotes and use the name as ID if it's simple
-    // or generate an ID if strictly needed. Here we assume names are unique IDs.
-    // We will wrap names in quotes for the label, but use the name as the ID.
-    // Actually, Mermaid ID cannot have spaces without quotes.
-    const safeId = (name: string) => JSON.stringify(name);
     const sanitize = (name: string) => this.sanitizeMermaidId(name);
 
-    // Add all nodes first to ensure they exist
     for (const step of steps) {
-      // Using the name as both ID and Label for simplicity
-      // Format: ID["Label"]
-      // safeId returns a quoted string (e.g. "Task Name"), so we use it directly as the label
-      graphLines.push(`  ${sanitize(step.name)}[${safeId(step.name)}]`);
+      graphLines.push(
+        `  ${sanitize(step.name)}[${JSON.stringify(step.name)}]`
+      );
     }
 
-    // Add edges
     for (const step of steps) {
       if (step.dependencies) {
         for (const dep of step.dependencies) {
@@ -159,44 +150,58 @@ export class TaskRunner<TContext> {
       config?.concurrency
     );
 
-    // We need to handle the timeout cleanup properly.
     if (config?.timeout !== undefined) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort(
-          new Error(`Workflow timed out after ${config.timeout}ms`)
-        );
-      }, config.timeout);
-
-      let effectiveSignal = controller.signal;
-      let onAbort: (() => void) | undefined;
-
-      // Handle combination of signals if user provided one
-      if (config.signal) {
-        if (config.signal.aborted) {
-          // If already aborted, use it directly (WorkflowExecutor handles early abort)
-          // We can cancel timeout immediately
-          clearTimeout(timeoutId);
-          effectiveSignal = config.signal;
-        } else {
-          // Listen to user signal to abort our controller
-          onAbort = () => {
-            controller.abort(config.signal?.reason);
-          };
-          config.signal.addEventListener("abort", onAbort);
-        }
-      }
-
-      try {
-        return await executor.execute(steps, effectiveSignal);
-      } finally {
-        clearTimeout(timeoutId);
-        if (config.signal && onAbort) {
-          config.signal.removeEventListener("abort", onAbort);
-        }
-      }
+      return this.executeWithTimeout(
+        executor,
+        steps,
+        config.timeout,
+        config.signal
+      );
     } else {
       return executor.execute(steps, config?.signal);
+    }
+  }
+
+  /**
+   * Executes tasks with a timeout, ensuring resources are cleaned up.
+   */
+  private async executeWithTimeout(
+    executor: WorkflowExecutor<TContext>,
+    steps: TaskStep<TContext>[],
+    timeout: number,
+    signal?: AbortSignal
+  ): Promise<Map<string, TaskResult>> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort(new Error(`Workflow timed out after ${timeout}ms`));
+    }, timeout);
+
+    let effectiveSignal = controller.signal;
+    let onAbort: (() => void) | undefined;
+
+    // Handle combination of signals if user provided one
+    if (signal) {
+      if (signal.aborted) {
+        // If already aborted, use it directly (WorkflowExecutor handles early abort)
+        // We can cancel timeout immediately
+        clearTimeout(timeoutId);
+        effectiveSignal = signal;
+      } else {
+        // Listen to user signal to abort our controller
+        onAbort = () => {
+          controller.abort(signal.reason);
+        };
+        signal.addEventListener("abort", onAbort);
+      }
+    }
+
+    try {
+      return await executor.execute(steps, effectiveSignal);
+    } finally {
+      clearTimeout(timeoutId);
+      if (signal && onAbort) {
+        signal.removeEventListener("abort", onAbort);
+      }
     }
   }
 }
