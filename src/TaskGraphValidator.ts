@@ -2,12 +2,13 @@ import { ITaskGraphValidator } from "./contracts/ITaskGraphValidator.js";
 import { ValidationResult } from "./contracts/ValidationResult.js";
 import { ValidationError } from "./contracts/ValidationError.js";
 import { TaskGraph } from "./TaskGraph.js";
+import {
+  ERROR_CYCLE,
+  ERROR_DUPLICATE_TASK,
+  ERROR_MISSING_DEPENDENCY,
+} from "./contracts/ErrorTypes.js";
 
 export class TaskGraphValidator implements ITaskGraphValidator {
-  private static readonly ERROR_DUPLICATE_TASK = "duplicate_task";
-  private static readonly ERROR_MISSING_DEPENDENCY = "missing_dependency";
-  private static readonly ERROR_CYCLE = "cycle";
-
   /**
    * Validates a given task graph for structural integrity.
    * Checks for:
@@ -30,7 +31,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     // 3. Check for cycles
     // Only run cycle detection if there are no missing dependencies, otherwise we might chase non-existent nodes.
     const hasMissingDependencies = errors.some(
-      (e) => e.type === TaskGraphValidator.ERROR_MISSING_DEPENDENCY
+      (e) => e.type === ERROR_MISSING_DEPENDENCY
     );
 
     if (!hasMissingDependencies) {
@@ -61,7 +62,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     for (const task of taskGraph.tasks) {
       if (taskIds.has(task.id)) {
         errors.push({
-          type: TaskGraphValidator.ERROR_DUPLICATE_TASK,
+          type: ERROR_DUPLICATE_TASK,
           message: `Duplicate task detected with ID: ${task.id}`,
           details: { taskId: task.id },
         });
@@ -81,7 +82,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
       for (const dependenceId of task.dependencies) {
         if (!taskIds.has(dependenceId)) {
           errors.push({
-            type: TaskGraphValidator.ERROR_MISSING_DEPENDENCY,
+            type: ERROR_MISSING_DEPENDENCY,
             message: `Task '${task.id}' depends on missing task '${dependenceId}'`,
             details: { taskId: task.id, missingDependencyId: dependenceId },
           });
@@ -116,7 +117,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         const cyclePath = path.slice(cycleStartIndex);
 
         errors.push({
-          type: TaskGraphValidator.ERROR_CYCLE,
+          type: ERROR_CYCLE,
           message: `Cycle detected: ${cyclePath.join(" -> ")}`,
           details: { cyclePath },
         });
