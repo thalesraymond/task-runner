@@ -3,6 +3,7 @@ import { TaskResult } from "./TaskResult.js";
 import { EventBus } from "./EventBus.js";
 import { TaskStateManager } from "./TaskStateManager.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
+import { ExecutionConstants } from "./ExecutionConstants.js";
 
 /**
  * Handles the execution of the workflow steps.
@@ -42,7 +43,7 @@ export class WorkflowExecutor<TContext> {
     // Check if already aborted
     if (signal?.aborted) {
       this.stateManager.cancelAllPending(
-        "Workflow cancelled before execution started."
+        ExecutionConstants.CANCELLED_BEFORE_START
       );
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
@@ -53,7 +54,7 @@ export class WorkflowExecutor<TContext> {
 
     const onAbort = () => {
       // Mark all pending tasks as cancelled
-      this.stateManager.cancelAllPending("Workflow cancelled.");
+      this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
     };
 
     if (signal) {
@@ -80,7 +81,9 @@ export class WorkflowExecutor<TContext> {
         }
 
         if (signal?.aborted) {
-          this.stateManager.cancelAllPending("Workflow cancelled.");
+          this.stateManager.cancelAllPending(
+            ExecutionConstants.WORKFLOW_CANCELLED
+          );
         } else {
           // After a task finishes, check for new work
           this.processLoop(executingPromises, signal);
@@ -88,7 +91,7 @@ export class WorkflowExecutor<TContext> {
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)
-      this.stateManager.cancelAllPending("Workflow cancelled.");
+      this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
 
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
@@ -128,64 +131,79 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.shift()!;
 
-      const taskPromise = (async () => {
-        try {
-          if (step.condition) {
-            const check = step.condition(this.context);
-            const shouldRun = check instanceof Promise ? await check : check;
+      const taskPromise = this.executeTaskStep(step, signal)
+        .finally(() => {
+          executingPromises.delete(taskPromise);
+          // When a task finishes, we try to run more
+          this.processLoop(executingPromises, signal);
+        });
 
-            if (signal?.aborted) {
-              this.stateManager.markCompleted(step, {
-                status: "cancelled",
-                message: "Cancelled during condition evaluation.",
-              });
-              return;
-            }
+      executingPromises.add(taskPromise);
+    }
+  }
 
-            if (!shouldRun) {
-              const result: TaskResult = {
-                status: "skipped",
-                message: "Skipped by condition evaluation.",
-              };
-              this.stateManager.markSkipped(step, result);
-              return;
-            }
-          }
-        } catch (error) {
-          const result: TaskResult = {
-            status: "failure",
-            message:
-              error instanceof Error
-                ? error.message
-                : "Condition evaluation failed",
-            error: error instanceof Error ? error.message : String(error),
-          };
-          this.stateManager.markCompleted(step, result);
-          return;
-        }
+  /**
+   * Executes a single task step, handling conditions and status updates.
+   */
+  private async executeTaskStep(
+    step: TaskStep<TContext>,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      if (step.condition) {
+        const check = step.condition(this.context);
+        const shouldRun = check instanceof Promise ? await check : check;
 
         if (signal?.aborted) {
           this.stateManager.markCompleted(step, {
             status: "cancelled",
-            message: "Cancelled before execution started.",
+            message: ExecutionConstants.CANCELLED_DURING_CONDITION,
           });
           return;
         }
 
-        this.stateManager.markRunning(step);
+        if (!shouldRun) {
+          const result: TaskResult = {
+            status: "skipped",
+            message: ExecutionConstants.SKIPPED_BY_CONDITION,
+          };
+          this.stateManager.markSkipped(step, result);
+          return;
+        }
+      }
+    } catch (error) {
+      const result: TaskResult = {
+        status: "failure",
+        message:
+          error instanceof Error
+            ? error.message
+            : ExecutionConstants.CONDITION_EVALUATION_FAILED,
+        error: error instanceof Error ? error.message : String(error),
+      };
+      this.stateManager.markCompleted(step, result);
+      return;
+    }
 
-        await this.strategy
-          .execute(step, this.context, signal)
-          .then((result) => {
-            this.stateManager.markCompleted(step, result);
-          });
-      })().finally(() => {
-        executingPromises.delete(taskPromise);
-        // When a task finishes, we try to run more
-        this.processLoop(executingPromises, signal);
+    if (signal?.aborted) {
+      this.stateManager.markCompleted(step, {
+        status: "cancelled",
+        message: ExecutionConstants.TASK_CANCELLED_BEFORE_START,
       });
+      return;
+    }
 
-      executingPromises.add(taskPromise);
+    this.stateManager.markRunning(step);
+
+    try {
+      const result = await this.strategy.execute(step, this.context, signal);
+      this.stateManager.markCompleted(step, result);
+    } catch (error) {
+      const result: TaskResult = {
+        status: "failure",
+        message: ExecutionConstants.EXECUTION_STRATEGY_FAILED,
+        error: error instanceof Error ? error.message : String(error),
+      };
+      this.stateManager.markCompleted(step, result);
     }
   }
 }
