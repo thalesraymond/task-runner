@@ -171,11 +171,8 @@ export class WorkflowExecutor<TContext> {
     } catch (error) {
       const result: TaskResult = {
         status: "failure",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Condition evaluation failed",
-        error: error instanceof Error ? error.message : String(error),
+        message: "Condition evaluation failed",
+        error: error instanceof Error ? error.message : String(error)
       };
       this.stateManager.markCompleted(step, result);
       return;
