@@ -128,64 +128,82 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.shift()!;
 
-      const taskPromise = (async () => {
-        try {
-          if (step.condition) {
-            const check = step.condition(this.context);
-            const shouldRun = check instanceof Promise ? await check : check;
+      const taskPromise = this.executeTaskStep(step, signal)
+        .finally(() => {
+          executingPromises.delete(taskPromise);
+          // When a task finishes, we try to run more
+          this.processLoop(executingPromises, signal);
+        });
 
-            if (signal?.aborted) {
-              this.stateManager.markCompleted(step, {
-                status: "cancelled",
-                message: "Cancelled during condition evaluation.",
-              });
-              return;
-            }
+      executingPromises.add(taskPromise);
+    }
+  }
 
-            if (!shouldRun) {
-              const result: TaskResult = {
-                status: "skipped",
-                message: "Skipped by condition evaluation.",
-              };
-              this.stateManager.markSkipped(step, result);
-              return;
-            }
-          }
-        } catch (error) {
-          const result: TaskResult = {
-            status: "failure",
-            message:
-              error instanceof Error
-                ? error.message
-                : "Condition evaluation failed",
-            error: error instanceof Error ? error.message : String(error),
-          };
-          this.stateManager.markCompleted(step, result);
-          return;
-        }
+  /**
+   * Executes a single task step, handling conditions and status updates.
+   */
+  private async executeTaskStep(
+    step: TaskStep<TContext>,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      if (step.condition) {
+        const check = step.condition(this.context);
+        const shouldRun = check instanceof Promise ? await check : check;
 
         if (signal?.aborted) {
           this.stateManager.markCompleted(step, {
             status: "cancelled",
-            message: "Cancelled before execution started.",
+            message: "Cancelled during condition evaluation.",
           });
           return;
         }
 
-        this.stateManager.markRunning(step);
+        if (!shouldRun) {
+          const result: TaskResult = {
+            status: "skipped",
+            message: "Skipped by condition evaluation.",
+          };
+          this.stateManager.markSkipped(step, result);
+          return;
+        }
+      }
+    } catch (error) {
+      const result: TaskResult = {
+        status: "failure",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Condition evaluation failed",
+        error: error instanceof Error ? error.message : String(error),
+      };
+      this.stateManager.markCompleted(step, result);
+      return;
+    }
 
-        await this.strategy
-          .execute(step, this.context, signal)
-          .then((result) => {
-            this.stateManager.markCompleted(step, result);
-          });
-      })().finally(() => {
-        executingPromises.delete(taskPromise);
-        // When a task finishes, we try to run more
-        this.processLoop(executingPromises, signal);
+    if (signal?.aborted) {
+      this.stateManager.markCompleted(step, {
+        status: "cancelled",
+        message: "Cancelled before execution started.",
       });
+      return;
+    }
 
-      executingPromises.add(taskPromise);
+    this.stateManager.markRunning(step);
+
+    try {
+      await this.strategy
+        .execute(step, this.context, signal)
+        .then((result) => {
+          this.stateManager.markCompleted(step, result);
+        });
+    } catch (error) {
+      const result: TaskResult = {
+        status: "failure",
+        message: "Execution strategy failed.",
+        error: error instanceof Error ? error.message : String(error),
+      };
+      this.stateManager.markCompleted(step, result);
     }
   }
 }
