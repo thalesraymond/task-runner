@@ -1,3 +1,8 @@
+## <small>3.8.3 (2026-01-21)</small>
+
+* fix: 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f6121))
+* Fix WorkflowExecutor SonarCloud issues (complexity & error handling) (#91) ([3eb5457](https://github.com/thalesraymond/task-runner/commit/3eb5457)), closes [#91](https://github.com/thalesraymond/task-runner/issues/91)
+
 ## <small>3.8.2 (2026-01-21)</small>
 
 * fix(EventBus): handle floating promises (#90) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c37)), closes [#90](https://github.com/thalesraymond/task-runner/issues/90)
