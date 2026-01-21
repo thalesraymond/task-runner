@@ -42,7 +42,7 @@
     "async",
     "type-safe"
   ],
-  "author": "",
+  "author": "", 
   "license": "ISC",
   "packageManager": "pnpm@10.28.0",
   "devDependencies": {
