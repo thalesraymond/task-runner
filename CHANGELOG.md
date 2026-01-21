@@ -1,3 +1,7 @@
+## <small>3.8.2 (2026-01-21)</small>
+
+* fix(EventBus): handle floating promises (#90) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c37)), closes [#90](https://github.com/thalesraymond/task-runner/issues/90)
+
 ## <small>3.8.1 (2026-01-21)</small>
 
 * fix: Fix missing event emission on task cancellation (#92) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa)), closes [#92](https://github.com/thalesraymond/task-runner/issues/92)
