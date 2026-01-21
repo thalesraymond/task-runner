@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TaskGraphValidator } from "../src/TaskGraphValidator.js";
 import { TaskGraph } from "../src/TaskGraph.js";
+import { ValidationResult } from "../src/contracts/ValidationResult.js";
 
 describe("TaskGraphValidator", () => {
   it("should be instantiated", () => {
@@ -123,5 +124,18 @@ describe("TaskGraphValidator", () => {
     };
     const result = validator.validate(graph);
     expect(result.isValid).toBe(true);
+  });
+
+  it("should create a formatted error message", () => {
+    const validator = new TaskGraphValidator();
+    const result: ValidationResult = {
+      isValid: false,
+      errors: [
+        { type: "duplicate_task", message: "Error 1" },
+        { type: "missing_dependency", message: "Error 2" },
+      ],
+    };
+    const errorMessage = validator.createErrorMessage(result);
+    expect(errorMessage).toBe("Task graph validation failed: Error 1; Error 2");
   });
 });
