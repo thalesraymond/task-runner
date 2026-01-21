@@ -1,3 +1,8 @@
+## <small>3.8.4 (2026-01-21)</small>
+
+* fix: 🛰️ Sonar Specialist: Fix dead code in `TaskGraphValidator` (#93) ([b760765](https://github.com/thalesraymond/task-runner/commit/b760765)), closes [#93](https://github.com/thalesraymond/task-runner/issues/93)
+* docs: add Continue On Error feature proposal (#94) ([2a658fb](https://github.com/thalesraymond/task-runner/commit/2a658fb)), closes [#94](https://github.com/thalesraymond/task-runner/issues/94)
+
 ## <small>3.8.3 (2026-01-21)</small>
 
 * fix: 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f6121))
