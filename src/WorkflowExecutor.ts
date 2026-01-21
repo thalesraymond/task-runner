@@ -3,6 +3,7 @@ import { TaskResult } from "./TaskResult.js";
 import { EventBus } from "./EventBus.js";
 import { TaskStateManager } from "./TaskStateManager.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
+import { ExecutionConstants } from "./ExecutionConstants.js";
 
 /**
  * Handles the execution of the workflow steps.
@@ -42,7 +43,7 @@ export class WorkflowExecutor<TContext> {
     // Check if already aborted
     if (signal?.aborted) {
       this.stateManager.cancelAllPending(
-        "Workflow cancelled before execution started."
+        ExecutionConstants.CANCELLED_BEFORE_START
       );
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
@@ -53,7 +54,7 @@ export class WorkflowExecutor<TContext> {
 
     const onAbort = () => {
       // Mark all pending tasks as cancelled
-      this.stateManager.cancelAllPending("Workflow cancelled.");
+      this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
     };
 
     if (signal) {
@@ -80,7 +81,9 @@ export class WorkflowExecutor<TContext> {
         }
 
         if (signal?.aborted) {
-          this.stateManager.cancelAllPending("Workflow cancelled.");
+          this.stateManager.cancelAllPending(
+            ExecutionConstants.WORKFLOW_CANCELLED
+          );
         } else {
           // After a task finishes, check for new work
           this.processLoop(executingPromises, signal);
@@ -88,7 +91,7 @@ export class WorkflowExecutor<TContext> {
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)
-      this.stateManager.cancelAllPending("Workflow cancelled.");
+      this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
 
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
@@ -154,7 +157,7 @@ export class WorkflowExecutor<TContext> {
         if (signal?.aborted) {
           this.stateManager.markCompleted(step, {
             status: "cancelled",
-            message: "Cancelled during condition evaluation.",
+            message: ExecutionConstants.CANCELLED_DURING_CONDITION,
           });
           return;
         }
@@ -162,7 +165,7 @@ export class WorkflowExecutor<TContext> {
         if (!shouldRun) {
           const result: TaskResult = {
             status: "skipped",
-            message: "Skipped by condition evaluation.",
+            message: ExecutionConstants.SKIPPED_BY_CONDITION,
           };
           this.stateManager.markSkipped(step, result);
           return;
@@ -171,8 +174,11 @@ export class WorkflowExecutor<TContext> {
     } catch (error) {
       const result: TaskResult = {
         status: "failure",
-        message: "Condition evaluation failed",
-        error: error instanceof Error ? error.message : String(error)
+        message:
+          error instanceof Error
+            ? error.message
+            : ExecutionConstants.CONDITION_EVALUATION_FAILED,
+        error: error instanceof Error ? error.message : String(error),
       };
       this.stateManager.markCompleted(step, result);
       return;
@@ -181,7 +187,7 @@ export class WorkflowExecutor<TContext> {
     if (signal?.aborted) {
       this.stateManager.markCompleted(step, {
         status: "cancelled",
-        message: "Cancelled before execution started.",
+        message: ExecutionConstants.TASK_CANCELLED_BEFORE_START,
       });
       return;
     }
@@ -189,15 +195,12 @@ export class WorkflowExecutor<TContext> {
     this.stateManager.markRunning(step);
 
     try {
-      await this.strategy
-        .execute(step, this.context, signal)
-        .then((result) => {
-          this.stateManager.markCompleted(step, result);
-        });
+      const result = await this.strategy.execute(step, this.context, signal);
+      this.stateManager.markCompleted(step, result);
     } catch (error) {
       const result: TaskResult = {
         status: "failure",
-        message: "Execution strategy failed.",
+        message: ExecutionConstants.EXECUTION_STRATEGY_FAILED,
         error: error instanceof Error ? error.message : String(error),
       };
       this.stateManager.markCompleted(step, result);

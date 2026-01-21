@@ -4,6 +4,7 @@ import { EventBus } from "./../src/EventBus.js";
 import { TaskStateManager } from "../src/TaskStateManager.js";
 import { IExecutionStrategy } from "../src/strategies/IExecutionStrategy.js";
 import { TaskStep } from "../src/TaskStep.js";
+import { ExecutionConstants } from "../src/ExecutionConstants.js";
 
 describe("WorkflowExecutor Strategy Failure Handling", () => {
   it("should handle execution strategy throwing an Error object", async () => {
@@ -29,7 +30,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
 
     expect(result).toBeDefined();
     expect(result?.status).toBe("failure");
-    expect(result?.message).toBe("Execution strategy failed.");
+    expect(result?.message).toBe(ExecutionConstants.EXECUTION_STRATEGY_FAILED);
     expect(result?.error).toBe("Unexpected crash in strategy");
   });
 
@@ -56,7 +57,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
 
     expect(result).toBeDefined();
     expect(result?.status).toBe("failure");
-    expect(result?.message).toBe("Execution strategy failed.");
+    expect(result?.message).toBe(ExecutionConstants.EXECUTION_STRATEGY_FAILED);
     expect(result?.error).toBe("Critical failure string");
   });
 });
