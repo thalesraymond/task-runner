@@ -27,6 +27,8 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - Avoid using 'any' type at all costs.
 - Always prefer to add more tests instead of simply bypassing coverage validation with comments.
 - Its forbidden to have coverage drop below 100%, thats non negotiable.
+- **Strict Null Safety:** Do not use `??` or optional chaining `?.` when you can guarantee existence via prior validation. Use non-null assertions `!` only when the invariant is locally provable or enforced by a validator.
+- **Dead Code Elimination:** Avoid `v8 ignore` comments. If code is unreachable, restructure the logic to prove it is unreachable to the compiler, or remove the branch if the invariant is guaranteed.
 
 ## Operational Protocols
 
