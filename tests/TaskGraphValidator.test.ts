@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { TaskGraphValidator } from "../src/TaskGraphValidator.js";
 import { TaskGraph } from "../src/TaskGraph.js";
+import { ValidationResult } from "../src/contracts/ValidationResult.js";
+import {
+  ERROR_CYCLE,
+  ERROR_DUPLICATE_TASK,
+  ERROR_MISSING_DEPENDENCY,
+} from "../src/contracts/ErrorTypes.js";
 
 describe("TaskGraphValidator", () => {
   it("should be instantiated", () => {
@@ -27,7 +33,7 @@ describe("TaskGraphValidator", () => {
     const result = validator.validate(graph);
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].type).toBe("duplicate_task");
+    expect(result.errors[0].type).toBe(ERROR_DUPLICATE_TASK);
     expect(result.errors[0].message).toContain("task1");
   });
 
@@ -39,7 +45,7 @@ describe("TaskGraphValidator", () => {
     const result = validator.validate(graph);
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].type).toBe("missing_dependency");
+    expect(result.errors[0].type).toBe(ERROR_MISSING_DEPENDENCY);
     expect(result.errors[0].message).toContain("task2");
   });
 
@@ -54,7 +60,7 @@ describe("TaskGraphValidator", () => {
     const result = validator.validate(graph);
     expect(result.isValid).toBe(false);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].type).toBe("cycle");
+    expect(result.errors[0].type).toBe(ERROR_CYCLE);
     expect(result.errors[0].message).toContain("Cycle detected");
   });
 
@@ -89,9 +95,9 @@ describe("TaskGraphValidator", () => {
     expect(result.isValid).toBe(false);
     // Should only have missing dependency error, cycle detection should be skipped
     const hasMissing = result.errors.some(
-      (e) => e.type === "missing_dependency"
+      (e) => e.type === ERROR_MISSING_DEPENDENCY
     );
-    const hasCycle = result.errors.some((e) => e.type === "cycle");
+    const hasCycle = result.errors.some((e) => e.type === ERROR_CYCLE);
     expect(hasMissing).toBe(true);
     expect(hasCycle).toBe(false);
   });
@@ -107,7 +113,7 @@ describe("TaskGraphValidator", () => {
     };
     const result = validator.validate(graph);
     expect(result.isValid).toBe(false);
-    expect(result.errors[0].type).toBe("cycle");
+    expect(result.errors[0].type).toBe(ERROR_CYCLE);
     expect(result.errors[0].message).toContain("A -> B -> C -> A");
   });
 
@@ -123,5 +129,18 @@ describe("TaskGraphValidator", () => {
     };
     const result = validator.validate(graph);
     expect(result.isValid).toBe(true);
+  });
+
+  it("should create a formatted error message", () => {
+    const validator = new TaskGraphValidator();
+    const result: ValidationResult = {
+      isValid: false,
+      errors: [
+        { type: ERROR_DUPLICATE_TASK, message: "Error 1" },
+        { type: ERROR_MISSING_DEPENDENCY, message: "Error 2" },
+      ],
+    };
+    const errorMessage = validator.createErrorMessage(result);
+    expect(errorMessage).toBe("Task graph validation failed: Error 1; Error 2");
   });
 });
