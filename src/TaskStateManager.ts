@@ -101,20 +101,16 @@ export class TaskStateManager<TContext> {
     for (const step of this.pendingSteps) {
       // Also check running? No, running tasks are handled by AbortSignal in Executor.
       // We only cancel what is pending and hasn't started.
-      /* v8 ignore next 1 */
       if (!this.results.has(step.name) && !this.running.has(step.name)) {
         const result: TaskResult = {
           status: "cancelled",
           message,
         };
         this.results.set(step.name, result);
+        this.eventBus.emit("taskEnd", { step, result });
       }
     }
     // Clear pending set as they are now "done" (cancelled)
-    // Wait, if we clear pending steps, processDependencies won't pick them up.
-    // The loop in Executor relies on results.size or pendingSteps.
-    // The previous implementation iterated `steps` (all steps) to cancel.
-    // Here we iterate `pendingSteps`.
     this.pendingSteps.clear();
   }
 
