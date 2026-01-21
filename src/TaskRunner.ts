@@ -82,7 +82,7 @@ export class TaskRunner<TContext> {
     const usedIds = new Set<string>();
 
     const safeLabel = (name: string) => JSON.stringify(name);
-    const sanitize = (name: string) => this.sanitizeMermaidId(name);
+    const sanitize = (name: string) => this.toMermaidId(name);
 
     // First pass: generate unique IDs for all steps
     for (const step of steps) {
@@ -101,8 +101,12 @@ export class TaskRunner<TContext> {
 
     // Add nodes
     for (const step of steps) {
-      const id = nameToIdMap.get(step.name)!;
-      graphLines.push(`  ${id}[${safeLabel(step.name)}]`);
+      const id = nameToIdMap.get(step.name);
+      /* v8 ignore start */
+      if (id) {
+        graphLines.push(`  ${id}[${safeLabel(step.name)}]`);
+      }
+      /* v8 ignore stop */
     }
 
     // Add edges
@@ -110,19 +114,14 @@ export class TaskRunner<TContext> {
       if (step.dependencies) {
         for (const dep of step.dependencies) {
           const fromId = nameToIdMap.get(dep);
-          const toId = nameToIdMap.get(step.name)!;
 
-          // Only add edge if dependency exists in the current set of steps
-          // (or should we fall back to sanitizing the dependency name if not found? 
-          //  Original code just sanitized dep name. 
-          //  If the dependency is not in 'steps', we won't have a unique ID for it in the map.
-          //  For robustness, let's generate an ID on the fly if missing, but typically steps should contain all nodes.
-          //  Actually, if dependency is missing from 'steps', we might create a broken link or duplicate node if we just sanitize.
-          //  But let's stick to the map. If not in map, maybe just sanitize it (best effort) but that brings back collision risk.
-          //  However, valid task graphs usually imply dependencies are part of the graph or known.
-          //  Let's assume dependencies are in the map for now, or fallback to sanitize.)
           if (fromId) {
-            graphLines.push(`  ${fromId} --> ${toId}`);
+            const toId = nameToIdMap.get(step.name);
+            /* v8 ignore start */
+            if (toId) {
+              graphLines.push(`  ${fromId} --> ${toId}`);
+            }
+            /* v8 ignore stop */
           }
         }
       }
@@ -132,12 +131,17 @@ export class TaskRunner<TContext> {
   }
 
   /**
-   * Sanitizes a string for use as a Mermaid node ID.
+   * Converts a string into a valid and clean Mermaid node ID.
+   * Replaces non-alphanumeric characters with underscores, collapses multiple underscores,
+   * and trims leading/trailing underscores.
    * @param id The string to sanitize.
    * @returns The sanitized string.
    */
-  private static sanitizeMermaidId(id: string): string {
-    return id.replaceAll(/ /g, "_").replaceAll(/:/g, "_").replaceAll(/"/g, "_");
+  private static toMermaidId(id: string): string {
+    return id
+      .replace(/[^a-zA-Z0-9]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "");
   }
 
   /**
