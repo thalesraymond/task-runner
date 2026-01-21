@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { WorkflowExecutor } from "../src/WorkflowExecutor.js";
 import { EventBus } from "./../src/EventBus.js";
 import { TaskStateManager } from "../src/TaskStateManager.js";
@@ -11,7 +11,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
     const stateManager = new TaskStateManager(eventBus);
 
     const throwingStrategy: IExecutionStrategy<unknown> = {
-      execute: async (_step, _ctx, _signal) => {
+      execute: async () => {
         throw new Error("Unexpected crash in strategy");
       }
     };
@@ -38,7 +38,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
     const stateManager = new TaskStateManager(eventBus);
 
     const throwingStrategy: IExecutionStrategy<unknown> = {
-      execute: async (_step, _ctx, _signal) => {
+      execute: async () => {
         throw "Critical failure string";
       }
     };
