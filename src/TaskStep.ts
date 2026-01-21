@@ -19,6 +19,13 @@ export interface TaskStep<TContext> {
   condition?: (context: TContext) => boolean | Promise<boolean>;
 
   /**
+   * Optional priority.
+   * Higher values are picked first. Default is 0.
+   * Only affects ordering when multiple tasks are ready and concurrency slots are limited.
+   */
+  priority?: number;
+
+  /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
    * @param signal An optional AbortSignal to listen for cancellation.
