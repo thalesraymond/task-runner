@@ -78,19 +78,47 @@ export class TaskRunner<TContext> {
    */
   public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
     const graphLines = ["graph TD"];
+    const idMap = new Map<string, string>();
+    const usedIds = new Set<string>();
 
-    const sanitize = (name: string) => this.sanitizeMermaidId(name);
+    const getUniqueId = (name: string) => {
+      if (idMap.has(name)) {
+        return idMap.get(name)!;
+      }
+
+      const sanitized = this.sanitizeMermaidId(name);
+      let uniqueId = sanitized;
+      let counter = 1;
+
+      while (usedIds.has(uniqueId)) {
+        uniqueId = `${sanitized}_${counter}`;
+        counter++;
+      }
+
+      usedIds.add(uniqueId);
+      idMap.set(name, uniqueId);
+      return uniqueId;
+    };
+
+    // Pre-calculate IDs for all steps to ensure stable generation order
+    // We sort steps by name to ensure deterministic ID generation regardless of input order if names clash
+    // But input order is usually significant in graph definition, so we'll stick to input order.
+    // However, we must process all step NAMES first.
+    for (const step of steps) {
+      getUniqueId(step.name);
+    }
 
     for (const step of steps) {
-      graphLines.push(
-        `  ${sanitize(step.name)}[${JSON.stringify(step.name)}]`
-      );
+      const stepId = getUniqueId(step.name);
+      graphLines.push(`  ${stepId}[${JSON.stringify(step.name)}]`);
     }
 
     for (const step of steps) {
       if (step.dependencies) {
+        const stepId = getUniqueId(step.name);
         for (const dep of step.dependencies) {
-          graphLines.push(`  ${sanitize(dep)} --> ${sanitize(step.name)}`);
+          const depId = getUniqueId(dep);
+          graphLines.push(`  ${depId} --> ${stepId}`);
         }
       }
     }
