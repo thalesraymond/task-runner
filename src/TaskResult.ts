@@ -12,4 +12,13 @@ export interface TaskResult {
   error?: string;
   /** Optional data produced by the step for later inspection. */
   data?: unknown;
+  /** Optional execution metrics for the task. */
+  metrics?: {
+    /** Start time in milliseconds (performance.now). */
+    startTime: number;
+    /** End time in milliseconds (performance.now). */
+    endTime: number;
+    /** Duration in milliseconds. */
+    duration: number;
+  };
 }

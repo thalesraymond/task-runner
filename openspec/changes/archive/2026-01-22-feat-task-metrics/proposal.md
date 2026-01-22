@@ -7,7 +7,7 @@ Users currently lack visibility into the performance of individual tasks within 
 ## What Changes
 
 - Update `TaskResult` interface to include an optional `metrics` property containing `startTime`, `endTime`, and `duration`.
-- Update `WorkflowExecutor` to capture these timestamps during task execution and populate the `metrics` property.
+- Update `WorkflowExecutor` to capture these timestamps using `performance.now()` for high-precision timing during task execution and populate the `metrics` property.
 - Ensure these metrics are available in the final `TaskResult` map returned by `TaskRunner.execute`.
 
 ## Impact
