@@ -14,3 +14,8 @@
 
 **Insight:** Users' optimization efforts are blind without granular metrics. Users often don't know *which* task is slow, only that the workflow is slow.
 **Action:** Always include telemetry requirements (like start/end times and duration) in execution engine specs to enable data-driven optimization.
+
+## 2026-01-20 - The "All or Nothing" Retry Trap
+
+**Insight:** Blindly retrying failing tasks is a "Product Anti-pattern". Retrying a `SyntaxError` or invalid user input 3 times (with exponential backoff!) is annoying and wasteful.
+**Action:** We must distinguish between "Transient" (network, resource lock) and "Permanent" (logic, validation) failures. Exposing a `shouldRetry` predicate gives the user control without complicating the core runner logic.
