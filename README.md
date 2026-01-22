@@ -120,7 +120,7 @@ When calling `execute`, you can provide a configuration object:
 - **signal**: Accepts an `AbortSignal` to cancel the workflow programmatically.
 - **dryRun**: Overrides the current strategy with `DryRunExecutionStrategy` for this execution.
 
-```typescript
+```typescript 
 await runner.execute(steps, {
     concurrency: 2,
     dryRun: true
