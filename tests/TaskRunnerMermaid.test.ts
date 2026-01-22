@@ -97,8 +97,23 @@ describe("TaskRunner Mermaid Graph", () => {
 
     // Current implementation fails to sanitize these, leading to invalid Mermaid syntax
     // e.g., Task[1]["Task[1]"] which is confusing/invalid
-    expect(lines).toContain("  Task_1_[\"Task[1]\"]");
-    expect(lines).toContain("  Task_2_[\"Task(2)\"]");
     expect(lines).toContain("  Task_3_[\"Task{3}\"]");
+  });
+
+  it("should handle ID collisions by appending a counter", () => {
+    const steps: TaskStep<unknown>[] = [
+      { name: "Task 1", run: async () => ({ status: "success" }) },
+      { name: "Task_1", run: async () => ({ status: "success" }) },
+      { name: "Task:1", run: async () => ({ status: "success" }) },
+    ];
+
+    const graph = TaskRunner.getMermaidGraph(steps);
+    const lines = graph.split("\n");
+
+    // All three sanitize to "Task_1" initially.
+    // They should be disambiguated with suffix counters.
+    expect(lines).toContain("  Task_1[\"Task 1\"]");
+    expect(lines).toContain("  Task_1_1[\"Task_1\"]");
+    expect(lines).toContain("  Task_1_2[\"Task:1\"]");
   });
 });
