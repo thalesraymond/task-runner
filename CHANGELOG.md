@@ -18,6 +18,13 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.0.1](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.0...task-runner-v4.0.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* 🐛 test ci ([0137225](https://github.com/thalesraymond/task-runner/commit/013722547a31d5429f3024ba21eeefba0fbfc426))
+
 ## [4.0.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v3.8.4...task-runner-v4.0.0) (2026-01-22)
 
 
