@@ -84,7 +84,7 @@ export class TaskRunner<TContext> {
     const getUniqueId = (name: string) => {
       if (idMap.has(name)) {
         return idMap.get(name)!;
-      }
+      } 
 
       const sanitized = this.sanitizeMermaidId(name);
       let uniqueId = sanitized;
