@@ -18,6 +18,13 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.0.3](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.2...task-runner-v4.0.3) (2026-01-22)
+
+
+### Bug Fixes
+
+* 🐛 remove npm token (depoys is based on trust setting) ([872d42a](https://github.com/thalesraymond/task-runner/commit/872d42ad35524757f0974e5b46b54b9abf10d7c8))
+
 ## [4.0.2](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.1...task-runner-v4.0.2) (2026-01-22)
 
 
