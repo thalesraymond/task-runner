@@ -7,7 +7,7 @@ The current system uses `semantic-release` within a GitHub Actions workflow (`re
 We will adopt the **Release PR Pattern** using **Release Please**.
 
 ### Architecture
-- **Tool**: `google-github-actions/release-please-action`.
+- **Tool**: `googleapis/release-please-action`.
 - **Trigger**: Pushes to `main`.
 - **Mechanism**:
     1.  **Analysis**: The action analyzes commits since the last tagged version.

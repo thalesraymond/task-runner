@@ -7,7 +7,7 @@
     - Create `.release-please-manifest.json` (synced with current package.json version)
 - [x] Create Release Workflow <!-- id: 2 -->
     - Create `.github/workflows/release-please.yml`
-    - Step 1: `google-github-actions/release-please-action`
+    - Step 1: `googleapis/release-please-action`
     - Step 2: `pnpm publish` (conditional on release creation)
 - [x] Verification <!-- id: 3 -->
     - Validate CI YAML syntax
