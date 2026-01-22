@@ -195,32 +195,27 @@ export class WorkflowExecutor<TContext> {
     this.stateManager.markRunning(step);
 
     const startTime = performance.now();
+    let result: TaskResult;
 
     try {
-      const result = await this.strategy.execute(step, this.context, signal);
-      const endTime = performance.now();
-      
-      // Always inject metrics to ensure accuracy
-      result.metrics = {
-        startTime,
-        endTime,
-        duration: endTime - startTime,
-      };
-
-      this.stateManager.markCompleted(step, result);
+      result = await this.strategy.execute(step, this.context, signal);
     } catch (error) {
-      const endTime = performance.now();
-      const result: TaskResult = {
+      result = {
         status: "failure",
         message: ExecutionConstants.EXECUTION_STRATEGY_FAILED,
         error: error instanceof Error ? error.message : String(error),
-        metrics: {
-          startTime,
-          endTime,
-          duration: endTime - startTime,
-        },
       };
-      this.stateManager.markCompleted(step, result);
     }
+
+    const endTime = performance.now();
+
+    // Always inject metrics to ensure accuracy
+    result.metrics = {
+      startTime,
+      endTime,
+      duration: endTime - startTime,
+    };
+
+    this.stateManager.markCompleted(step, result);
   }
 }
