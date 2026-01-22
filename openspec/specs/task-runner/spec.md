@@ -160,3 +160,15 @@ The system SHALL provide a `RetryingExecutionStrategy` that implements `IExecuti
 
 - **WHEN** `retry.backoff` is 'exponential'
 - **THEN** the delay SHALL increase for each attempt (e.g., `delay * 2^attempt`).
+
+### Requirement: Task Execution Metrics
+
+The system SHALL record timing metrics for each executed task, including start time, end time, and duration.
+
+#### Scenario: Successful execution
+- **WHEN** a task completes successfully
+- **THEN** the task result contains the start timestamp, end timestamp, and duration in milliseconds
+
+#### Scenario: Failed execution
+- **WHEN** a task fails
+- **THEN** the task result contains the start timestamp, end timestamp, and duration in milliseconds
