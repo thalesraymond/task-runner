@@ -42,6 +42,4 @@ jobs:
               if: ${{ steps.release.outputs.release_created }}
 
             - run: pnpm publish --no-git-checks
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               if: ${{ steps.release.outputs.release_created }}
