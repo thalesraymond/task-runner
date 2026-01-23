@@ -199,37 +199,16 @@ export class TaskRunner<TContext> {
     timeout: number,
     signal?: AbortSignal
   ): Promise<Map<string, TaskResult>> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort(new Error(`Workflow timed out after ${timeout}ms`));
-    }, timeout);
+    // Create a timeout signal that aborts after the specified time
+    const timeoutSignal = AbortSignal.timeout(timeout);
 
-    let effectiveSignal = controller.signal;
-    let onAbort: (() => void) | undefined;
+    // If there's a user-provided signal, combine them.
+    // Otherwise, use the timeout signal directly.
+    const effectiveSignal = signal
+      ? AbortSignal.any([signal, timeoutSignal])
+      : timeoutSignal;
 
-    // Handle combination of signals if user provided one
-    if (signal) {
-      if (signal.aborted) {
-        // If already aborted, use it directly (WorkflowExecutor handles early abort)
-        // We can cancel timeout immediately
-        clearTimeout(timeoutId);
-        effectiveSignal = signal;
-      } else {
-        // Listen to user signal to abort our controller
-        onAbort = () => {
-          controller.abort(signal.reason);
-        };
-        signal.addEventListener("abort", onAbort);
-      }
-    }
-
-    try {
-      return await executor.execute(steps, effectiveSignal);
-    } finally {
-      clearTimeout(timeoutId);
-      if (signal && onAbort) {
-        signal.removeEventListener("abort", onAbort);
-      }
-    }
+    return executor.execute(steps, effectiveSignal);
+    // No explicit clean up needed for AbortSignal.timeout as it is handled by the platform
   }
 }
