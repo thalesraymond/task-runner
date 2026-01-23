@@ -56,7 +56,6 @@ export class TaskRunner<TContext> {
     event: K,
     callback: RunnerEventListener<TContext, K>
   ): void {
-    /* v8 ignore next 1 */
     this.eventBus.off(event, callback);
   }
 
@@ -66,7 +65,6 @@ export class TaskRunner<TContext> {
    * @returns The TaskRunner instance for chaining.
    */
   public setExecutionStrategy(strategy: IExecutionStrategy<TContext>): this {
-    /* v8 ignore next 2 */
     this.executionStrategy = strategy;
     return this;
   }
@@ -82,9 +80,10 @@ export class TaskRunner<TContext> {
     const usedIds = new Set<string>();
 
     const getUniqueId = (name: string) => {
-      if (idMap.has(name)) {
-        return idMap.get(name)!;
-      } 
+      const existingId = idMap.get(name);
+      if (existingId !== undefined) {
+        return existingId;
+      }
 
       const sanitized = this.sanitizeMermaidId(name);
       let uniqueId = sanitized;
@@ -132,7 +131,7 @@ export class TaskRunner<TContext> {
    * @returns The sanitized string.
    */
   private static sanitizeMermaidId(id: string): string {
-    return id.replaceAll(/[^a-zA-Z0-9_-]/g, "_");
+    return id.replace(/[^a-zA-Z0-9_-]/g, "_");
   }
 
   /**

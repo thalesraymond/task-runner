@@ -26,6 +26,8 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - **Strict Null Safety:** Do not use `??` or optional chaining `?.` when you can guarantee existence via prior validation. Use non-null assertions `!` only when the invariant is locally provable or enforced by a validator.
 - **Dead Code Elimination:** Avoid `v8 ignore` comments. If code is unreachable, restructure the logic to prove it is unreachable to the compiler, or remove the branch if the invariant is guaranteed.
 - **Signal Combination:** Prefer `AbortSignal.any()` over manual event listeners when combining multiple `AbortSignal`s to simplify logic and avoid memory leaks.
+- **Map Lookup Efficiency:** Avoid double lookups (e.g., `has()` followed by `get()`). Check the result of `get()` against `undefined` instead.
+- **Regex Compatibility:** Prefer `string.replace(regex, ...)` with a global flag over `string.replaceAll(regex, ...)` for broader compatibility.
 
 ## Operational Protocols
 
