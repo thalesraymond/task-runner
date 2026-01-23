@@ -29,8 +29,8 @@ describe("Integration: Dry Run", () => {
 
     expect(results.get("A")?.status).toBe("success");
     expect(results.get("B")?.status).toBe("success");
-    expect(results.get("A")?.message).toBe("Dry run: simulated success");
-    expect(results.get("B")?.message).toBe("Dry run: simulated success");
+    expect(results.get("A")?.message).toBe("Dry run: simulated success A");
+    expect(results.get("B")?.message).toBe("Dry run: simulated success B");
     expect(sideEffect).not.toHaveBeenCalled();
   });
 

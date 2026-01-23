@@ -14,9 +14,9 @@ describe("DryRunExecutionStrategy", () => {
 
     const result = await strategy.execute(step, {});
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       status: "success",
-      message: "Dry run: simulated success",
+      message: "Dry run: simulated success test-task",
     });
   });
 });

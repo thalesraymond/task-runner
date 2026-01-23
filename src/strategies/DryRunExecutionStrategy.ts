@@ -16,8 +16,7 @@ export class DryRunExecutionStrategy<
    * @returns A promise resolving to a success result.
    */
   async execute(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _step: TaskStep<TContext>,
+    step: TaskStep<TContext>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _context: TContext,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,7 +24,7 @@ export class DryRunExecutionStrategy<
   ): Promise<TaskResult> {
     return Promise.resolve({
       status: "success",
-      message: "Dry run: simulated success",
+      message: "Dry run: simulated success " + step.name,
     });
   }
 }
