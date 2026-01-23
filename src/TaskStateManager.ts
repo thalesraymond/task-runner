@@ -33,31 +33,19 @@ export class TaskStateManager<TContext> {
     const toRun: TaskStep<TContext>[] = [];
 
     for (const step of this.pendingSteps) {
-      const deps = step.dependencies ?? [];
-      let blocked = false;
-      let failedDep: string | undefined;
+      const depStatus = this.checkDependencyStatus(step);
 
-      for (const dep of deps) {
-        const depResult = this.results.get(dep);
-        if (!depResult) {
-          // Dependency not finished yet
-          blocked = true;
-        } else if (depResult.status !== "success") {
-          failedDep = dep;
-          break;
-        }
-      }
-
-      if (failedDep) {
-        const depResult = this.results.get(failedDep);
-        const depError = depResult?.error ? `: ${depResult.error}` : "";
+      if (depStatus.status === "failed") {
+        const depError = depStatus.error ? `: ${depStatus.error}` : "";
         const result: TaskResult = {
           status: "skipped",
-          message: `Skipped because dependency '${failedDep}' failed${depError}`,
+          message: `Skipped because dependency '${depStatus.failedDep}' failed${depError}`,
         };
+
         this.markSkipped(step, result);
+        
         toRemove.push(step);
-      } else if (!blocked) {
+      } else if (depStatus.status === "ready") {
         toRun.push(step);
         toRemove.push(step);
       }
@@ -144,5 +132,32 @@ export class TaskStateManager<TContext> {
     this.running.delete(step.name);
     this.results.set(step.name, result);
     this.eventBus.emit("taskSkipped", { step, result });
+  }
+
+  /**
+   * Checks the status of a step's dependencies.
+   */
+  private checkDependencyStatus(step: TaskStep<TContext>):
+    | { status: "ready" }
+    | { status: "blocked" }
+    | { status: "failed"; failedDep: string; error?: string } {
+    const deps = step.dependencies ?? [];
+
+    for (const dep of deps) {
+      const depResult = this.results.get(dep);
+      if (!depResult) {
+        // Dependency not finished yet
+        return { status: "blocked" };
+      }
+      if (depResult.status !== "success") {
+        return {
+          status: "failed",
+          failedDep: dep,
+          error: depResult.error,
+        };
+      }
+    }
+
+    return { status: "ready" };
   }
 }
