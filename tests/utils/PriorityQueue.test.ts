@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { PriorityQueue } from "../../src/utils/PriorityQueue";
+import { PriorityQueue } from "../../src/utils/PriorityQueue.js";
 
 describe("PriorityQueue", () => {
   let pq: PriorityQueue<string>;
