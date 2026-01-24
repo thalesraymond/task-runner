@@ -11,6 +11,11 @@ export class TaskStateManager<TContext> {
   private pendingSteps = new Set<TaskStep<TContext>>();
   private running = new Set<string>();
 
+  // Optimization structures
+  private dependencyGraph = new Map<string, TaskStep<TContext>[]>();
+  private dependencyCounts = new Map<string, number>();
+  private readyQueue: TaskStep<TContext>[] = [];
+
   constructor(private eventBus: EventBus<TContext>) {}
 
   /**
@@ -21,38 +26,39 @@ export class TaskStateManager<TContext> {
     this.pendingSteps = new Set(steps);
     this.results.clear();
     this.running.clear();
+    this.readyQueue = [];
+
+    this.dependencyGraph.clear();
+    this.dependencyCounts.clear();
+
+    for (const step of steps) {
+      const deps = step.dependencies ?? [];
+      this.dependencyCounts.set(step.name, deps.length);
+
+      if (deps.length === 0) {
+        this.readyQueue.push(step);
+      } else {
+        for (const dep of deps) {
+          if (!this.dependencyGraph.has(dep)) {
+            this.dependencyGraph.set(dep, []);
+          }
+          this.dependencyGraph.get(dep)!.push(step);
+        }
+      }
+    }
   }
 
   /**
-   * Processes the pending steps to identify tasks that can be started or must be skipped.
-   * Emits `taskSkipped` for skipped tasks.
+   * Processes the pending steps to identify tasks that can be started.
+   * Emits `taskSkipped` for skipped tasks (handled during cascade).
    * @returns An array of tasks that are ready to run.
    */
   processDependencies(): TaskStep<TContext>[] {
-    const toRemove: TaskStep<TContext>[] = [];
-    const toRun: TaskStep<TContext>[] = [];
+    const toRun = [...this.readyQueue];
+    this.readyQueue = [];
 
-    for (const step of this.pendingSteps) {
-      const depStatus = this.checkDependencyStatus(step);
-
-      if (depStatus.status === "failed") {
-        const depError = depStatus.error ? `: ${depStatus.error}` : "";
-        const result: TaskResult = {
-          status: "skipped",
-          message: `Skipped because dependency '${depStatus.failedDep}' failed${depError}`,
-        };
-
-        this.markSkipped(step, result);
-        
-        toRemove.push(step);
-      } else if (depStatus.status === "ready") {
-        toRun.push(step);
-        toRemove.push(step);
-      }
-    }
-
-    // Cleanup pending set
-    for (const step of toRemove) {
+    // Remove them from pendingSteps as they are now handed off to the executor
+    for (const step of toRun) {
       this.pendingSteps.delete(step);
     }
 
@@ -78,6 +84,39 @@ export class TaskStateManager<TContext> {
     this.running.delete(step.name);
     this.results.set(step.name, result);
     this.eventBus.emit("taskEnd", { step, result });
+
+    if (result.status === "success") {
+      this.handleSuccess(step.name);
+    } else {
+      this.cascadeFailure(step.name);
+    }
+  }
+
+  /**
+   * Marks a task as skipped and emits `taskSkipped`.
+   * @param step The task that was skipped.
+   * @param result The result object (status: skipped).
+   */
+  markSkipped(step: TaskStep<TContext>, result: TaskResult): void {
+    if (this.internalMarkSkipped(step, result)) {
+      this.cascadeFailure(step.name);
+    }
+  }
+
+  /**
+   * Internal method to mark skipped without triggering cascade (to be used inside cascade loop).
+   * Returns true if the task was actually marked skipped (was not already finished).
+   */
+  private internalMarkSkipped(step: TaskStep<TContext>, result: TaskResult): boolean {
+    if (this.results.has(step.name)) {
+      return false;
+    }
+
+    this.running.delete(step.name);
+    this.results.set(step.name, result);
+    this.pendingSteps.delete(step);
+    this.eventBus.emit("taskSkipped", { step, result });
+    return true;
   }
 
   /**
@@ -85,10 +124,10 @@ export class TaskStateManager<TContext> {
    * @param message The cancellation message.
    */
   cancelAllPending(message: string): void {
+    this.readyQueue = []; // Clear ready queue
+
     // Iterate over pendingSteps to cancel them
     for (const step of this.pendingSteps) {
-      // Also check running? No, running tasks are handled by AbortSignal in Executor.
-      // We only cancel what is pending and hasn't started.
       if (!this.results.has(step.name) && !this.running.has(step.name)) {
         const result: TaskResult = {
           status: "cancelled",
@@ -124,40 +163,54 @@ export class TaskStateManager<TContext> {
   }
 
   /**
-   * Marks a task as skipped and emits `taskSkipped`.
-   * @param step The task that was skipped.
-   * @param result The result object (status: skipped).
+   * Handles successful completion of a task by updating dependents.
    */
-  markSkipped(step: TaskStep<TContext>, result: TaskResult): void {
-    this.running.delete(step.name);
-    this.results.set(step.name, result);
-    this.eventBus.emit("taskSkipped", { step, result });
+  private handleSuccess(stepName: string): void {
+    const dependents = this.dependencyGraph.get(stepName);
+    if (!dependents) return;
+
+    for (const dependent of dependents) {
+      const currentCount = this.dependencyCounts.get(dependent.name)!;
+      const newCount = currentCount - 1;
+      this.dependencyCounts.set(dependent.name, newCount);
+
+      if (newCount === 0) {
+        // Task is ready. Ensure it's still pending.
+        if (this.pendingSteps.has(dependent)) {
+          this.readyQueue.push(dependent);
+        }
+      }
+    }
   }
 
   /**
-   * Checks the status of a step's dependencies.
+   * Cascades failure/skipping to dependents.
    */
-  private checkDependencyStatus(step: TaskStep<TContext>):
-    | { status: "ready" }
-    | { status: "blocked" }
-    | { status: "failed"; failedDep: string; error?: string } {
-    const deps = step.dependencies ?? [];
+  private cascadeFailure(failedStepName: string): void {
+    const queue = [failedStepName];
+    // Use a set to track visited nodes in this cascade pass to avoid redundant processing,
+    // although checking results.has() in internalMarkSkipped also prevents it.
 
-    for (const dep of deps) {
-      const depResult = this.results.get(dep);
-      if (!depResult) {
-        // Dependency not finished yet
-        return { status: "blocked" };
-      }
-      if (depResult.status !== "success") {
-        return {
-          status: "failed",
-          failedDep: dep,
-          error: depResult.error,
+    while (queue.length > 0) {
+      const currentName = queue.shift()!;
+      const dependents = this.dependencyGraph.get(currentName);
+
+      if (!dependents) continue;
+
+      // Get the result of the failed/skipped dependency to propagate error info if available
+      const currentResult = this.results.get(currentName);
+      const depError = currentResult?.error ? `: ${currentResult.error}` : "";
+
+      for (const dependent of dependents) {
+        const result: TaskResult = {
+          status: "skipped",
+          message: `Skipped because dependency '${currentName}' failed${depError}`,
         };
+
+        if (this.internalMarkSkipped(dependent, result)) {
+          queue.push(dependent.name);
+        }
       }
     }
-
-    return { status: "ready" };
   }
 }

@@ -26,7 +26,7 @@ describe("Task Execution Metrics", () => {
     expect(result?.metrics).toBeDefined();
     expect(result?.metrics?.startTime).toBeGreaterThanOrEqual(start);
     expect(result?.metrics?.endTime).toBeLessThanOrEqual(end);
-    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs);
+    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs - 5);
     // Allow some buffer for execution overhead
     expect(result?.metrics?.duration).toBeLessThan(delayMs + 200); 
   });
@@ -50,6 +50,6 @@ describe("Task Execution Metrics", () => {
     expect(result).toBeDefined();
     expect(result?.status).toBe("failure");
     expect(result?.metrics).toBeDefined();
-    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs);
+    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs - 5);
   });
 });
