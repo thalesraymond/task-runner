@@ -62,33 +62,22 @@ export class WorkflowExecutor<TContext> {
     }
 
     try {
+      let resolveCompletion: () => void;
+      // We create a promise that will be resolved when all tasks are done (or stuck)
+      const completionPromise = new Promise<void>((resolve) => {
+        resolveCompletion = resolve;
+      });
+
+      // Called when the process loop detects no more work can be done
+      const checkCompletion = () => {
+        resolveCompletion();
+      };
+
       // Initial pass
-      this.processLoop(executingPromises, signal);
+      this.processLoop(executingPromises, signal, checkCompletion);
 
-      while (
-        this.stateManager.hasPendingTasks() ||
-        this.stateManager.hasRunningTasks() ||
-        executingPromises.size > 0
-      ) {
-        // Safety check: if no tasks are running and we still have pending tasks,
-        // it means we are stuck (e.g. cycle or unhandled dependency).
-        // Since valid graphs shouldn't have this, we break to avoid infinite loop.
-        if (executingPromises.size === 0) {
-          break;
-        } else {
-          // Wait for the next task to finish
-          await Promise.race(executingPromises);
-        }
-
-        if (signal?.aborted) {
-          this.stateManager.cancelAllPending(
-            ExecutionConstants.WORKFLOW_CANCELLED
-          );
-        } else {
-          // After a task finishes, check for new work
-          this.processLoop(executingPromises, signal);
-        }
-      }
+      // Wait for completion instead of polling with Promise.race
+      await completionPromise;
 
       // Ensure everything is accounted for (e.g. if loop exited early)
       this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
@@ -108,17 +97,20 @@ export class WorkflowExecutor<TContext> {
    */
   private processLoop(
     executingPromises: Set<Promise<void>>,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    onComplete?: () => void
   ): void {
-    const newlyReady = this.stateManager.processDependencies();
+    if (!signal?.aborted) {
+      const newlyReady = this.stateManager.processDependencies();
 
-    // Add newly ready tasks to the queue
-    for (const task of newlyReady) {
-      this.readyQueue.push(task);
+      // Add newly ready tasks to the queue
+      for (const task of newlyReady) {
+        this.readyQueue.push(task);
+      }
+
+      // Sort by priority (descending) once after adding new tasks
+      this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     }
-
-    // Sort by priority (descending) once after adding new tasks
-    this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
     // Execute ready tasks while respecting concurrency limit
     while (this.readyQueue.length > 0) {
@@ -131,14 +123,18 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.shift()!;
 
-      const taskPromise = this.executeTaskStep(step, signal)
-        .finally(() => {
-          executingPromises.delete(taskPromise);
-          // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
-        });
+      const taskPromise = this.executeTaskStep(step, signal).finally(() => {
+        executingPromises.delete(taskPromise);
+        // When a task finishes, we try to run more
+        this.processLoop(executingPromises, signal, onComplete);
+      });
 
       executingPromises.add(taskPromise);
+    }
+
+    // If no tasks are running, we might be done (or stuck)
+    if (executingPromises.size === 0) {
+      onComplete?.();
     }
   }
 
