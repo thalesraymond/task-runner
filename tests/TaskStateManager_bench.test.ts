@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 import { TaskStateManager } from "../src/TaskStateManager.js";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
