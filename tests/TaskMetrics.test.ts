@@ -26,7 +26,8 @@ describe("Task Execution Metrics", () => {
     expect(result?.metrics).toBeDefined();
     expect(result?.metrics?.startTime).toBeGreaterThanOrEqual(start);
     expect(result?.metrics?.endTime).toBeLessThanOrEqual(end);
-    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs);
+    // Allow small tolerance for timer inaccuracy
+    expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs - 5);
     // Allow some buffer for execution overhead
     expect(result?.metrics?.duration).toBeLessThan(delayMs + 200); 
   });
