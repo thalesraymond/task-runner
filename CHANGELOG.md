@@ -18,6 +18,25 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.1.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.4...task-runner-v4.1.0) (2026-01-24)
+
+
+### Features
+
+* 🎸 Add task name to sucess message on dry run ([5b9fcd0](https://github.com/thalesraymond/task-runner/commit/5b9fcd0ddd61172687e464cf6a3b5fb65df20cdf))
+* 🎸 metrics per task ([#103](https://github.com/thalesraymond/task-runner/issues/103)) ([c824c56](https://github.com/thalesraymond/task-runner/commit/c824c56dce6d958de8946e1fb9af598bd7e10e5e))
+
+
+### Bug Fixes
+
+* 🐛 getMermaidGraph ID collision for similar task names ([#100](https://github.com/thalesraymond/task-runner/issues/100)) ([0d3af0d](https://github.com/thalesraymond/task-runner/commit/0d3af0d1663346d31c4d05bfd0eb498456221b2f))
+* 🛰️ Sonar Specialist: Refactor signal combination in TaskRunner ([#107](https://github.com/thalesraymond/task-runner/issues/107)) ([9c383cc](https://github.com/thalesraymond/task-runner/commit/9c383cc7a6657133136945cec01ccc50d30f752d))
+
+
+### Performance Improvements
+
+* optimize Mermaid graph ID generation ([#112](https://github.com/thalesraymond/task-runner/issues/112)) ([59e78b1](https://github.com/thalesraymond/task-runner/commit/59e78b1b975e89120d27d827127fbd813a399e36))
+
 ## [4.0.4](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.3...task-runner-v4.0.4) (2026-01-22)
 
 
