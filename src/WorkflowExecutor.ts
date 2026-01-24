@@ -4,13 +4,14 @@ import { EventBus } from "./EventBus.js";
 import { TaskStateManager } from "./TaskStateManager.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { ExecutionConstants } from "./ExecutionConstants.js";
+import { PriorityQueue } from "./utils/PriorityQueue.js";
 
 /**
  * Handles the execution of the workflow steps.
  * @template TContext The shape of the shared context object.
  */
 export class WorkflowExecutor<TContext> {
-  private readyQueue: TaskStep<TContext>[] = [];
+  private readyQueue = new PriorityQueue<TaskStep<TContext>>();
 
   /**
    * @param context The shared context object.
@@ -114,14 +115,11 @@ export class WorkflowExecutor<TContext> {
 
     // Add newly ready tasks to the queue
     for (const task of newlyReady) {
-      this.readyQueue.push(task);
+      this.readyQueue.push(task, task.priority ?? 0);
     }
 
-    // Sort by priority (descending) once after adding new tasks
-    this.readyQueue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-
     // Execute ready tasks while respecting concurrency limit
-    while (this.readyQueue.length > 0) {
+    while (!this.readyQueue.isEmpty()) {
       if (
         this.concurrency !== undefined &&
         executingPromises.size >= this.concurrency
@@ -129,7 +127,7 @@ export class WorkflowExecutor<TContext> {
         break;
       }
 
-      const step = this.readyQueue.shift()!;
+      const step = this.readyQueue.pop()!;
 
       const taskPromise = this.executeTaskStep(step, signal)
         .finally(() => {
