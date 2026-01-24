@@ -144,7 +144,7 @@ export class TaskRunner<TContext> {
    * @returns The sanitized string.
    */
   private static sanitizeMermaidId(id: string): string {
-    return id.replaceAll(/[^a-zA-Z0-9_-]/g, "_");
+    return id.replace(/[^a-zA-Z0-9_-]/g, "_");
   }
 
   /**
