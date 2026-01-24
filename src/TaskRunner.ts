@@ -80,20 +80,32 @@ export class TaskRunner<TContext> {
     const graphLines = ["graph TD"];
     const idMap = new Map<string, string>();
     const usedIds = new Set<string>();
+    const baseIdCounters = new Map<string, number>();
 
     const getUniqueId = (name: string) => {
       if (idMap.has(name)) {
         return idMap.get(name)!;
-      } 
+      }
 
       const sanitized = this.sanitizeMermaidId(name);
       let uniqueId = sanitized;
-      let counter = 1;
+
+      // First check if the base sanitized ID is available
+      if (!usedIds.has(uniqueId)) {
+        usedIds.add(uniqueId);
+        idMap.set(name, uniqueId);
+        return uniqueId;
+      }
+
+      // If not, use the counter for this base ID
+      let counter = baseIdCounters.get(sanitized) || 1;
 
       while (usedIds.has(uniqueId)) {
         uniqueId = `${sanitized}_${counter}`;
         counter++;
       }
+
+      baseIdCounters.set(sanitized, counter);
 
       usedIds.add(uniqueId);
       idMap.set(name, uniqueId);
