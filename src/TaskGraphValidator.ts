@@ -21,12 +21,23 @@ export class TaskGraphValidator implements ITaskGraphValidator {
    */
   validate(taskGraph: TaskGraph): ValidationResult {
     const errors: ValidationError[] = [];
+    const adjacencyList = new Map<string, string[]>();
 
-    // 1. Check for duplicate tasks
-    const taskIds = this.checkDuplicateTasks(taskGraph, errors);
+    // 1. Check for duplicate tasks & Build Adjacency List
+    for (const task of taskGraph.tasks) {
+      if (adjacencyList.has(task.id)) {
+        errors.push({
+          type: ERROR_DUPLICATE_TASK,
+          message: `Duplicate task detected with ID: ${task.id}`,
+          details: { taskId: task.id },
+        });
+      } else {
+        adjacencyList.set(task.id, task.dependencies);
+      }
+    }
 
     // 2. Check for missing dependencies
-    this.checkMissingDependencies(taskGraph, taskIds, errors);
+    this.checkMissingDependencies(taskGraph, adjacencyList, errors);
 
     // 3. Check for cycles
     // Only run cycle detection if there are no missing dependencies, otherwise we might chase non-existent nodes.
@@ -35,7 +46,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     );
 
     if (!hasMissingDependencies) {
-      this.checkCycles(taskGraph, errors);
+      this.checkCycles(adjacencyList, errors);
     }
 
     return {
@@ -54,33 +65,14 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     return `Task graph validation failed: ${errorDetails.join("; ")}`;
   }
 
-  private checkDuplicateTasks(
-    taskGraph: TaskGraph,
-    errors: ValidationError[]
-  ): Set<string> {
-    const taskIds = new Set<string>();
-    for (const task of taskGraph.tasks) {
-      if (taskIds.has(task.id)) {
-        errors.push({
-          type: ERROR_DUPLICATE_TASK,
-          message: `Duplicate task detected with ID: ${task.id}`,
-          details: { taskId: task.id },
-        });
-      } else {
-        taskIds.add(task.id);
-      }
-    }
-    return taskIds;
-  }
-
   private checkMissingDependencies(
     taskGraph: TaskGraph,
-    taskIds: Set<string>,
+    adjacencyList: Map<string, string[]>,
     errors: ValidationError[]
   ): void {
     for (const task of taskGraph.tasks) {
       for (const dependenceId of task.dependencies) {
-        if (!taskIds.has(dependenceId)) {
+        if (!adjacencyList.has(dependenceId)) {
           errors.push({
             type: ERROR_MISSING_DEPENDENCY,
             message: `Task '${task.id}' depends on missing task '${dependenceId}'`,
@@ -91,24 +83,21 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     }
   }
 
-  private checkCycles(taskGraph: TaskGraph, errors: ValidationError[]): void {
-    // Build adjacency list
-    const adjacencyList = new Map<string, string[]>();
-    for (const task of taskGraph.tasks) {
-      adjacencyList.set(task.id, task.dependencies);
-    }
-
+  private checkCycles(
+    adjacencyList: Map<string, string[]>,
+    errors: ValidationError[]
+  ): void {
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
 
-    for (const task of taskGraph.tasks) {
-      if (visited.has(task.id)) {
+    for (const taskId of adjacencyList.keys()) {
+      if (visited.has(taskId)) {
         continue;
       }
 
       const path: string[] = [];
       if (
-        this.detectCycle(task.id, path, visited, recursionStack, adjacencyList)
+        this.detectCycle(taskId, path, visited, recursionStack, adjacencyList)
       ) {
         // Extract the actual cycle from the path
         // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)

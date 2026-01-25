@@ -143,4 +143,17 @@ describe("TaskGraphValidator", () => {
     const errorMessage = validator.createErrorMessage(result);
     expect(errorMessage).toBe("Task graph validation failed: Error 1; Error 2");
   });
+
+  it("should handle fully connected graph traversal for coverage", () => {
+    const validator = new TaskGraphValidator();
+    // A -> B. If we process A first, we visit B. Then processing B should hit 'continue'.
+    const graph: TaskGraph = {
+      tasks: [
+        { id: "A", dependencies: ["B"] },
+        { id: "B", dependencies: [] },
+      ],
+    };
+    const result = validator.validate(graph);
+    expect(result.isValid).toBe(true);
+  });
 });
