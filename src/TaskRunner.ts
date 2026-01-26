@@ -16,9 +16,6 @@ import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrateg
 import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
-// Re-export types for backward compatibility
-export { RunnerEventPayloads, RunnerEventListener, TaskRunnerExecutionConfig };
-
 /**
  * The main class that orchestrates the execution of a list of tasks
  * based on their dependencies, with support for parallel execution.
