@@ -19,3 +19,8 @@
 
 **Insight:** Blindly retrying failing tasks is a "Product Anti-pattern". Retrying a `SyntaxError` or invalid user input 3 times (with exponential backoff!) is annoying and wasteful.
 **Action:** We must distinguish between "Transient" (network, resource lock) and "Permanent" (logic, validation) failures. Exposing a `shouldRetry` predicate gives the user control without complicating the core runner logic.
+
+## 2026-01-24 - The Cleanup Paradox
+
+**Insight:** "Continue On Error" is often misused for Cleanup logic. Users mark critical tasks as "Optional" just to ensure subsequent cleanup tasks run, which incorrectly allows *other* dependents to run too. True "Teardown" requires the *dependent* to assert its resilience, not the *dependency* to declare its weakness.
+**Action:** Invert the control. Instead of the failing task saying "I don't matter" (`continueOnError`), the cleanup task should say "I run anyway" (`runCondition: 'always'`). This preserves the criticality of the workflow while ensuring resource hygiene.
