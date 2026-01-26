@@ -27,6 +27,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - **Dead Code Elimination:** Avoid `v8 ignore` comments. If code is unreachable, restructure the logic to prove it is unreachable to the compiler, or remove the branch if the invariant is guaranteed.
 - **Signal Combination:** Prefer `AbortSignal.any()` over manual event listeners when combining multiple `AbortSignal`s to simplify logic and avoid memory leaks.
 - **Map Lookups:** Avoid double lookups in Maps (e.g., `has()` followed by `get()`). Check the result of `get()` against `undefined` to perform the check in a single operation.
+- **String Replacement:** Always favor `String.prototype.replaceAll` over `String.prototype.replace` with global regex for clarity.
 
 ## Operational Protocols
 
