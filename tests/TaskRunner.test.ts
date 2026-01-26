@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { TaskRunner } from "../src/TaskRunner.js";
 import { TaskStep } from "../src/TaskStep.js";
 import { TaskGraphValidationError } from "../src/TaskGraphValidationError.js";
+import { IExecutionStrategy } from "../src/strategies/IExecutionStrategy.js";
 
 describe("TaskRunner", () => {
   it("should run tasks in the correct sequential order", async () => {
@@ -226,5 +227,44 @@ describe("TaskRunner", () => {
         });
       }
     }
+  });
+
+  it("should allow unsubscribing from events", async () => {
+    const runner = new TaskRunner({});
+    const callback = vi.fn();
+    runner.on("taskStart", callback);
+    runner.off("taskStart", callback);
+
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        run: async () => ({ status: "success" }),
+      },
+    ];
+
+    await runner.execute(steps);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it("should allow setting a custom execution strategy", async () => {
+    const customStrategy: IExecutionStrategy<unknown> = {
+      execute: async () => ({
+        status: "success",
+        message: "Executed by custom strategy",
+      }),
+    };
+
+    const runner = new TaskRunner({});
+    runner.setExecutionStrategy(customStrategy);
+
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "A",
+        run: async () => ({ status: "failure" }), // Should be ignored by custom strategy
+      },
+    ];
+
+    const results = await runner.execute(steps);
+    expect(results.get("A")?.message).toBe("Executed by custom strategy");
   });
 });
