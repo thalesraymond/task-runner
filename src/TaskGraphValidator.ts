@@ -1,7 +1,7 @@
 import { ITaskGraphValidator } from "./contracts/ITaskGraphValidator.js";
 import { ValidationResult } from "./contracts/ValidationResult.js";
 import { ValidationError } from "./contracts/ValidationError.js";
-import { TaskGraph } from "./TaskGraph.js";
+import { TaskGraph, Task } from "./TaskGraph.js";
 import {
   ERROR_CYCLE,
   ERROR_DUPLICATE_TASK,
@@ -22,11 +22,11 @@ export class TaskGraphValidator implements ITaskGraphValidator {
   validate(taskGraph: TaskGraph): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // 1. Check for duplicate tasks
-    const taskIds = this.checkDuplicateTasks(taskGraph, errors);
+    // 1. Build Map and Check Duplicates (Single Pass)
+    const taskMap = this.buildTaskMapAndCheckDuplicates(taskGraph, errors);
 
     // 2. Check for missing dependencies
-    this.checkMissingDependencies(taskGraph, taskIds, errors);
+    this.checkMissingDependencies(taskGraph, taskMap, errors);
 
     // 3. Check for cycles
     // Only run cycle detection if there are no missing dependencies, otherwise we might chase non-existent nodes.
@@ -35,7 +35,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     );
 
     if (!hasMissingDependencies) {
-      this.checkCycles(taskGraph, errors);
+      this.checkCycles(taskGraph, taskMap, errors);
     }
 
     return {
@@ -54,33 +54,33 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     return `Task graph validation failed: ${errorDetails.join("; ")}`;
   }
 
-  private checkDuplicateTasks(
+  private buildTaskMapAndCheckDuplicates(
     taskGraph: TaskGraph,
     errors: ValidationError[]
-  ): Set<string> {
-    const taskIds = new Set<string>();
+  ): Map<string, Task> {
+    const taskMap = new Map<string, Task>();
     for (const task of taskGraph.tasks) {
-      if (taskIds.has(task.id)) {
+      if (taskMap.has(task.id)) {
         errors.push({
           type: ERROR_DUPLICATE_TASK,
           message: `Duplicate task detected with ID: ${task.id}`,
           details: { taskId: task.id },
         });
       } else {
-        taskIds.add(task.id);
+        taskMap.set(task.id, task);
       }
     }
-    return taskIds;
+    return taskMap;
   }
 
   private checkMissingDependencies(
     taskGraph: TaskGraph,
-    taskIds: Set<string>,
+    taskMap: Map<string, Task>,
     errors: ValidationError[]
   ): void {
     for (const task of taskGraph.tasks) {
       for (const dependenceId of task.dependencies) {
-        if (!taskIds.has(dependenceId)) {
+        if (!taskMap.has(dependenceId)) {
           errors.push({
             type: ERROR_MISSING_DEPENDENCY,
             message: `Task '${task.id}' depends on missing task '${dependenceId}'`,
@@ -91,13 +91,11 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     }
   }
 
-  private checkCycles(taskGraph: TaskGraph, errors: ValidationError[]): void {
-    // Build adjacency list
-    const adjacencyList = new Map<string, string[]>();
-    for (const task of taskGraph.tasks) {
-      adjacencyList.set(task.id, task.dependencies);
-    }
-
+  private checkCycles(
+    taskGraph: TaskGraph,
+    taskMap: Map<string, Task>,
+    errors: ValidationError[]
+  ): void {
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
 
@@ -108,7 +106,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
 
       const path: string[] = [];
       if (
-        this.detectCycle(task.id, path, visited, recursionStack, adjacencyList)
+        this.detectCycle(task.id, path, visited, recursionStack, taskMap)
       ) {
         // Extract the actual cycle from the path
         // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)
@@ -132,7 +130,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     path: string[],
     visited: Set<string>,
     recursionStack: Set<string>,
-    adjacencyList: Map<string, string[]>
+    taskMap: Map<string, Task>
   ): boolean {
     // Use an explicit stack to avoid maximum call stack size exceeded errors
     const stack: { taskId: string; index: number; dependencies: string[] }[] =
@@ -145,7 +143,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     stack.push({
       taskId: startTaskId,
       index: 0,
-      dependencies: adjacencyList.get(startTaskId)!,
+      dependencies: taskMap.get(startTaskId)!.dependencies,
     });
 
     while (stack.length > 0) {
@@ -170,7 +168,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
           stack.push({
             taskId: dependenceId,
             index: 0,
-            dependencies: adjacencyList.get(dependenceId)!,
+            dependencies: taskMap.get(dependenceId)!.dependencies,
           });
         }
       } else {
