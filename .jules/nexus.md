@@ -24,3 +24,8 @@
 
 **Insight:** "Continue On Error" is often misused for Cleanup logic. Users mark critical tasks as "Optional" just to ensure subsequent cleanup tasks run, which incorrectly allows *other* dependents to run too. True "Teardown" requires the *dependent* to assert its resilience, not the *dependency* to declare its weakness.
 **Action:** Invert the control. Instead of the failing task saying "I don't matter" (`continueOnError`), the cleanup task should say "I run anyway" (`runCondition: 'always'`). This preserves the criticality of the workflow while ensuring resource hygiene.
+
+## 2026-01-25 - The Polling Pattern
+
+**Insight:** Users frequently misuse `retry` logic to simulate polling (e.g., "retry 50 times until the API returns 200"). This is a semantic error: `retry` is for *transient failures* (reliability), while `loop` is for *business logic* (waiting for state).
+**Action:** Introduce a dedicated `loop` configuration to `TaskStep`. By separating these concerns, we keep the graph clean (one node = one logical task) while supporting long-running asynchronous workflows.
