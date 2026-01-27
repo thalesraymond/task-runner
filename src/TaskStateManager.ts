@@ -39,10 +39,12 @@ export class TaskStateManager<TContext> {
         this.readyQueue.push(step);
       } else {
         for (const dep of deps) {
-          if (!this.dependencyGraph.has(dep)) {
-            this.dependencyGraph.set(dep, []);
+          let depSteps = this.dependencyGraph.get(dep);
+          if (!depSteps) {
+            depSteps = [];
+            this.dependencyGraph.set(dep, depSteps);
           }
-          this.dependencyGraph.get(dep)!.push(step);
+          depSteps.push(step);
         }
       }
     }
