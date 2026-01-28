@@ -24,3 +24,8 @@
 
 **Insight:** "Continue On Error" is often misused for Cleanup logic. Users mark critical tasks as "Optional" just to ensure subsequent cleanup tasks run, which incorrectly allows *other* dependents to run too. True "Teardown" requires the *dependent* to assert its resilience, not the *dependency* to declare its weakness.
 **Action:** Invert the control. Instead of the failing task saying "I don't matter" (`continueOnError`), the cleanup task should say "I run anyway" (`runCondition: 'always'`). This preserves the criticality of the workflow while ensuring resource hygiene.
+
+## 2026-01-28 - Loop vs Retry Separation
+
+**Insight:** "Retry" implies failure correction. "Loop" implies waiting for state. Conflating them (e.g. "Retry if 202 Accepted") confuses the semantic meaning of the workflow and complicates strategy logic.
+**Action:** Strictly separate `RetryingExecutionStrategy` (handling Exceptions/Errors) from `LoopingExecutionStrategy` (handling Conditions/Predicates). This keeps each strategy single-purpose and composable.
