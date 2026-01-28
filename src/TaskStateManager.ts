@@ -188,11 +188,13 @@ export class TaskStateManager<TContext> {
    */
   private cascadeFailure(failedStepName: string): void {
     const queue = [failedStepName];
+    // Optimization: Use index pointer instead of shift() to avoid O(N) array re-indexing
+    let head = 0;
     // Use a set to track visited nodes in this cascade pass to avoid redundant processing,
     // although checking results.has() in internalMarkSkipped also prevents it.
 
-    while (queue.length > 0) {
-      const currentName = queue.shift()!;
+    while (head < queue.length) {
+      const currentName = queue[head++];
       const dependents = this.dependencyGraph.get(currentName);
 
       if (!dependents) continue;
