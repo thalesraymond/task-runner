@@ -39,10 +39,12 @@ export class TaskStateManager<TContext> {
         this.readyQueue.push(step);
       } else {
         for (const dep of deps) {
-          if (!this.dependencyGraph.has(dep)) {
-            this.dependencyGraph.set(dep, []);
+          let dependents = this.dependencyGraph.get(dep);
+          if (!dependents) {
+            dependents = [];
+            this.dependencyGraph.set(dep, dependents);
           }
-          this.dependencyGraph.get(dep)!.push(step);
+          dependents.push(step);
         }
       }
     }
@@ -188,11 +190,14 @@ export class TaskStateManager<TContext> {
    */
   private cascadeFailure(failedStepName: string): void {
     const queue = [failedStepName];
+    let index = 0;
     // Use a set to track visited nodes in this cascade pass to avoid redundant processing,
     // although checking results.has() in internalMarkSkipped also prevents it.
 
-    while (queue.length > 0) {
-      const currentName = queue.shift()!;
+    while (index < queue.length) {
+      const currentName = queue[index];
+      index++;
+
       const dependents = this.dependencyGraph.get(currentName);
 
       if (!dependents) continue;
