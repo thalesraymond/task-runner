@@ -18,6 +18,25 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.2.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.1.0...task-runner-v4.2.0) (2026-01-30)
+
+
+### Features
+
+* add middleware support proposal ([#123](https://github.com/thalesraymond/task-runner/issues/123)) ([e93c2f1](https://github.com/thalesraymond/task-runner/commit/e93c2f1bd34764dbb084ff9645836ec20fdef026))
+
+
+### Bug Fixes
+
+* 🛰️ Sonar Specialist: Fix issues in `src/TaskRunner.ts` ([#128](https://github.com/thalesraymond/task-runner/issues/128)) ([fd87799](https://github.com/thalesraymond/task-runner/commit/fd877993497539728b6c7ba55d1a34ea7e1d7737))
+
+
+### Performance Improvements
+
+* optimize cascadeFailure to O(N) using index pointer ([#135](https://github.com/thalesraymond/task-runner/issues/135)) ([1ecd7b8](https://github.com/thalesraymond/task-runner/commit/1ecd7b8fe1c72ebc7f97aaaa6bc9aeacdb830ae2))
+* optimize TaskStateManager initialization to avoid double map lookups ([#132](https://github.com/thalesraymond/task-runner/issues/132)) ([02c516c](https://github.com/thalesraymond/task-runner/commit/02c516cc030b27b4c3bb143107e25c91503b0dd8))
+* **validator:** optimize graph validation (3x speedup) ([#127](https://github.com/thalesraymond/task-runner/issues/127)) ([66f97e7](https://github.com/thalesraymond/task-runner/commit/66f97e7bc3999d38b78640e29cd47b086532a97a))
+
 ## [4.1.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.4...task-runner-v4.1.0) (2026-01-24)
 
 
