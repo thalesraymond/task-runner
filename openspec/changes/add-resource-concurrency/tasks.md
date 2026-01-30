@@ -7,3 +7,4 @@
 - [ ] 1.5 Update `WorkflowExecutor.executeTaskStep` (or equivalent completion logic) to release resources when a task finishes.
 - [ ] 1.6 Add unit tests for resource limiting in `tests/WorkflowExecutor.test.ts`.
 - [ ] 1.7 Add integration test for mixed resource usage in `tests/integration/resource-concurrency.test.ts`.
+- [ ] 1.8 Update README.md to include docs and examples on resource concurrency configuration
