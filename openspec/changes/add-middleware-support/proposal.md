@@ -9,9 +9,9 @@ Developers currently duplicate code for cross-cutting concerns like logging, err
 - **Middleware Interface**: Introduce a `Middleware<T>` type representing a function that wraps task execution.
 - **TaskRunnerBuilder**: Add a `.use(middleware)` method to register middleware functions.
 - **TaskRunner**:
-    - Store the chain of middleware.
-    - During execution, wrap the `Strategy.execute` call with the middleware chain (onion model).
-    - Ensure middleware runs *before* the task starts and *after* it finishes (or fails).
+  - Store the chain of middleware.
+  - During execution, wrap the `Strategy.execute` call with the middleware chain (onion model).
+  - Ensure middleware runs _before_ the task starts and _after_ it finishes (or fails).
 
 ## Impact
 

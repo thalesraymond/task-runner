@@ -1,193 +1,183 @@
 ## <small>3.8.4 (2026-01-21)</small>
 
-* fix: 🛰️ Sonar Specialist: Fix dead code in `TaskGraphValidator` (#93) ([b760765](https://github.com/thalesraymond/task-runner/commit/b760765)), closes [#93](https://github.com/thalesraymond/task-runner/issues/93)
-* docs: add Continue On Error feature proposal (#94) ([2a658fb](https://github.com/thalesraymond/task-runner/commit/2a658fb)), closes [#94](https://github.com/thalesraymond/task-runner/issues/94)
+- fix: 🛰️ Sonar Specialist: Fix dead code in `TaskGraphValidator` (#93) ([b760765](https://github.com/thalesraymond/task-runner/commit/b760765)), closes [#93](https://github.com/thalesraymond/task-runner/issues/93)
+- docs: add Continue On Error feature proposal (#94) ([2a658fb](https://github.com/thalesraymond/task-runner/commit/2a658fb)), closes [#94](https://github.com/thalesraymond/task-runner/issues/94)
 
 ## <small>3.8.3 (2026-01-21)</small>
 
-* fix: 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f6121))
-* Fix WorkflowExecutor SonarCloud issues (complexity & error handling) (#91) ([3eb5457](https://github.com/thalesraymond/task-runner/commit/3eb5457)), closes [#91](https://github.com/thalesraymond/task-runner/issues/91)
+- fix: 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f6121))
+- Fix WorkflowExecutor SonarCloud issues (complexity & error handling) (#91) ([3eb5457](https://github.com/thalesraymond/task-runner/commit/3eb5457)), closes [#91](https://github.com/thalesraymond/task-runner/issues/91)
 
 ## <small>3.8.2 (2026-01-21)</small>
 
-* fix(EventBus): handle floating promises (#90) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c37)), closes [#90](https://github.com/thalesraymond/task-runner/issues/90)
+- fix(EventBus): handle floating promises (#90) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c37)), closes [#90](https://github.com/thalesraymond/task-runner/issues/90)
 
 ## <small>3.8.1 (2026-01-21)</small>
 
-* fix: Fix missing event emission on task cancellation (#92) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa)), closes [#92](https://github.com/thalesraymond/task-runner/issues/92)
-* refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
-* Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
+- fix: Fix missing event emission on task cancellation (#92) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa)), closes [#92](https://github.com/thalesraymond/task-runner/issues/92)
+- refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
+- Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
 ## [4.1.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.4...task-runner-v4.1.0) (2026-01-24)
 
-
 ### Features
 
-* 🎸 Add task name to sucess message on dry run ([5b9fcd0](https://github.com/thalesraymond/task-runner/commit/5b9fcd0ddd61172687e464cf6a3b5fb65df20cdf))
-* 🎸 metrics per task ([#103](https://github.com/thalesraymond/task-runner/issues/103)) ([c824c56](https://github.com/thalesraymond/task-runner/commit/c824c56dce6d958de8946e1fb9af598bd7e10e5e))
-
+- 🎸 Add task name to sucess message on dry run ([5b9fcd0](https://github.com/thalesraymond/task-runner/commit/5b9fcd0ddd61172687e464cf6a3b5fb65df20cdf))
+- 🎸 metrics per task ([#103](https://github.com/thalesraymond/task-runner/issues/103)) ([c824c56](https://github.com/thalesraymond/task-runner/commit/c824c56dce6d958de8946e1fb9af598bd7e10e5e))
 
 ### Bug Fixes
 
-* 🐛 getMermaidGraph ID collision for similar task names ([#100](https://github.com/thalesraymond/task-runner/issues/100)) ([0d3af0d](https://github.com/thalesraymond/task-runner/commit/0d3af0d1663346d31c4d05bfd0eb498456221b2f))
-* 🛰️ Sonar Specialist: Refactor signal combination in TaskRunner ([#107](https://github.com/thalesraymond/task-runner/issues/107)) ([9c383cc](https://github.com/thalesraymond/task-runner/commit/9c383cc7a6657133136945cec01ccc50d30f752d))
-
+- 🐛 getMermaidGraph ID collision for similar task names ([#100](https://github.com/thalesraymond/task-runner/issues/100)) ([0d3af0d](https://github.com/thalesraymond/task-runner/commit/0d3af0d1663346d31c4d05bfd0eb498456221b2f))
+- 🛰️ Sonar Specialist: Refactor signal combination in TaskRunner ([#107](https://github.com/thalesraymond/task-runner/issues/107)) ([9c383cc](https://github.com/thalesraymond/task-runner/commit/9c383cc7a6657133136945cec01ccc50d30f752d))
 
 ### Performance Improvements
 
-* optimize Mermaid graph ID generation ([#112](https://github.com/thalesraymond/task-runner/issues/112)) ([59e78b1](https://github.com/thalesraymond/task-runner/commit/59e78b1b975e89120d27d827127fbd813a399e36))
+- optimize Mermaid graph ID generation ([#112](https://github.com/thalesraymond/task-runner/issues/112)) ([59e78b1](https://github.com/thalesraymond/task-runner/commit/59e78b1b975e89120d27d827127fbd813a399e36))
 
 ## [4.0.4](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.3...task-runner-v4.0.4) (2026-01-22)
 
-
 ### Bug Fixes
 
-* 🐛 id-token: writ ([39fbc2b](https://github.com/thalesraymond/task-runner/commit/39fbc2bc83d448cd2385a2c71089832f61f4b3e3))
+- 🐛 id-token: writ ([39fbc2b](https://github.com/thalesraymond/task-runner/commit/39fbc2bc83d448cd2385a2c71089832f61f4b3e3))
 
 ## [4.0.3](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.2...task-runner-v4.0.3) (2026-01-22)
 
-
 ### Bug Fixes
 
-* 🐛 remove npm token (depoys is based on trust setting) ([872d42a](https://github.com/thalesraymond/task-runner/commit/872d42ad35524757f0974e5b46b54b9abf10d7c8))
+- 🐛 remove npm token (depoys is based on trust setting) ([872d42a](https://github.com/thalesraymond/task-runner/commit/872d42ad35524757f0974e5b46b54b9abf10d7c8))
 
 ## [4.0.2](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.1...task-runner-v4.0.2) (2026-01-22)
 
-
 ### Bug Fixes
 
-* 🐛 using new action (remove deprecated warning) ([6238bbd](https://github.com/thalesraymond/task-runner/commit/6238bbdfd7689468e4eb650c427848fae8f2d674))
+- 🐛 using new action (remove deprecated warning) ([6238bbd](https://github.com/thalesraymond/task-runner/commit/6238bbdfd7689468e4eb650c427848fae8f2d674))
 
 ## [4.0.1](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.0...task-runner-v4.0.1) (2026-01-22)
 
-
 ### Bug Fixes
 
-* 🐛 test ci ([0137225](https://github.com/thalesraymond/task-runner/commit/013722547a31d5429f3024ba21eeefba0fbfc426))
+- 🐛 test ci ([0137225](https://github.com/thalesraymond/task-runner/commit/013722547a31d5429f3024ba21eeefba0fbfc426))
 
 ## [4.0.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v3.8.4...task-runner-v4.0.0) (2026-01-22)
 
-
 ### ⚠ BREAKING CHANGES
 
-* 🧨 Major refactor in the engine, added strategy pattern support
-* **security:** none
-* **security:** none
-* **security:** none
+- 🧨 Major refactor in the engine, added strategy pattern support
+- **security:** none
+- **security:** none
+- **security:** none
 
 ### Features
 
-* 🎸 Generating 3.0.0 since automation wrongly skiped ([c545f25](https://github.com/thalesraymond/task-runner/commit/c545f25be8c689d4a0b518f71635d5b6303b2c64))
-* 🎸 new conditional execution feature ([e936ad7](https://github.com/thalesraymond/task-runner/commit/e936ad71acf5fa3c744b4fa7984f6c7665f75e32))
-* add CI workflow and restore dependabot ([57ae940](https://github.com/thalesraymond/task-runner/commit/57ae940d3dde2adf2de362a48b635def7de2fa7a))
-* add CI workflow and restore dependabot ([48ec98b](https://github.com/thalesraymond/task-runner/commit/48ec98b075feb4bb7e8d339105afdbcb0b5f0fa3))
-* add CI workflow and restore dependabot ([9263c43](https://github.com/thalesraymond/task-runner/commit/9263c43466ee43dd5e07a4edbd9f2ca0b49015e6))
-* add CI workflow for build, lint, and test ([6f97dc0](https://github.com/thalesraymond/task-runner/commit/6f97dc0ee6d1f09de5ddedc64aca73d257e4bc65))
-* add CI workflow for build, lint, and test ([a03422e](https://github.com/thalesraymond/task-runner/commit/a03422ea9ab18cb9f38d8fde58a64c4ce982ff7f))
-* add concurrency control to TaskRunner ([90c2b6f](https://github.com/thalesraymond/task-runner/commit/90c2b6fc7466d9b63820c190e73cc4e96f557335))
-* add concurrency control to TaskRunner ([2a8dfd2](https://github.com/thalesraymond/task-runner/commit/2a8dfd2e825f4802030723c26cf83a51037b99c7))
-* add issue templates ([6ff97f1](https://github.com/thalesraymond/task-runner/commit/6ff97f1140f4de2f3c4a02bd98579474af0893fe))
-* add task priority for concurrency scheduling ([#87](https://github.com/thalesraymond/task-runner/issues/87)) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4e381dd822358f0e573bfd414a5356d8a5))
-* add task retry policy ([81d4bd3](https://github.com/thalesraymond/task-runner/commit/81d4bd3567a7c4542ba35e311a1a19dd7da7b904))
-* add workflow preview and dry-run capabilities ([e1ccda9](https://github.com/thalesraymond/task-runner/commit/e1ccda9f23e13befd4221cd95b7acfd5500d0e66))
-* add workflow preview and dry-run capabilities ([138f4ae](https://github.com/thalesraymond/task-runner/commit/138f4ae2761d992f111cc108612f4d81b06f6a41))
-* add workflow state persistence proposal ([b62769e](https://github.com/thalesraymond/task-runner/commit/b62769ed128f3c77efb88532c2d2a5d971f0f751))
-* configure semantic-release for automated releases ([fa13bf5](https://github.com/thalesraymond/task-runner/commit/fa13bf5a42f9eb4a4c65aebca28c1b11ff36b618))
-* Implement generic task runner with dependency management and parallel execution ([e0c8bf9](https://github.com/thalesraymond/task-runner/commit/e0c8bf9d3fe8bd7aa14ebb442752e02600c7332e))
-* implement Observer Pattern event system in TaskRunner ([d682983](https://github.com/thalesraymond/task-runner/commit/d682983ebb2aa72eefb05ec06382b206f35473cc))
-* implement Observer Pattern event system in TaskRunner ([48bd3d0](https://github.com/thalesraymond/task-runner/commit/48bd3d0c83bf76dacceee4bb105beb0365816f1c))
-* **implement:** complete file structure refactor ([7764e43](https://github.com/thalesraymond/task-runner/commit/7764e4336effdb8098d4c29c7df5ab10df3d0997))
-* **implement:** complete file structure refactor and cleanup ([372ca8b](https://github.com/thalesraymond/task-runner/commit/372ca8b3703f5e4b3aa14754165ab0fff9451c05))
-* initialize project with TypeScript, Vitest, and basic sum function ([02dd759](https://github.com/thalesraymond/task-runner/commit/02dd75989bfc7a4e9d1f1360fe334284dafd021a))
-* **plan:** create technical plan for file refactor ([29d2a97](https://github.com/thalesraymond/task-runner/commit/29d2a97e0b8b1d98caa27467bf4e865c987e5371))
-* pre-validation of task graph for cycles and missing deps ([4680c1b](https://github.com/thalesraymond/task-runner/commit/4680c1b076abcbd5349129b2ac5db19b4585eec7)), closes [#004](https://github.com/thalesraymond/task-runner/issues/004)
-* **specs:** add spec for file structure refactor ([884c551](https://github.com/thalesraymond/task-runner/commit/884c5512cf9267b4c10a42053019a72abf624650))
-* **tasks:** create tasks for file structure refactor ([3b99e22](https://github.com/thalesraymond/task-runner/commit/3b99e2269220d740ca552733c4bcb41b74bc8108))
-* throw TaskGraphValidationError on validation failure ([35a4e91](https://github.com/thalesraymond/task-runner/commit/35a4e91e66beb7d0660b4059740f4067ab4f2af2))
-
+- 🎸 Generating 3.0.0 since automation wrongly skiped ([c545f25](https://github.com/thalesraymond/task-runner/commit/c545f25be8c689d4a0b518f71635d5b6303b2c64))
+- 🎸 new conditional execution feature ([e936ad7](https://github.com/thalesraymond/task-runner/commit/e936ad71acf5fa3c744b4fa7984f6c7665f75e32))
+- add CI workflow and restore dependabot ([57ae940](https://github.com/thalesraymond/task-runner/commit/57ae940d3dde2adf2de362a48b635def7de2fa7a))
+- add CI workflow and restore dependabot ([48ec98b](https://github.com/thalesraymond/task-runner/commit/48ec98b075feb4bb7e8d339105afdbcb0b5f0fa3))
+- add CI workflow and restore dependabot ([9263c43](https://github.com/thalesraymond/task-runner/commit/9263c43466ee43dd5e07a4edbd9f2ca0b49015e6))
+- add CI workflow for build, lint, and test ([6f97dc0](https://github.com/thalesraymond/task-runner/commit/6f97dc0ee6d1f09de5ddedc64aca73d257e4bc65))
+- add CI workflow for build, lint, and test ([a03422e](https://github.com/thalesraymond/task-runner/commit/a03422ea9ab18cb9f38d8fde58a64c4ce982ff7f))
+- add concurrency control to TaskRunner ([90c2b6f](https://github.com/thalesraymond/task-runner/commit/90c2b6fc7466d9b63820c190e73cc4e96f557335))
+- add concurrency control to TaskRunner ([2a8dfd2](https://github.com/thalesraymond/task-runner/commit/2a8dfd2e825f4802030723c26cf83a51037b99c7))
+- add issue templates ([6ff97f1](https://github.com/thalesraymond/task-runner/commit/6ff97f1140f4de2f3c4a02bd98579474af0893fe))
+- add task priority for concurrency scheduling ([#87](https://github.com/thalesraymond/task-runner/issues/87)) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4e381dd822358f0e573bfd414a5356d8a5))
+- add task retry policy ([81d4bd3](https://github.com/thalesraymond/task-runner/commit/81d4bd3567a7c4542ba35e311a1a19dd7da7b904))
+- add workflow preview and dry-run capabilities ([e1ccda9](https://github.com/thalesraymond/task-runner/commit/e1ccda9f23e13befd4221cd95b7acfd5500d0e66))
+- add workflow preview and dry-run capabilities ([138f4ae](https://github.com/thalesraymond/task-runner/commit/138f4ae2761d992f111cc108612f4d81b06f6a41))
+- add workflow state persistence proposal ([b62769e](https://github.com/thalesraymond/task-runner/commit/b62769ed128f3c77efb88532c2d2a5d971f0f751))
+- configure semantic-release for automated releases ([fa13bf5](https://github.com/thalesraymond/task-runner/commit/fa13bf5a42f9eb4a4c65aebca28c1b11ff36b618))
+- Implement generic task runner with dependency management and parallel execution ([e0c8bf9](https://github.com/thalesraymond/task-runner/commit/e0c8bf9d3fe8bd7aa14ebb442752e02600c7332e))
+- implement Observer Pattern event system in TaskRunner ([d682983](https://github.com/thalesraymond/task-runner/commit/d682983ebb2aa72eefb05ec06382b206f35473cc))
+- implement Observer Pattern event system in TaskRunner ([48bd3d0](https://github.com/thalesraymond/task-runner/commit/48bd3d0c83bf76dacceee4bb105beb0365816f1c))
+- **implement:** complete file structure refactor ([7764e43](https://github.com/thalesraymond/task-runner/commit/7764e4336effdb8098d4c29c7df5ab10df3d0997))
+- **implement:** complete file structure refactor and cleanup ([372ca8b](https://github.com/thalesraymond/task-runner/commit/372ca8b3703f5e4b3aa14754165ab0fff9451c05))
+- initialize project with TypeScript, Vitest, and basic sum function ([02dd759](https://github.com/thalesraymond/task-runner/commit/02dd75989bfc7a4e9d1f1360fe334284dafd021a))
+- **plan:** create technical plan for file refactor ([29d2a97](https://github.com/thalesraymond/task-runner/commit/29d2a97e0b8b1d98caa27467bf4e865c987e5371))
+- pre-validation of task graph for cycles and missing deps ([4680c1b](https://github.com/thalesraymond/task-runner/commit/4680c1b076abcbd5349129b2ac5db19b4585eec7)), closes [#004](https://github.com/thalesraymond/task-runner/issues/004)
+- **specs:** add spec for file structure refactor ([884c551](https://github.com/thalesraymond/task-runner/commit/884c5512cf9267b4c10a42053019a72abf624650))
+- **tasks:** create tasks for file structure refactor ([3b99e22](https://github.com/thalesraymond/task-runner/commit/3b99e2269220d740ca552733c4bcb41b74bc8108))
+- throw TaskGraphValidationError on validation failure ([35a4e91](https://github.com/thalesraymond/task-runner/commit/35a4e91e66beb7d0660b4059740f4067ab4f2af2))
 
 ### Bug Fixes
 
-* 🐛 fix sanitization of mermaid function ([b09db63](https://github.com/thalesraymond/task-runner/commit/b09db63b2fdad55c5cfb197ce6009cb81a8604f5))
-* 🐛 fixing commit script and adding a fix to test auto relea ([97cedf4](https://github.com/thalesraymond/task-runner/commit/97cedf4acda6c84db02be4549bf0eb7cbc3a4c16))
-* 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f61216f6aad326409ac4ded114e79c8b9fbd61))
-* 🛡️ Sentinel: Fix Mermaid graph identifier sanitization ([#81](https://github.com/thalesraymond/task-runner/issues/81)) ([a8bebe3](https://github.com/thalesraymond/task-runner/commit/a8bebe3577e2b3f96aaa759bc6eff91b173b5785))
-* 🛰️ Sonar Specialist: Fix dead code in `TaskGraphValidator` ([#93](https://github.com/thalesraymond/task-runner/issues/93)) ([b760765](https://github.com/thalesraymond/task-runner/commit/b76076593cb80f414868872248fad4a8e503f8bd))
-* add file extensions and types to test file to fix CI errors ([54b186f](https://github.com/thalesraymond/task-runner/commit/54b186f7e1bce6e79e2e8ef3b7a501d1be28b467))
-* address PR comments on sonar config ([6eab0b5](https://github.com/thalesraymond/task-runner/commit/6eab0b52fa420bcb26f64737f2915fe20867603d))
-* address PR comments on sonar config ([156eea0](https://github.com/thalesraymond/task-runner/commit/156eea041a1713de20cea3f0e4bac132e4f81649))
-* address pr feedback ([4a23576](https://github.com/thalesraymond/task-runner/commit/4a2357650012fe9e48baa98222576346a2ce1f79))
-* address pr feedback ([97cf83f](https://github.com/thalesraymond/task-runner/commit/97cf83ffa22dba3972a275f99b7eb4da4c012878))
-* change singleQuote option to false in Prettier configuration ([94625a3](https://github.com/thalesraymond/task-runner/commit/94625a3084ee1d6ae218990bf3e9bb5138002415))
-* correct syntax errors in README.md examples and improve context hydration explanation ([98e3a5a](https://github.com/thalesraymond/task-runner/commit/98e3a5abd25e8856aa0c4458e8b7c8555b01a887))
-* **EventBus:** fix lint errors in test file ([86b3ad8](https://github.com/thalesraymond/task-runner/commit/86b3ad86584372552c757ecaf9e47b8ffdec3cb5))
-* **EventBus:** handle floating promises ([#90](https://github.com/thalesraymond/task-runner/issues/90)) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c376b912014a73ef180e426d2de5ca771c76))
-* **EventBus:** handle unhandled promise rejections in event listeners ([5f5235a](https://github.com/thalesraymond/task-runner/commit/5f5235adde48f4ce738fe89cad27ddc1023a4445))
-* Fix missing event emission on task cancellation ([#92](https://github.com/thalesraymond/task-runner/issues/92)) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa191686520f0f6d2e721cf1ec2bf7ac983))
-* remove any type usage in TaskRunner to satisfy linter ([b0a21a7](https://github.com/thalesraymond/task-runner/commit/b0a21a748bdf8fb71e14f7ea3a83937b5a36cb2f))
-* remove unreachable code and verify single execution in concurrency logic ([7255cee](https://github.com/thalesraymond/task-runner/commit/7255cee7c686431a4cac0db5e26f2f12e85ea849))
-* resolve linting errors and verify concurrency control ([9ed2585](https://github.com/thalesraymond/task-runner/commit/9ed2585fb2f712c7210fae84dba70152b9ab7169))
-* revert unauthorized changes to package.json and tsconfig.test.json ([cd44f9e](https://github.com/thalesraymond/task-runner/commit/cd44f9e38451a608a73d201624e675612e7b93af))
-* **security:** replace recursive cycle detection with iterative DFS ([2d2e395](https://github.com/thalesraymond/task-runner/commit/2d2e395aab9306610af03ba4b1305ad448d69d63))
-* **security:** replace recursive cycle detection with iterative DFS ([1e2d7ca](https://github.com/thalesraymond/task-runner/commit/1e2d7ca1704ae288fc54258df698621ecab2eceb))
-* **security:** replace recursive cycle detection with iterative DFS ([292947f](https://github.com/thalesraymond/task-runner/commit/292947f67aa8e64adf62bd23c56f1ce06766c16f))
-* standardize quotes and formatting in dependabot configuration ([ab2d7fa](https://github.com/thalesraymond/task-runner/commit/ab2d7fa2bb14c17b300bca64d0c29711bcc0d5f5))
-
+- 🐛 fix sanitization of mermaid function ([b09db63](https://github.com/thalesraymond/task-runner/commit/b09db63b2fdad55c5cfb197ce6009cb81a8604f5))
+- 🐛 fixing commit script and adding a fix to test auto relea ([97cedf4](https://github.com/thalesraymond/task-runner/commit/97cedf4acda6c84db02be4549bf0eb7cbc3a4c16))
+- 🐛 trigger ci ([27f6121](https://github.com/thalesraymond/task-runner/commit/27f61216f6aad326409ac4ded114e79c8b9fbd61))
+- 🛡️ Sentinel: Fix Mermaid graph identifier sanitization ([#81](https://github.com/thalesraymond/task-runner/issues/81)) ([a8bebe3](https://github.com/thalesraymond/task-runner/commit/a8bebe3577e2b3f96aaa759bc6eff91b173b5785))
+- 🛰️ Sonar Specialist: Fix dead code in `TaskGraphValidator` ([#93](https://github.com/thalesraymond/task-runner/issues/93)) ([b760765](https://github.com/thalesraymond/task-runner/commit/b76076593cb80f414868872248fad4a8e503f8bd))
+- add file extensions and types to test file to fix CI errors ([54b186f](https://github.com/thalesraymond/task-runner/commit/54b186f7e1bce6e79e2e8ef3b7a501d1be28b467))
+- address PR comments on sonar config ([6eab0b5](https://github.com/thalesraymond/task-runner/commit/6eab0b52fa420bcb26f64737f2915fe20867603d))
+- address PR comments on sonar config ([156eea0](https://github.com/thalesraymond/task-runner/commit/156eea041a1713de20cea3f0e4bac132e4f81649))
+- address pr feedback ([4a23576](https://github.com/thalesraymond/task-runner/commit/4a2357650012fe9e48baa98222576346a2ce1f79))
+- address pr feedback ([97cf83f](https://github.com/thalesraymond/task-runner/commit/97cf83ffa22dba3972a275f99b7eb4da4c012878))
+- change singleQuote option to false in Prettier configuration ([94625a3](https://github.com/thalesraymond/task-runner/commit/94625a3084ee1d6ae218990bf3e9bb5138002415))
+- correct syntax errors in README.md examples and improve context hydration explanation ([98e3a5a](https://github.com/thalesraymond/task-runner/commit/98e3a5abd25e8856aa0c4458e8b7c8555b01a887))
+- **EventBus:** fix lint errors in test file ([86b3ad8](https://github.com/thalesraymond/task-runner/commit/86b3ad86584372552c757ecaf9e47b8ffdec3cb5))
+- **EventBus:** handle floating promises ([#90](https://github.com/thalesraymond/task-runner/issues/90)) ([9872c37](https://github.com/thalesraymond/task-runner/commit/9872c376b912014a73ef180e426d2de5ca771c76))
+- **EventBus:** handle unhandled promise rejections in event listeners ([5f5235a](https://github.com/thalesraymond/task-runner/commit/5f5235adde48f4ce738fe89cad27ddc1023a4445))
+- Fix missing event emission on task cancellation ([#92](https://github.com/thalesraymond/task-runner/issues/92)) ([3d7e7aa](https://github.com/thalesraymond/task-runner/commit/3d7e7aa191686520f0f6d2e721cf1ec2bf7ac983))
+- remove any type usage in TaskRunner to satisfy linter ([b0a21a7](https://github.com/thalesraymond/task-runner/commit/b0a21a748bdf8fb71e14f7ea3a83937b5a36cb2f))
+- remove unreachable code and verify single execution in concurrency logic ([7255cee](https://github.com/thalesraymond/task-runner/commit/7255cee7c686431a4cac0db5e26f2f12e85ea849))
+- resolve linting errors and verify concurrency control ([9ed2585](https://github.com/thalesraymond/task-runner/commit/9ed2585fb2f712c7210fae84dba70152b9ab7169))
+- revert unauthorized changes to package.json and tsconfig.test.json ([cd44f9e](https://github.com/thalesraymond/task-runner/commit/cd44f9e38451a608a73d201624e675612e7b93af))
+- **security:** replace recursive cycle detection with iterative DFS ([2d2e395](https://github.com/thalesraymond/task-runner/commit/2d2e395aab9306610af03ba4b1305ad448d69d63))
+- **security:** replace recursive cycle detection with iterative DFS ([1e2d7ca](https://github.com/thalesraymond/task-runner/commit/1e2d7ca1704ae288fc54258df698621ecab2eceb))
+- **security:** replace recursive cycle detection with iterative DFS ([292947f](https://github.com/thalesraymond/task-runner/commit/292947f67aa8e64adf62bd23c56f1ce06766c16f))
+- standardize quotes and formatting in dependabot configuration ([ab2d7fa](https://github.com/thalesraymond/task-runner/commit/ab2d7fa2bb14c17b300bca64d0c29711bcc0d5f5))
 
 ### Performance Improvements
 
-* **executor:** optimize processQueue loop using pending set ([2924700](https://github.com/thalesraymond/task-runner/commit/2924700cfc161af1500190395d5043a9249388f8))
-* Make event listeners async to prevent blocking ([1f8728f](https://github.com/thalesraymond/task-runner/commit/1f8728f4bd9735868c942223548f13ffc9fb98d5))
-* Make event listeners async to prevent blocking ([a52f8d0](https://github.com/thalesraymond/task-runner/commit/a52f8d09827c27b78a07f342a56c392460f89668))
-* optimize task scheduling to prevent pipeline stalls ([37c52f7](https://github.com/thalesraymond/task-runner/commit/37c52f7ce78b1ee1d8483d4b2c33bd73e585850f))
+- **executor:** optimize processQueue loop using pending set ([2924700](https://github.com/thalesraymond/task-runner/commit/2924700cfc161af1500190395d5043a9249388f8))
+- Make event listeners async to prevent blocking ([1f8728f](https://github.com/thalesraymond/task-runner/commit/1f8728f4bd9735868c942223548f13ffc9fb98d5))
+- Make event listeners async to prevent blocking ([a52f8d0](https://github.com/thalesraymond/task-runner/commit/a52f8d09827c27b78a07f342a56c392460f89668))
+- optimize task scheduling to prevent pipeline stalls ([37c52f7](https://github.com/thalesraymond/task-runner/commit/37c52f7ce78b1ee1d8483d4b2c33bd73e585850f))
 
 ## 3.8.0 (2026-01-21)
 
-* feat: add task priority for concurrency scheduling (#87) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4)), closes [#87](https://github.com/thalesraymond/task-runner/issues/87) [#74](https://github.com/thalesraymond/task-runner/issues/74)
-* docs: add link to showcase app in README (#85) ([e4c10ca](https://github.com/thalesraymond/task-runner/commit/e4c10ca)), closes [#85](https://github.com/thalesraymond/task-runner/issues/85)
-* docs: add Task Execution Metrics proposal (#86) ([9a9661f](https://github.com/thalesraymond/task-runner/commit/9a9661f)), closes [#86](https://github.com/thalesraymond/task-runner/issues/86)
-* chore: Add guideline for commit prefix 'docs:' ([99635dc](https://github.com/thalesraymond/task-runner/commit/99635dc))
-* chore: Potential fix for code scanning alert no. 1: Workflow does not contain permissions (#78) ([b8fb2b4](https://github.com/thalesraymond/task-runner/commit/b8fb2b4)), closes [#78](https://github.com/thalesraymond/task-runner/issues/78)
-* chore: update package.json description and keywords (#84) ([757b254](https://github.com/thalesraymond/task-runner/commit/757b254)), closes [#84](https://github.com/thalesraymond/task-runner/issues/84)
-* fix:🛡️ Sentinel: Fix Mermaid graph identifier sanitization (#81) ([a8bebe3](https://github.com/thalesraymond/task-runner/commit/a8bebe3)), closes [#81](https://github.com/thalesraymond/task-runner/issues/81)
+- feat: add task priority for concurrency scheduling (#87) ([43bb6b4](https://github.com/thalesraymond/task-runner/commit/43bb6b4)), closes [#87](https://github.com/thalesraymond/task-runner/issues/87) [#74](https://github.com/thalesraymond/task-runner/issues/74)
+- docs: add link to showcase app in README (#85) ([e4c10ca](https://github.com/thalesraymond/task-runner/commit/e4c10ca)), closes [#85](https://github.com/thalesraymond/task-runner/issues/85)
+- docs: add Task Execution Metrics proposal (#86) ([9a9661f](https://github.com/thalesraymond/task-runner/commit/9a9661f)), closes [#86](https://github.com/thalesraymond/task-runner/issues/86)
+- chore: Add guideline for commit prefix 'docs:' ([99635dc](https://github.com/thalesraymond/task-runner/commit/99635dc))
+- chore: Potential fix for code scanning alert no. 1: Workflow does not contain permissions (#78) ([b8fb2b4](https://github.com/thalesraymond/task-runner/commit/b8fb2b4)), closes [#78](https://github.com/thalesraymond/task-runner/issues/78)
+- chore: update package.json description and keywords (#84) ([757b254](https://github.com/thalesraymond/task-runner/commit/757b254)), closes [#84](https://github.com/thalesraymond/task-runner/issues/84)
+- fix:🛡️ Sentinel: Fix Mermaid graph identifier sanitization (#81) ([a8bebe3](https://github.com/thalesraymond/task-runner/commit/a8bebe3)), closes [#81](https://github.com/thalesraymond/task-runner/issues/81)
 
 ## 3.7.0 (2026-01-19)
 
-* Merge pull request #82 from thalesraymond/nexus-feature-state-persistence-17975676824428491411 ([1137981](https://github.com/thalesraymond/task-runner/commit/1137981)), closes [#82](https://github.com/thalesraymond/task-runner/issues/82)
-* feat: add workflow state persistence proposal ([b62769e](https://github.com/thalesraymond/task-runner/commit/b62769e))
+- Merge pull request #82 from thalesraymond/nexus-feature-state-persistence-17975676824428491411 ([1137981](https://github.com/thalesraymond/task-runner/commit/1137981)), closes [#82](https://github.com/thalesraymond/task-runner/issues/82)
+- feat: add workflow state persistence proposal ([b62769e](https://github.com/thalesraymond/task-runner/commit/b62769e))
 
 ## 3.6.0 (2026-01-19)
 
-* Add CodeQL analysis workflow configuration ([b2ee976](https://github.com/thalesraymond/task-runner/commit/b2ee976))
-* Merge pull request #66 from thalesraymond/dependabot/github_actions/actions/checkout-6 ([cb6e75f](https://github.com/thalesraymond/task-runner/commit/cb6e75f)), closes [#66](https://github.com/thalesraymond/task-runner/issues/66)
-* Merge pull request #67 from thalesraymond/dependabot/github_actions/pnpm/action-setup-4 ([4c9e9f3](https://github.com/thalesraymond/task-runner/commit/4c9e9f3)), closes [#67](https://github.com/thalesraymond/task-runner/issues/67)
-* Merge pull request #68 from thalesraymond/dependabot/github_actions/SonarSource/sonarqube-scan-actio ([9980f4d](https://github.com/thalesraymond/task-runner/commit/9980f4d)), closes [#68](https://github.com/thalesraymond/task-runner/issues/68)
-* Merge pull request #71 from thalesraymond/chore/codeQLworkflow ([db4f46a](https://github.com/thalesraymond/task-runner/commit/db4f46a)), closes [#71](https://github.com/thalesraymond/task-runner/issues/71)
-* Merge pull request #72 from thalesraymond/setup-issue-templates-6661562951039014259 ([f3281bf](https://github.com/thalesraymond/task-runner/commit/f3281bf)), closes [#72](https://github.com/thalesraymond/task-runner/issues/72)
-* feat: add issue templates ([6ff97f1](https://github.com/thalesraymond/task-runner/commit/6ff97f1))
-* chore(deps): bump actions/checkout from 4 to 6 ([f0b2f0e](https://github.com/thalesraymond/task-runner/commit/f0b2f0e))
-* chore(deps): bump pnpm/action-setup from 2 to 4 ([2a5c3e1](https://github.com/thalesraymond/task-runner/commit/2a5c3e1))
-* chore(deps): bump SonarSource/sonarqube-scan-action from 6 to 7 ([df236cd](https://github.com/thalesraymond/task-runner/commit/df236cd))
+- Add CodeQL analysis workflow configuration ([b2ee976](https://github.com/thalesraymond/task-runner/commit/b2ee976))
+- Merge pull request #66 from thalesraymond/dependabot/github_actions/actions/checkout-6 ([cb6e75f](https://github.com/thalesraymond/task-runner/commit/cb6e75f)), closes [#66](https://github.com/thalesraymond/task-runner/issues/66)
+- Merge pull request #67 from thalesraymond/dependabot/github_actions/pnpm/action-setup-4 ([4c9e9f3](https://github.com/thalesraymond/task-runner/commit/4c9e9f3)), closes [#67](https://github.com/thalesraymond/task-runner/issues/67)
+- Merge pull request #68 from thalesraymond/dependabot/github_actions/SonarSource/sonarqube-scan-actio ([9980f4d](https://github.com/thalesraymond/task-runner/commit/9980f4d)), closes [#68](https://github.com/thalesraymond/task-runner/issues/68)
+- Merge pull request #71 from thalesraymond/chore/codeQLworkflow ([db4f46a](https://github.com/thalesraymond/task-runner/commit/db4f46a)), closes [#71](https://github.com/thalesraymond/task-runner/issues/71)
+- Merge pull request #72 from thalesraymond/setup-issue-templates-6661562951039014259 ([f3281bf](https://github.com/thalesraymond/task-runner/commit/f3281bf)), closes [#72](https://github.com/thalesraymond/task-runner/issues/72)
+- feat: add issue templates ([6ff97f1](https://github.com/thalesraymond/task-runner/commit/6ff97f1))
+- chore(deps): bump actions/checkout from 4 to 6 ([f0b2f0e](https://github.com/thalesraymond/task-runner/commit/f0b2f0e))
+- chore(deps): bump pnpm/action-setup from 2 to 4 ([2a5c3e1](https://github.com/thalesraymond/task-runner/commit/2a5c3e1))
+- chore(deps): bump SonarSource/sonarqube-scan-action from 6 to 7 ([df236cd](https://github.com/thalesraymond/task-runner/commit/df236cd))
 
 ## 3.5.0 (2026-01-18)
 
-* Merge pull request #69 from thalesraymond/feat/conditional-execution ([dd1dd8d](https://github.com/thalesraymond/task-runner/commit/dd1dd8d)), closes [#69](https://github.com/thalesraymond/task-runner/issues/69)
-* Update README.md ([8808f94](https://github.com/thalesraymond/task-runner/commit/8808f94))
-* docs: ✏️ archive conditional specs since its implemented ([b3db067](https://github.com/thalesraymond/task-runner/commit/b3db067))
-* docs: ✏️ conditional execution spec ([5a670c4](https://github.com/thalesraymond/task-runner/commit/5a670c4))
-* docs: ✏️ fix typo ([d969ff5](https://github.com/thalesraymond/task-runner/commit/d969ff5))
-* docs: ✏️ rewriting readme with latest changes ([c968fc3](https://github.com/thalesraymond/task-runner/commit/c968fc3))
-* docs: ✏️ update readme with example of conditional execution ([da9a818](https://github.com/thalesraymond/task-runner/commit/da9a818))
-* feat: 🎸 new conditional execution feature ([e936ad7](https://github.com/thalesraymond/task-runner/commit/e936ad7))
-* chore: 🤖 add AI skills ([5feacc6](https://github.com/thalesraymond/task-runner/commit/5feacc6))
-* chore: 🤖 removed skill md file, general skills moved to workspa ([5a8bd0e](https://github.com/thalesraymond/task-runner/commit/5a8bd0e))
-* chore: 🤖 removed workspace skills ([e819e00](https://github.com/thalesraymond/task-runner/commit/e819e00))
+- Merge pull request #69 from thalesraymond/feat/conditional-execution ([dd1dd8d](https://github.com/thalesraymond/task-runner/commit/dd1dd8d)), closes [#69](https://github.com/thalesraymond/task-runner/issues/69)
+- Update README.md ([8808f94](https://github.com/thalesraymond/task-runner/commit/8808f94))
+- docs: ✏️ archive conditional specs since its implemented ([b3db067](https://github.com/thalesraymond/task-runner/commit/b3db067))
+- docs: ✏️ conditional execution spec ([5a670c4](https://github.com/thalesraymond/task-runner/commit/5a670c4))
+- docs: ✏️ fix typo ([d969ff5](https://github.com/thalesraymond/task-runner/commit/d969ff5))
+- docs: ✏️ rewriting readme with latest changes ([c968fc3](https://github.com/thalesraymond/task-runner/commit/c968fc3))
+- docs: ✏️ update readme with example of conditional execution ([da9a818](https://github.com/thalesraymond/task-runner/commit/da9a818))
+- feat: 🎸 new conditional execution feature ([e936ad7](https://github.com/thalesraymond/task-runner/commit/e936ad7))
+- chore: 🤖 add AI skills ([5feacc6](https://github.com/thalesraymond/task-runner/commit/5feacc6))
+- chore: 🤖 removed skill md file, general skills moved to workspa ([5a8bd0e](https://github.com/thalesraymond/task-runner/commit/5a8bd0e))
+- chore: 🤖 removed workspace skills ([e819e00](https://github.com/thalesraymond/task-runner/commit/e819e00))
 
 ## <small>3.4.1 (2026-01-18)</small>
 
-* Merge pull request #65 from thalesraymond/perf/async-event-listeners-3002139613350975332 ([77edbc7](https://github.com/thalesraymond/task-runner/commit/77edbc7)), closes [#65](https://github.com/thalesraymond/task-runner/issues/65)
-* perf: Make event listeners async to prevent blocking ([1f8728f](https://github.com/thalesraymond/task-runner/commit/1f8728f))
-* perf: Make event listeners async to prevent blocking ([a52f8d0](https://github.com/thalesraymond/task-runner/commit/a52f8d0))
+- Merge pull request #65 from thalesraymond/perf/async-event-listeners-3002139613350975332 ([77edbc7](https://github.com/thalesraymond/task-runner/commit/77edbc7)), closes [#65](https://github.com/thalesraymond/task-runner/issues/65)
+- perf: Make event listeners async to prevent blocking ([1f8728f](https://github.com/thalesraymond/task-runner/commit/1f8728f))
+- perf: Make event listeners async to prevent blocking ([a52f8d0](https://github.com/thalesraymond/task-runner/commit/a52f8d0))
 
 ## 3.4.0 (2026-01-18)
 

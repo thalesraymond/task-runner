@@ -32,7 +32,9 @@ describe("TaskStateManager Performance Benchmark", () => {
       // In a linear chain, we expect exactly 1 task to be ready at each step
       // (Except maybe the first one is ready initially, and then subsequent ones become ready)
       if (ready.length !== 1) {
-        throw new Error(`Expected 1 ready task at step ${i}, got ${ready.length}`);
+        throw new Error(
+          `Expected 1 ready task at step ${i}, got ${ready.length}`
+        );
       }
 
       const task = ready[0];
@@ -46,7 +48,9 @@ describe("TaskStateManager Performance Benchmark", () => {
     const endTime = performance.now();
     const duration = endTime - startTime;
 
-    console.log(`\nBenchmark Result (Linear Chain N=${taskCount}): ${duration.toFixed(2)}ms`);
+    console.log(
+      `\nBenchmark Result (Linear Chain N=${taskCount}): ${duration.toFixed(2)}ms`
+    );
 
     // We expect this to be the baseline.
     // O(N^2) means ~5000^2 operations.

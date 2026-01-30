@@ -1,4 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach, MockInstance } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  MockInstance,
+} from "vitest";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
 
@@ -104,16 +112,16 @@ describe("EventBus", () => {
     eventBus.on("taskStart", otherCallback);
 
     expect(() => {
-        eventBus.off("taskStart", callback);
+      eventBus.off("taskStart", callback);
     }).not.toThrow();
   });
 
   it("should handle off when listener set exists but empty", () => {
-       const callback = vi.fn();
-       eventBus.on("taskStart", callback);
-       eventBus.off("taskStart", callback);
-       // Now the set exists but is empty
-       eventBus.off("taskStart", callback);
+    const callback = vi.fn();
+    eventBus.on("taskStart", callback);
+    eventBus.off("taskStart", callback);
+    // Now the set exists but is empty
+    eventBus.off("taskStart", callback);
   });
 
   it("should trigger outer catch block when inner catch fails", async () => {
@@ -141,10 +149,18 @@ describe("EventBus", () => {
     expect(consoleSpy).toHaveBeenCalledTimes(2);
 
     // First call was the inner catch logging the listener error (which we made throw)
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Error in event listener for taskStart:", innerError);
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      1,
+      "Error in event listener for taskStart:",
+      innerError
+    );
 
     // Second call should be the outer catch logging the error thrown by the first console.error
-    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Unexpected error in event bus execution for taskStart:", outerError);
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      2,
+      "Unexpected error in event bus execution for taskStart:",
+      outerError
+    );
   });
 
   it("should handle multiple listeners for the same event", async () => {
@@ -163,5 +179,4 @@ describe("EventBus", () => {
     expect(callback1).toHaveBeenCalled();
     expect(callback2).toHaveBeenCalled();
   });
-
 });

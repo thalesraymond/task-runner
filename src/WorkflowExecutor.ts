@@ -12,6 +12,7 @@ import { PriorityQueue } from "./utils/PriorityQueue.js";
  */
 export class WorkflowExecutor<TContext> {
   private readyQueue = new PriorityQueue<TaskStep<TContext>>();
+  private nextCompletionResolver: (() => void) | null = null;
 
   /**
    * @param context The shared context object.
@@ -78,16 +79,13 @@ export class WorkflowExecutor<TContext> {
           break;
         } else {
           // Wait for the next task to finish
-          await Promise.race(executingPromises);
+          await this.getCompletionPromise();
         }
 
         if (signal?.aborted) {
           this.stateManager.cancelAllPending(
             ExecutionConstants.WORKFLOW_CANCELLED
           );
-        } else {
-          // After a task finishes, check for new work
-          this.processLoop(executingPromises, signal);
         }
       }
 
@@ -129,14 +127,37 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.pop()!;
 
-      const taskPromise = this.executeTaskStep(step, signal)
-        .finally(() => {
-          executingPromises.delete(taskPromise);
-          // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
-        });
+      const taskPromise = this.executeTaskStep(step, signal).finally(() => {
+        executingPromises.delete(taskPromise);
+        // When a task finishes, we try to run more
+        this.processLoop(executingPromises, signal);
+        this.signalCompletion();
+      });
 
       executingPromises.add(taskPromise);
+    }
+  }
+
+  /**
+   * Returns a promise that resolves when the next task completes.
+   * This is an optimization to replace Promise.race(executingPromises),
+   * avoiding the O(N) overhead of creating race promises and attaching listeners
+   * to all executing tasks repeatedly.
+   */
+  private getCompletionPromise(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.nextCompletionResolver = resolve;
+    });
+  }
+
+  /**
+   * Signals that a task has completed, resolving the waiter in the main loop.
+   */
+  private signalCompletion(): void {
+    if (this.nextCompletionResolver) {
+      const resolver = this.nextCompletionResolver;
+      this.nextCompletionResolver = null;
+      resolver();
     }
   }
 
