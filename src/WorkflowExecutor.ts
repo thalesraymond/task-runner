@@ -53,9 +53,22 @@ export class WorkflowExecutor<TContext> {
 
     const executingPromises = new Set<Promise<void>>();
 
+    // Signal mechanism to avoid Promise.race O(N) overhead
+    let resolveSignal: (() => void) | undefined;
+    let signalPromise = new Promise<void>((r) => (resolveSignal = r));
+
+    const notify = () => {
+      if (resolveSignal) {
+        resolveSignal();
+        resolveSignal = undefined;
+      }
+    };
+
     const onAbort = () => {
       // Mark all pending tasks as cancelled
       this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
+      // Wake up the loop if it's waiting
+      notify();
     };
 
     if (signal) {
@@ -64,7 +77,7 @@ export class WorkflowExecutor<TContext> {
 
     try {
       // Initial pass
-      this.processLoop(executingPromises, signal);
+      this.processLoop(executingPromises, notify, signal);
 
       while (
         this.stateManager.hasPendingTasks() ||
@@ -77,8 +90,11 @@ export class WorkflowExecutor<TContext> {
         if (executingPromises.size === 0) {
           break;
         } else {
-          // Wait for the next task to finish
-          await Promise.race(executingPromises);
+          // Wait for ANY task to finish (or signal aborted)
+          await signalPromise;
+
+          // Reset signal for next wait
+          signalPromise = new Promise<void>((r) => (resolveSignal = r));
         }
 
         if (signal?.aborted) {
@@ -87,7 +103,7 @@ export class WorkflowExecutor<TContext> {
           );
         } else {
           // After a task finishes, check for new work
-          this.processLoop(executingPromises, signal);
+          this.processLoop(executingPromises, notify, signal);
         }
       }
 
@@ -109,6 +125,7 @@ export class WorkflowExecutor<TContext> {
    */
   private processLoop(
     executingPromises: Set<Promise<void>>,
+    notify: () => void,
     signal?: AbortSignal
   ): void {
     const newlyReady = this.stateManager.processDependencies();
@@ -133,7 +150,9 @@ export class WorkflowExecutor<TContext> {
         .finally(() => {
           executingPromises.delete(taskPromise);
           // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
+          this.processLoop(executingPromises, notify, signal);
+          // Signal the main loop to wake up
+          notify();
         });
 
       executingPromises.add(taskPromise);
