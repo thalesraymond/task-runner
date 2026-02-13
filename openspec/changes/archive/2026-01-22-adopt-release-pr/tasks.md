@@ -1,14 +1,14 @@
 - [x] Remove Semantic Release configuration <!-- id: 0 -->
-    - Delete `.releaserc.json`
-    - Remove `release.yml`
-    - Uninstall `semantic-release` and its plugins
+  - Delete `.releaserc.json`
+  - Remove `release.yml`
+  - Uninstall `semantic-release` and its plugins
 - [x] Initialize Release Please configuration <!-- id: 1 -->
-    - Create `release-please-config.json` (root package type: node)
-    - Create `.release-please-manifest.json` (synced with current package.json version)
+  - Create `release-please-config.json` (root package type: node)
+  - Create `.release-please-manifest.json` (synced with current package.json version)
 - [x] Create Release Workflow <!-- id: 2 -->
-    - Create `.github/workflows/release-please.yml`
-    - Step 1: `googleapis/release-please-action`
-    - Step 2: `pnpm publish` (conditional on release creation)
+  - Create `.github/workflows/release-please.yml`
+  - Step 1: `googleapis/release-please-action`
+  - Step 2: `pnpm publish` (conditional on release creation)
 - [x] Verification <!-- id: 3 -->
-    - Validate CI YAML syntax
-    - Verify JSON config validity
+  - Validate CI YAML syntax
+  - Verify JSON config validity

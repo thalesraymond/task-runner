@@ -22,7 +22,7 @@
   - **Scenario 2**: `shouldRetry` returns `false`.
     - Setup a task that fails with a specific error "FatalError".
     - Configure `shouldRetry: (err) => err !== "FatalError"`.
-    - Verify it does *not* retry and returns failure immediately after the first attempt.
+    - Verify it does _not_ retry and returns failure immediately after the first attempt.
   - **Scenario 3**: `shouldRetry` is undefined (Legacy behavior).
     - Setup a failing task.
     - Verify it retries up to max attempts.

@@ -105,9 +105,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
       }
 
       const path: string[] = [];
-      if (
-        this.detectCycle(task.id, path, visited, recursionStack, taskMap)
-      ) {
+      if (this.detectCycle(task.id, path, visited, recursionStack, taskMap)) {
         // Extract the actual cycle from the path
         // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)
         const cycleStart = path[path.length - 1];

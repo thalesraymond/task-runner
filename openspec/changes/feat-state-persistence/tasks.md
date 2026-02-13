@@ -20,7 +20,7 @@
 - [ ] **Task 4: Update WorkflowExecutor / TaskStateManager Interaction**
   - Ensure that when `TaskStateManager.initialize(steps)` is called, it respects the hydrated state.
   - If a step is in `results` (from hydration) and is `success`, it should NOT be added to `pendingSteps` (or `processDependencies` should immediately treat it as done).
-  - *Refinement*: The `TaskStateManager.initialize` currently overwrites `pendingSteps`. It should probably filter out steps that are already in `results` with `success` status?
+  - _Refinement_: The `TaskStateManager.initialize` currently overwrites `pendingSteps`. It should probably filter out steps that are already in `results` with `success` status?
   - logic: `pendingSteps = new Set(steps.filter(s => !this.results.get(s.name) || this.results.get(s.name).status !== 'success'))`.
   - Check implications for `processDependencies`: If Step A is done (in results, not pending), and Step B depends on A. `processDependencies` checks `results.get('A')`. It finds it. It marks B as ready. This works.
 

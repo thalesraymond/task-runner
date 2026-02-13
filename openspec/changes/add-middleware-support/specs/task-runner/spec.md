@@ -22,7 +22,7 @@ The system SHALL support registering global middleware functions that intercept 
 
 #### Scenario: Blocking Execution
 
-- **GIVEN** a middleware that returns a result *without* calling `next()`
+- **GIVEN** a middleware that returns a result _without_ calling `next()`
 - **WHEN** the task is scheduled
 - **THEN** the task strategy SHALL NOT be executed
 - **AND** the task result SHALL be the one returned by the middleware.

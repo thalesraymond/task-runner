@@ -13,8 +13,8 @@ describe("TaskRunner Mermaid Graph", () => {
     const lines = graph.split("\n");
 
     expect(lines[0]).toBe("graph TD");
-    expect(lines).toContain("  A[\"A\"]");
-    expect(lines).toContain("  B[\"B\"]");
+    expect(lines).toContain('  A["A"]');
+    expect(lines).toContain('  B["B"]');
   });
 
   it("should generate a graph with dependencies", () => {
@@ -61,14 +61,14 @@ describe("TaskRunner Mermaid Graph", () => {
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain("  Independent[\"Independent\"]");
+    expect(lines).toContain('  Independent["Independent"]');
     expect(lines).toContain("  A --> B");
   });
 
   it("should handle special characters in task names", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Task With Space", run: async () => ({ status: "success" }) },
-      { name: "Task\"Quote\"", run: async () => ({ status: "success" }) },
+      { name: 'Task"Quote"', run: async () => ({ status: "success" }) },
       {
         name: "Task:Colon",
         dependencies: ["Task With Space"],
@@ -79,9 +79,9 @@ describe("TaskRunner Mermaid Graph", () => {
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    expect(lines).toContain("  Task_With_Space[\"Task With Space\"]");
+    expect(lines).toContain('  Task_With_Space["Task With Space"]');
     // "Task\"Quote\""["Task\"Quote\""]
-    expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
+    expect(lines).toContain('  Task_Quote_["Task\\"Quote\\""]');
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
 
@@ -97,7 +97,7 @@ describe("TaskRunner Mermaid Graph", () => {
 
     // Current implementation fails to sanitize these, leading to invalid Mermaid syntax
     // e.g., Task[1]["Task[1]"] which is confusing/invalid
-    expect(lines).toContain("  Task_3_[\"Task{3}\"]");
+    expect(lines).toContain('  Task_3_["Task{3}"]');
   });
 
   it("should handle ID collisions by appending a counter", () => {
@@ -112,8 +112,8 @@ describe("TaskRunner Mermaid Graph", () => {
 
     // All three sanitize to "Task_1" initially.
     // They should be disambiguated with suffix counters.
-    expect(lines).toContain("  Task_1[\"Task 1\"]");
-    expect(lines).toContain("  Task_1_1[\"Task_1\"]");
-    expect(lines).toContain("  Task_1_2[\"Task:1\"]");
+    expect(lines).toContain('  Task_1["Task 1"]');
+    expect(lines).toContain('  Task_1_1["Task_1"]');
+    expect(lines).toContain('  Task_1_2["Task:1"]');
   });
 });

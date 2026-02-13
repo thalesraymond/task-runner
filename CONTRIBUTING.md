@@ -20,7 +20,7 @@ This project and everyone participating in it is governed by the [Code of Conduc
     ```bash
     pnpm install
     ```
-    *Note: This project uses `pnpm` for package management. Please do not use `npm` or `yarn`.*
+    _Note: This project uses `pnpm` for package management. Please do not use `npm` or `yarn`._
 
 ## Development Workflow
 
@@ -35,32 +35,32 @@ This project and everyone participating in it is governed by the [Code of Conduc
 
 The project uses several `pnpm` scripts to maintain code quality:
 
-*   **Build**: Compile the project.
-    ```bash
-    pnpm build
-    ```
-*   **Test**: Run tests with coverage.
-    ```bash
-    pnpm test
-    ```
-    **Important**: We enforce **100% code coverage**. If your changes lower the coverage, the CI will fail.
-*   **Lint**: Check for linting errors.
-    ```bash
-    pnpm lint
-    ```
-*   **Format**: Format the code using Prettier.
-    ```bash
-    pnpm format
-    ```
+- **Build**: Compile the project.
+  ```bash
+  pnpm build
+  ```
+- **Test**: Run tests with coverage.
+  ```bash
+  pnpm test
+  ```
+  **Important**: We enforce **100% code coverage**. If your changes lower the coverage, the CI will fail.
+- **Lint**: Check for linting errors.
+  ```bash
+  pnpm lint
+  ```
+- **Format**: Format the code using Prettier.
+  ```bash
+  pnpm format
+  ```
 
 ## Coding Standards
 
 Please strictly adhere to the following rules:
 
-*   **No `any`**: The use of `any` type is strictly forbidden. Use `unknown` or proper types.
-*   **Strict Null Safety**: Do not use `??` or optional chaining `?.` when you can guarantee existence via prior validation. Use non-null assertions `!` only when the invariant is locally provable or enforced by a validator.
-*   **Dead Code Elimination**: Avoid `v8 ignore` comments. Logic should be structured to prove unreachability.
-*   **Atomic Commits**: For complex features, commit after completing distinct tasks. Ensure `pnpm build`, `pnpm lint`, and `pnpm test` pass before each commit.
+- **No `any`**: The use of `any` type is strictly forbidden. Use `unknown` or proper types.
+- **Strict Null Safety**: Do not use `??` or optional chaining `?.` when you can guarantee existence via prior validation. Use non-null assertions `!` only when the invariant is locally provable or enforced by a validator.
+- **Dead Code Elimination**: Avoid `v8 ignore` comments. Logic should be structured to prove unreachability.
+- **Atomic Commits**: For complex features, commit after completing distinct tasks. Ensure `pnpm build`, `pnpm lint`, and `pnpm test` pass before each commit.
 
 For more detailed agent-specific instructions (which are also good for humans), refer to `AGENTS.md`.
 
@@ -69,15 +69,18 @@ For more detailed agent-specific instructions (which are also good for humans), 
 We follow the **Conventional Commits** specification.
 
 You can use the built-in helper to format your commit messages:
+
 ```bash
 pnpm commit
 ```
+
 Or format them manually:
-*   `feat(scope): add new feature`
-*   `fix(scope): fix bug`
-*   `docs: update documentation`
-*   `test: add tests`
-*   `refactor: refactor code`
+
+- `feat(scope): add new feature`
+- `fix(scope): fix bug`
+- `docs: update documentation`
+- `test: add tests`
+- `refactor: refactor code`
 
 ## Submitting a Pull Request
 

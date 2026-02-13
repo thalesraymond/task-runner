@@ -10,8 +10,8 @@ Currently, to skip a task based on context, a developer must implement the check
 
 1.  **Late Binding**: The task is already "started" (event emitted) before it decides to skip itself.
 2.  **Boilerplate**: Every task needs `if (!shouldRun) return { status: 'skipped' }`.
-3.  **Clarity**: Examining the task definition (e.g. `TaskStep` object) doesn't reveal *when* it runs, only *what* it does. A declarative `condition` property makes the workflow logic more transparent.
-4.  **Dry Run Accuracy**: In a dry run, we might want to know if a task *would* run. If the logic is inside `run`, strictly disjoint from the runner, a dry run (which skips `run`) cannot predict if the task would be skipped.
+3.  **Clarity**: Examining the task definition (e.g. `TaskStep` object) doesn't reveal _when_ it runs, only _what_ it does. A declarative `condition` property makes the workflow logic more transparent.
+4.  **Dry Run Accuracy**: In a dry run, we might want to know if a task _would_ run. If the logic is inside `run`, strictly disjoint from the runner, a dry run (which skips `run`) cannot predict if the task would be skipped.
 
 ## 🛠️ What Changes
 

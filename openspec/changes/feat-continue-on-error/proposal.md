@@ -9,8 +9,8 @@ Currently, if a task fails, all tasks that depend on it are automatically skippe
 - Update `TaskStep` interface to include an optional `continueOnError: boolean` property (defaulting to `false`).
 - Update `TaskStateManager` to be aware of task definitions.
 - Update `TaskStateManager.processDependencies` logic:
-    - If a dependency failed but has `continueOnError: true`, treat it as "satisfied" for the purpose of unblocking dependents.
-    - The dependent task will execute as if the dependency succeeded.
+  - If a dependency failed but has `continueOnError: true`, treat it as "satisfied" for the purpose of unblocking dependents.
+  - The dependent task will execute as if the dependency succeeded.
 - The failed task's result remains `status: "failure"`, preserving visibility of the error.
 
 ## Impact

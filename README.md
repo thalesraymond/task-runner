@@ -31,7 +31,7 @@ import {
   TaskRunnerBuilder,
   TaskStep,
   RetryingExecutionStrategy,
-  StandardExecutionStrategy
+  StandardExecutionStrategy,
 } from "@calmo/task-runner";
 
 // 1. Define your domain-specific context
@@ -58,9 +58,9 @@ const DataLoaderStep: TaskStep<ValidationContext> = {
   name: "DataLoaderStep",
   dependencies: ["UrlFormatStep"],
   retry: {
-      attempts: 3,
-      delay: 1000,
-      backoff: "exponential"
+    attempts: 3,
+    delay: 1000,
+    backoff: "exponential",
   },
   run: async (ctx) => {
     // Simulate API call
@@ -78,15 +78,17 @@ async function main() {
   const runner = new TaskRunnerBuilder(context)
     .useStrategy(new RetryingExecutionStrategy(new StandardExecutionStrategy()))
     .on("taskStart", ({ step }) => console.log(`Starting: ${step.name}`))
-    .on("taskEnd", ({ step, result }) => console.log(`Finished: ${step.name} -> ${result.status}`))
+    .on("taskEnd", ({ step, result }) =>
+      console.log(`Finished: ${step.name} -> ${result.status}`)
+    )
     .build();
 
   const steps = [UrlFormatStep, DataLoaderStep];
-  
+
   // 4. Execute with options
   const results = await runner.execute(steps, {
-      concurrency: 5, // Run up to 5 tasks in parallel
-      timeout: 30000  // 30s timeout for the whole workflow
+    concurrency: 5, // Run up to 5 tasks in parallel
+    timeout: 30000, // 30s timeout for the whole workflow
   });
 
   console.table(Object.fromEntries(results));
@@ -120,10 +122,10 @@ When calling `execute`, you can provide a configuration object:
 - **signal**: Accepts an `AbortSignal` to cancel the workflow programmatically.
 - **dryRun**: Overrides the current strategy with `DryRunExecutionStrategy` for this execution.
 
-```typescript 
+```typescript
 await runner.execute(steps, {
-    concurrency: 2,
-    dryRun: true
+  concurrency: 2,
+  dryRun: true,
 });
 ```
 
@@ -154,13 +156,13 @@ const deployStep: TaskStep<MyContext> = {
   run: async () => {
     // Deploy logic
     return { status: "success" };
-  }
+  },
 };
 ```
 
 ## Why I did this?
 
-In my current job I have a Github Issue validation engine that checks **a lot** of stuff and I wanted to make a package that encapsulates the "validation engine" logic for use outside that use case. I also wanted to try to make a package that is not tied to a specific scenario. I don't know if someone will find it useful but here it is. 
+In my current job I have a Github Issue validation engine that checks **a lot** of stuff and I wanted to make a package that encapsulates the "validation engine" logic for use outside that use case. I also wanted to try to make a package that is not tied to a specific scenario. I don't know if someone will find it useful but here it is.
 
 ## AI Usage
 

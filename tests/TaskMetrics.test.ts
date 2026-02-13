@@ -28,7 +28,7 @@ describe("Task Execution Metrics", () => {
     expect(result?.metrics?.endTime).toBeLessThanOrEqual(end);
     expect(result?.metrics?.duration).toBeGreaterThanOrEqual(delayMs - 5);
     // Allow some buffer for execution overhead
-    expect(result?.metrics?.duration).toBeLessThan(delayMs + 200); 
+    expect(result?.metrics?.duration).toBeLessThan(delayMs + 200);
   });
 
   it("should capture metrics for a failed task", async () => {
