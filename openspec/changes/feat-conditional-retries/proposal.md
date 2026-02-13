@@ -2,7 +2,7 @@
 
 ## Why
 
-Currently, the `RetryingExecutionStrategy` treats all task failures equally. If a task has retry attempts configured, it will blindly retry even if the error is permanent (e.g., syntax error, invalid configuration) or logic-based (e.g., validation failure). This wastes resources and execution time. Users need a way to specify *which* errors should trigger a retry, allowing them to fail fast on critical errors while retrying on transient ones (e.g., network timeouts).
+Currently, the `RetryingExecutionStrategy` treats all task failures equally. If a task has retry attempts configured, it will blindly retry even if the error is permanent (e.g., syntax error, invalid configuration) or logic-based (e.g., validation failure). This wastes resources and execution time. Users need a way to specify _which_ errors should trigger a retry, allowing them to fail fast on critical errors while retrying on transient ones (e.g., network timeouts).
 
 ## What Changes
 

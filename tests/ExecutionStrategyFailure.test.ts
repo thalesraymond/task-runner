@@ -14,7 +14,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
     const throwingStrategy: IExecutionStrategy<unknown> = {
       execute: async () => {
         throw new Error("Unexpected crash in strategy");
-      }
+      },
     };
 
     const steps: TaskStep<unknown>[] = [
@@ -24,7 +24,12 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
       },
     ];
 
-    const executor = new WorkflowExecutor({}, eventBus, stateManager, throwingStrategy);
+    const executor = new WorkflowExecutor(
+      {},
+      eventBus,
+      stateManager,
+      throwingStrategy
+    );
     const results = await executor.execute(steps);
     const result = results.get("A");
 
@@ -41,7 +46,7 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
     const throwingStrategy: IExecutionStrategy<unknown> = {
       execute: async () => {
         throw "Critical failure string";
-      }
+      },
     };
 
     const steps: TaskStep<unknown>[] = [
@@ -51,7 +56,12 @@ describe("WorkflowExecutor Strategy Failure Handling", () => {
       },
     ];
 
-    const executor = new WorkflowExecutor({}, eventBus, stateManager, throwingStrategy);
+    const executor = new WorkflowExecutor(
+      {},
+      eventBus,
+      stateManager,
+      throwingStrategy
+    );
     const results = await executor.execute(steps);
     const result = results.get("B");
 

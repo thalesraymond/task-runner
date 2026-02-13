@@ -10,7 +10,8 @@ Enables the `TaskRunner` to save its execution state and resume from that state 
 
 The system SHALL provide a mechanism to retrieve the current execution state of a workflow.
 
-#### Scenario: Retrieving state from TaskRunner 
+#### Scenario: Retrieving state from TaskRunner
+
 - **WHEN** a workflow is running or completed
 - **THEN** the `TaskRunner` (or its underlying `TaskStateManager`) SHALL expose a method to retrieve a snapshot of the current state.
 - **AND** the snapshot SHALL contain the `results` of all executed tasks.
@@ -21,6 +22,7 @@ The system SHALL provide a mechanism to retrieve the current execution state of 
 The system SHALL allow initializing a `TaskRunner` with a pre-existing state snapshot.
 
 #### Scenario: Initializing with a snapshot
+
 - **GIVEN** a valid state snapshot from a previous execution
 - **WHEN** the `TaskRunner` is built using `TaskRunnerBuilder`
 - **THEN** the builder SHALL accept the snapshot as an initial state.
@@ -31,17 +33,20 @@ The system SHALL allow initializing a `TaskRunner` with a pre-existing state sna
 The `WorkflowExecutor` SHALL respect the initial hydrated state during execution, skipping already completed tasks.
 
 #### Scenario: Skipping successful tasks
+
 - **GIVEN** a `TaskRunner` initialized with a snapshot where Task A is marked as `success`
 - **WHEN** `execute()` is called
 - **THEN** Task A SHALL NOT be executed again.
 - **AND** Task A SHALL be considered completed for the purpose of checking dependencies of downstream tasks.
 
 #### Scenario: Re-running non-successful tasks
+
 - **GIVEN** a `TaskRunner` initialized with a snapshot where Task B is marked as `failure`, `cancelled`, or `skipped`
 - **WHEN** `execute()` is called
 - **THEN** Task B SHOULD be evaluated for execution (subject to dependency checks).
 
 #### Scenario: Handling Context
+
 - **GIVEN** a resumed workflow
 - **THEN** it is the caller's responsibility to provide the necessary `Context` for task execution.
 - **AND** the `TaskRunner` SHALL NOT attempt to automatically restore the context object from the state snapshot (as it may contain non-serializable data).

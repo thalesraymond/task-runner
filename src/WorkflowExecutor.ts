@@ -12,6 +12,8 @@ import { PriorityQueue } from "./utils/PriorityQueue.js";
  */
 export class WorkflowExecutor<TContext> {
   private readyQueue = new PriorityQueue<TaskStep<TContext>>();
+  private signalResolve!: () => void;
+  private signalPromise!: Promise<void>;
 
   /**
    * @param context The shared context object.
@@ -52,10 +54,12 @@ export class WorkflowExecutor<TContext> {
     }
 
     const executingPromises = new Set<Promise<void>>();
+    this.resetSignal();
 
     const onAbort = () => {
       // Mark all pending tasks as cancelled
       this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
+      this.signalResolve(); // Wake up the loop on abort
     };
 
     if (signal) {
@@ -77,8 +81,9 @@ export class WorkflowExecutor<TContext> {
         if (executingPromises.size === 0) {
           break;
         } else {
-          // Wait for the next task to finish
-          await Promise.race(executingPromises);
+          // Wait for the next task to finish or any signal (like abort)
+          await this.signalPromise;
+          this.resetSignal();
         }
 
         if (signal?.aborted) {
@@ -129,15 +134,24 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.pop()!;
 
-      const taskPromise = this.executeTaskStep(step, signal)
-        .finally(() => {
-          executingPromises.delete(taskPromise);
-          // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
-        });
+      const taskPromise = this.executeTaskStep(step, signal).finally(() => {
+        executingPromises.delete(taskPromise);
+        // When a task finishes, we try to run more
+        this.processLoop(executingPromises, signal);
+        this.signalResolve();
+      });
 
       executingPromises.add(taskPromise);
     }
+  }
+
+  /**
+   * Resets the signal promise for the next wait cycle.
+   */
+  private resetSignal(): void {
+    this.signalPromise = new Promise<void>((resolve) => {
+      this.signalResolve = resolve;
+    });
   }
 
   /**

@@ -1,46 +1,46 @@
 name: release-please
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 permissions:
-    contents: write
-    pull-requests: write
-    id-token: write
+  contents: write
+  pull-requests: write
+  id-token: write
 
 jobs:
-    release-please:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: googleapis/release-please-action@v4
-              id: release
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  target-branch: main
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: main
 
-            - uses: actions/checkout@v6
-              if: ${{ steps.release.outputs.release_created }}
+      - uses: actions/checkout@v6
+        if: ${{ steps.release.outputs.release_created }}
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 10.28.0
-              if: ${{ steps.release.outputs.release_created }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+        if: ${{ steps.release.outputs.release_created }}
 
-            - uses: actions/setup-node@v6
-              with:
-                  node-version: "lts/*"
-                  registry-url: "https://registry.npmjs.org"
-                  cache: "pnpm"
-              if: ${{ steps.release.outputs.release_created }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
+        if: ${{ steps.release.outputs.release_created }}
 
-            - run: pnpm install --frozen-lockfile
-              if: ${{ steps.release.outputs.release_created }}
+      - run: pnpm install --frozen-lockfile
+        if: ${{ steps.release.outputs.release_created }}
 
-            - run: pnpm build
-              if: ${{ steps.release.outputs.release_created }}
+      - run: pnpm build
+        if: ${{ steps.release.outputs.release_created }}
 
-            - run: pnpm publish --no-git-checks
-              if: ${{ steps.release.outputs.release_created }}
+      - run: pnpm publish --no-git-checks
+        if: ${{ steps.release.outputs.release_created }}

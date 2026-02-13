@@ -12,7 +12,7 @@
 
 ## 2026-01-17 - Performance Visibility
 
-**Insight:** Users' optimization efforts are blind without granular metrics. Users often don't know *which* task is slow, only that the workflow is slow.
+**Insight:** Users' optimization efforts are blind without granular metrics. Users often don't know _which_ task is slow, only that the workflow is slow.
 **Action:** Always include telemetry requirements (like start/end times and duration) in execution engine specs to enable data-driven optimization.
 
 ## 2026-01-20 - The "All or Nothing" Retry Trap
@@ -22,5 +22,5 @@
 
 ## 2026-01-24 - The Cleanup Paradox
 
-**Insight:** "Continue On Error" is often misused for Cleanup logic. Users mark critical tasks as "Optional" just to ensure subsequent cleanup tasks run, which incorrectly allows *other* dependents to run too. True "Teardown" requires the *dependent* to assert its resilience, not the *dependency* to declare its weakness.
+**Insight:** "Continue On Error" is often misused for Cleanup logic. Users mark critical tasks as "Optional" just to ensure subsequent cleanup tasks run, which incorrectly allows _other_ dependents to run too. True "Teardown" requires the _dependent_ to assert its resilience, not the _dependency_ to declare its weakness.
 **Action:** Invert the control. Instead of the failing task saying "I don't matter" (`continueOnError`), the cleanup task should say "I run anyway" (`runCondition: 'always'`). This preserves the criticality of the workflow while ensuring resource hygiene.

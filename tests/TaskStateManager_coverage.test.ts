@@ -7,7 +7,10 @@ describe("TaskStateManager Coverage", () => {
   it("should handle leaf task failure gracefully", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "Leaf", run: async () => ({ status: "failure" }) };
+    const step: TaskStep<void> = {
+      name: "Leaf",
+      run: async () => ({ status: "failure" }),
+    };
     stateManager.initialize([step]);
 
     const ready = stateManager.processDependencies();
@@ -23,7 +26,10 @@ describe("TaskStateManager Coverage", () => {
   it("should ignore markSkipped if task already finished", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "A", run: async () => ({ status: "skipped" }) };
+    const step: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "skipped" }),
+    };
     stateManager.initialize([step]);
 
     const ready = stateManager.processDependencies();
@@ -42,8 +48,15 @@ describe("TaskStateManager Coverage", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
 
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "success" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "success" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB]);
 

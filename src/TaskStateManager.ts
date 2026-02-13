@@ -109,7 +109,10 @@ export class TaskStateManager<TContext> {
    * Internal method to mark skipped without triggering cascade (to be used inside cascade loop).
    * Returns true if the task was actually marked skipped (was not already finished).
    */
-  private internalMarkSkipped(step: TaskStep<TContext>, result: TaskResult): boolean {
+  private internalMarkSkipped(
+    step: TaskStep<TContext>,
+    result: TaskResult
+  ): boolean {
     if (this.results.has(step.name)) {
       return false;
     }
