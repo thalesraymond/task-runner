@@ -1,7 +1,0 @@
-- [-] Implement Plugin System
-  - [ ] Define `Plugin` and `PluginContext` interfaces <!-- id: 0 -->
-  - [ ] Implement `PluginManager` class <!-- id: 1 -->
-  - [ ] Update `TaskRunner` to support `use()` method <!-- id: 2 -->
-  - [ ] Integrate `PluginManager` into `TaskRunner` lifecycle <!-- id: 3 -->
-  - [ ] Verify `EventBus` exposure to plugins <!-- id: 4 -->
-  - [ ] Add integration tests for a sample plugin <!-- id: 5 -->
