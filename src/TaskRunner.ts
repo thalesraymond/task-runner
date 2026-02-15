@@ -14,6 +14,8 @@ import { TaskGraphValidationError } from "./TaskGraphValidationError.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
 import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
+import { Plugin } from "./contracts/Plugin.js";
+import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
 /**
@@ -27,10 +29,14 @@ export class TaskRunner<TContext> {
   private executionStrategy: IExecutionStrategy<TContext> =
     new RetryingExecutionStrategy(new StandardExecutionStrategy());
 
+  private pluginManager: PluginManager<TContext>;
+
   /**
    * @param context The shared context object to be passed to each task.
    */
-  constructor(private context: TContext) {}
+  constructor(private context: TContext) {
+    this.pluginManager = new PluginManager({ events: this.eventBus });
+  }
 
   /**
    * Subscribe to an event.
@@ -54,6 +60,16 @@ export class TaskRunner<TContext> {
     callback: RunnerEventListener<TContext, K>
   ): void {
     this.eventBus.off(event, callback);
+  }
+
+  /**
+   * Registers a plugin.
+   * @param plugin The plugin to register.
+   * @returns The TaskRunner instance for chaining.
+   */
+  public use(plugin: Plugin<TContext>): this {
+    this.pluginManager.use(plugin);
+    return this;
   }
 
   /**
@@ -155,6 +171,9 @@ export class TaskRunner<TContext> {
     steps: TaskStep<TContext>[],
     config?: TaskRunnerExecutionConfig
   ): Promise<Map<string, TaskResult>> {
+    // Initialize plugins
+    await this.pluginManager.initialize();
+
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
