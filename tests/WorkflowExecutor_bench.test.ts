@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { WorkflowExecutor } from "../src/WorkflowExecutor.js";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStateManager } from "../src/TaskStateManager.js";
@@ -32,5 +32,6 @@ describe("WorkflowExecutor Benchmark", () => {
     const end = performance.now();
 
     console.log(`Executed ${count} tasks in ${(end - start).toFixed(2)}ms`);
+    expect(end - start).toBeLessThan(5000);
   }, 30000);
 });

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { TaskRunner } from "../src/TaskRunner.js";
 import { TaskStep } from "../src/TaskStep.js";
 import { performance } from "perf_hooks";
@@ -21,6 +21,7 @@ describe("TaskRunner Mermaid Graph Benchmark", () => {
 
     console.log(`getMermaidGraph with ${numTasks} tasks took ${end - start}ms`);
     console.log(`Graph length: ${graph.length} characters`);
+    expect(end - start).toBeLessThan(2000);
   });
 
   it("benchmarks getMermaidGraph with many duplicate tasks", () => {
@@ -43,5 +44,6 @@ describe("TaskRunner Mermaid Graph Benchmark", () => {
 
     console.log(`getMermaidGraph with ${numTasks * numDuplicates} steps (${numTasks} unique) took ${end - start}ms`);
     console.log(`Graph length: ${graph.length} characters`);
+    expect(end - start).toBeLessThan(1000);
   });
 });
