@@ -124,18 +124,8 @@ export class TaskRunner<TContext> {
       return uniqueId;
     };
 
-    // Pre-calculate IDs for all steps to ensure stable generation order
-    // We sort steps by name to ensure deterministic ID generation regardless of input order if names clash
-    // But input order is usually significant in graph definition, so we'll stick to input order.
-    // However, we must process all step NAMES first.
-    const processedNamesForIds = new Set<string>();
-    for (const step of steps) {
-      if (!processedNamesForIds.has(step.name)) {
-        getUniqueId(step.name);
-        processedNamesForIds.add(step.name);
-      }
-    }
-
+    // We process nodes in input order to ensure deterministic ID generation
+    // (getUniqueId is called for each unique step name in order, populating the cache).
     const processedNamesForNodes = new Set<string>();
     for (const step of steps) {
       if (!processedNamesForNodes.has(step.name)) {
