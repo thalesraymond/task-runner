@@ -18,6 +18,33 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.2.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.1.0...task-runner-v4.2.0) (2026-02-15)
+
+
+### Features
+
+* 🎸 mvp for plugin system ([7d85610](https://github.com/thalesraymond/task-runner/commit/7d856103651416826bdf6b440d9aa613ab2ac997))
+* add middleware support proposal ([#123](https://github.com/thalesraymond/task-runner/issues/123)) ([e93c2f1](https://github.com/thalesraymond/task-runner/commit/e93c2f1bd34764dbb084ff9645836ec20fdef026))
+* **spec:** add task loop proposal ([#157](https://github.com/thalesraymond/task-runner/issues/157)) ([a89a846](https://github.com/thalesraymond/task-runner/commit/a89a8462cd7ff2a54625805e30ee0c14eae95fa2))
+
+
+### Bug Fixes
+
+* 🛰️ Sonar Specialist: Fix issues in `src/TaskRunner.ts` ([#128](https://github.com/thalesraymond/task-runner/issues/128)) ([fd87799](https://github.com/thalesraymond/task-runner/commit/fd877993497539728b6c7ba55d1a34ea7e1d7737))
+
+
+### Performance Improvements
+
+* ⚡ Optimize Mermaid graph generation performance ([#155](https://github.com/thalesraymond/task-runner/issues/155)) ([18d3e93](https://github.com/thalesraymond/task-runner/commit/18d3e934631907a2c41ceb2c60942d3ec50b9dc5))
+* ⚡ Optimize WorkflowExecutor loop performance ([#153](https://github.com/thalesraymond/task-runner/issues/153)) ([c0457f0](https://github.com/thalesraymond/task-runner/commit/c0457f00f9a1315f7b23829fec08d3bceba37a14))
+* optimize cascadeFailure to O(N) using index pointer ([#135](https://github.com/thalesraymond/task-runner/issues/135)) ([1ecd7b8](https://github.com/thalesraymond/task-runner/commit/1ecd7b8fe1c72ebc7f97aaaa6bc9aeacdb830ae2))
+* optimize EventBus scheduling with queueMicrotask ([#154](https://github.com/thalesraymond/task-runner/issues/154)) ([4d74788](https://github.com/thalesraymond/task-runner/commit/4d74788aa689da0f296986dc15fe8a4fd080bbc7))
+* optimize Mermaid graph generation by removing redundant ID loop ([#158](https://github.com/thalesraymond/task-runner/issues/158)) ([940bdc5](https://github.com/thalesraymond/task-runner/commit/940bdc5c377a0b54567f73e968202f8c7e5c5020))
+* optimize mermaid graph generation deduplication ([#150](https://github.com/thalesraymond/task-runner/issues/150)) ([ff5db6d](https://github.com/thalesraymond/task-runner/commit/ff5db6d7a8ac22c414f260d04e13e06ec894b30c))
+* optimize TaskStateManager initialization to avoid double map lookups ([#132](https://github.com/thalesraymond/task-runner/issues/132)) ([02c516c](https://github.com/thalesraymond/task-runner/commit/02c516cc030b27b4c3bb143107e25c91503b0dd8))
+* remove redundant processLoop call in WorkflowExecutor ([#151](https://github.com/thalesraymond/task-runner/issues/151)) ([8286223](https://github.com/thalesraymond/task-runner/commit/8286223c6e28f5a60414a554b877792f73e1b147))
+* **validator:** optimize graph validation (3x speedup) ([#127](https://github.com/thalesraymond/task-runner/issues/127)) ([66f97e7](https://github.com/thalesraymond/task-runner/commit/66f97e7bc3999d38b78640e29cd47b086532a97a))
+
 ## [4.1.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.0.4...task-runner-v4.1.0) (2026-01-24)
 
 
