@@ -128,13 +128,21 @@ export class TaskRunner<TContext> {
     // We sort steps by name to ensure deterministic ID generation regardless of input order if names clash
     // But input order is usually significant in graph definition, so we'll stick to input order.
     // However, we must process all step NAMES first.
+    const processedNamesForIds = new Set<string>();
     for (const step of steps) {
-      getUniqueId(step.name);
+      if (!processedNamesForIds.has(step.name)) {
+        getUniqueId(step.name);
+        processedNamesForIds.add(step.name);
+      }
     }
 
+    const processedNamesForNodes = new Set<string>();
     for (const step of steps) {
-      const stepId = getUniqueId(step.name);
-      graphLines.add(`  ${stepId}[${JSON.stringify(step.name)}]`);
+      if (!processedNamesForNodes.has(step.name)) {
+        const stepId = getUniqueId(step.name);
+        graphLines.add(`  ${stepId}[${JSON.stringify(step.name)}]`);
+        processedNamesForNodes.add(step.name);
+      }
     }
 
     for (const step of steps) {
