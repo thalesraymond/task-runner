@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { TaskStateManager } from "../src/TaskStateManager.js";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
@@ -51,6 +51,7 @@ describe("TaskStateManager Performance Benchmark", () => {
     // We expect this to be the baseline.
     // O(N^2) means ~5000^2 operations.
     // If we optimize to O(N), it should be much faster.
-    // We won't assert a specific time here to avoid flakiness, but we print it.
+    // We use a loose assertion to avoid flakiness while preventing major regressions.
+    expect(duration).toBeLessThan(1000);
   });
 });
