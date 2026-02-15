@@ -72,7 +72,7 @@ export class TaskRunner<TContext> {
    * @returns A string containing the Mermaid graph definition.
    */
   public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
-    const graphLines = ["graph TD"];
+    const graphLines = new Set<string>(["graph TD"]);
     const idMap = new Map<string, string>();
     const usedIds = new Set<string>();
     const baseIdCounters = new Map<string, number>();
@@ -118,7 +118,7 @@ export class TaskRunner<TContext> {
 
     for (const step of steps) {
       const stepId = getUniqueId(step.name);
-      graphLines.push(`  ${stepId}[${JSON.stringify(step.name)}]`);
+      graphLines.add(`  ${stepId}[${JSON.stringify(step.name)}]`);
     }
 
     for (const step of steps) {
@@ -126,12 +126,12 @@ export class TaskRunner<TContext> {
         const stepId = getUniqueId(step.name);
         for (const dep of step.dependencies) {
           const depId = getUniqueId(dep);
-          graphLines.push(`  ${depId} --> ${stepId}`);
+          graphLines.add(`  ${depId} --> ${stepId}`);
         }
       }
     }
 
-    return [...new Set(graphLines)].join("\n");
+    return [...graphLines].join("\n");
   }
 
   /**
