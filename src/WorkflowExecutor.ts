@@ -85,9 +85,6 @@ export class WorkflowExecutor<TContext> {
           this.stateManager.cancelAllPending(
             ExecutionConstants.WORKFLOW_CANCELLED
           );
-        } else {
-          // After a task finishes, check for new work
-          this.processLoop(executingPromises, signal);
         }
       }
 
