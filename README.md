@@ -21,6 +21,7 @@ Try the [Showcase App](https://task-runner-mu.vercel.app/) to see the runner in 
 - **Event System**: Subscribe to lifecycle events for logging or monitoring.
 - **Runtime Validation**: Automatically detects circular dependencies and missing dependencies.
 - **Conditional Execution**: Skip tasks dynamically based on context state.
+- **Plugin System**: Extend functionality with custom logic and event listeners.
 
 ## Usage Example
 
@@ -137,6 +138,39 @@ import { TaskRunner } from "@calmo/task-runner";
 const graph = TaskRunner.getMermaidGraph(steps);
 console.log(graph);
 // Output: graph TD; A-->B; ...
+```
+
+## Plugin System
+
+You can extend the `TaskRunner` with plugins to inject custom logic or listen to events without modifying the core.
+
+### Creating a Plugin
+
+A plugin is an object with a `name`, `version`, and an `install` method.
+
+```typescript
+import { Plugin, PluginContext } from "@calmo/task-runner";
+
+const MyLoggerPlugin: Plugin<MyContext> = {
+  name: "my-logger-plugin",
+  version: "1.0.0",
+  install: (context: PluginContext<MyContext>) => {
+    context.events.on("taskStart", ({ step }) => {
+      console.log(`[Plugin] Starting task: ${step.name}`);
+    });
+  },
+};
+```
+
+### Using a Plugin
+
+Register the plugin using the `use()` method on the `TaskRunner` instance.
+
+```typescript
+const runner = new TaskRunner(context);
+runner.use(MyLoggerPlugin);
+
+await runner.execute(steps);
 ```
 
 ## Skip Propagation
