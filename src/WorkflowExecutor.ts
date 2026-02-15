@@ -64,7 +64,7 @@ export class WorkflowExecutor<TContext> {
 
     try {
       // Create a signal mechanism to wait for any task completion
-      let signalResolver!: () => void;
+      let signalResolver: () => void = () => {};
       let signalPromise = new Promise<void>((resolve) => {
         signalResolver = resolve;
       });
