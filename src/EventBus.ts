@@ -61,11 +61,10 @@ export class EventBus<TContext> {
       | undefined;
     if (listeners) {
       for (const listener of listeners) {
-        // We use Promise.resolve().then() to schedule the listener on the microtask queue,
+        // We use queueMicrotask() to schedule the listener on the microtask queue,
         // ensuring the emit method remains non-blocking.
-        // The final .catch() ensures that any errors in the promise infrastructure itself are logged.
-        Promise.resolve()
-          .then(() => {
+        queueMicrotask(() => {
+          try {
             try {
               const result = listener(data);
               if (result instanceof Promise) {
@@ -84,14 +83,14 @@ export class EventBus<TContext> {
                 error
               );
             }
-          })
-          .catch((error) => {
-            // detailed handling for the promise chain itself
+          } catch (error) {
+            // detailed handling for the microtask execution itself
             console.error(
               `Unexpected error in event bus execution for ${String(event)}:`,
               error
             );
-          });
+          }
+        });
       }
     }
   }
