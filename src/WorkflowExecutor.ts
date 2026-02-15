@@ -63,8 +63,22 @@ export class WorkflowExecutor<TContext> {
     }
 
     try {
+      // Create a signal mechanism to wait for any task completion
+      let signalResolver: (() => void) | undefined;
+      let signalPromise = new Promise<void>((resolve) => {
+        signalResolver = resolve;
+      });
+
+      const signalWork = () => {
+        signalResolver!();
+        // Reset the promise for the next wait
+        signalPromise = new Promise<void>((resolve) => {
+          signalResolver = resolve;
+        });
+      };
+
       // Initial pass
-      this.processLoop(executingPromises, signal);
+      this.processLoop(executingPromises, signalWork, signal);
 
       while (
         this.stateManager.hasPendingTasks() ||
@@ -78,7 +92,7 @@ export class WorkflowExecutor<TContext> {
           break;
         } else {
           // Wait for the next task to finish
-          await Promise.race(executingPromises);
+          await signalPromise;
         }
 
         if (signal?.aborted) {
@@ -106,6 +120,7 @@ export class WorkflowExecutor<TContext> {
    */
   private processLoop(
     executingPromises: Set<Promise<void>>,
+    signalWork: () => void,
     signal?: AbortSignal
   ): void {
     const newlyReady = this.stateManager.processDependencies();
@@ -126,12 +141,13 @@ export class WorkflowExecutor<TContext> {
 
       const step = this.readyQueue.pop()!;
 
-      const taskPromise = this.executeTaskStep(step, signal)
-        .finally(() => {
-          executingPromises.delete(taskPromise);
-          // When a task finishes, we try to run more
-          this.processLoop(executingPromises, signal);
-        });
+      const taskPromise = this.executeTaskStep(step, signal).finally(() => {
+        executingPromises.delete(taskPromise);
+        // When a task finishes, we try to run more
+        this.processLoop(executingPromises, signalWork, signal);
+        // Signal that a task has completed
+        signalWork();
+      });
 
       executingPromises.add(taskPromise);
     }
