@@ -40,7 +40,12 @@ export class RetryingExecutionStrategy<
         return result;
       }
 
-      // Task failed, check if we should retry
+      // Task failed, check if we should retry based on predicate
+      if (config.shouldRetry && !config.shouldRetry(result.error)) {
+        return result;
+      }
+
+      // Task failed, check if we should retry based on attempts
       if (attempt >= config.attempts) {
         return result; // Max attempts reached, return failure
       }
