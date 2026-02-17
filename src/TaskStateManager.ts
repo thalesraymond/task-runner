@@ -89,6 +89,8 @@ export class TaskStateManager<TContext> {
 
     if (result.status === "success") {
       this.handleSuccess(step.name);
+    } else if (result.status === "failure" && step.continueOnError) {
+      this.handleSuccess(step.name);
     } else {
       this.cascadeFailure(step.name);
     }

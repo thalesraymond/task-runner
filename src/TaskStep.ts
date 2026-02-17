@@ -19,6 +19,14 @@ export interface TaskStep<TContext> {
   condition?: (context: TContext) => boolean | Promise<boolean>;
 
   /**
+   * Optional flag to indicate if execution should continue even if this task fails.
+   * If true, dependent tasks will still be executed as if this task succeeded.
+   * The task status will still be "failure".
+   * Default is false.
+   */
+  continueOnError?: boolean;
+
+  /**
    * Optional priority.
    * Higher values are picked first. Default is 0.
    * Only affects ordering when multiple tasks are ready and concurrency slots are limited.
