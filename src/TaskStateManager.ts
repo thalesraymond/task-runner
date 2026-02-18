@@ -15,6 +15,7 @@ export class TaskStateManager<TContext> {
   private dependencyGraph = new Map<string, TaskStep<TContext>[]>();
   private dependencyCounts = new Map<string, number>();
   private readyQueue: TaskStep<TContext>[] = [];
+  private taskDefinitions = new Map<string, TaskStep<TContext>>();
 
   constructor(private eventBus: EventBus<TContext>) {}
 
@@ -30,8 +31,10 @@ export class TaskStateManager<TContext> {
 
     this.dependencyGraph.clear();
     this.dependencyCounts.clear();
+    this.taskDefinitions.clear();
 
     for (const step of steps) {
+      this.taskDefinitions.set(step.name, step);
       const deps = step.dependencies ?? [];
       this.dependencyCounts.set(step.name, deps.length);
 
@@ -89,6 +92,13 @@ export class TaskStateManager<TContext> {
 
     if (result.status === "success") {
       this.handleSuccess(step.name);
+    } else if (result.status === "failure") {
+      // If continueOnError is true, treat as success for dependents
+      if (this.taskDefinitions.get(step.name)?.continueOnError) {
+        this.handleSuccess(step.name);
+      } else {
+        this.cascadeFailure(step.name);
+      }
     } else {
       this.cascadeFailure(step.name);
     }

@@ -26,6 +26,14 @@ export interface TaskStep<TContext> {
   priority?: number;
 
   /**
+   * Optional flag to indicate that the workflow should continue even if this task fails.
+   * If true, dependent tasks will execute as if this task succeeded.
+   * The task result will still be marked as "failure".
+   * Default is false.
+   */
+  continueOnError?: boolean;
+
+  /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
    * @param signal An optional AbortSignal to listen for cancellation.
