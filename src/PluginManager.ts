@@ -24,12 +24,10 @@ export class PluginManager<TContext> {
   }
 
   /**
-   * Initializes all registered plugins.
+   * Initializes all registered plugins in parallel.
    */
   public async initialize(): Promise<void> {
-    for (const plugin of this.plugins) {
-      await plugin.install(this.context);
-    }
+    await Promise.all(this.plugins.map((plugin) => plugin.install(this.context)));
   }
 
   /**
