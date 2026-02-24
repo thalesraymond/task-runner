@@ -93,7 +93,7 @@ export class TaskStateManager<TContext> {
     if (result.status === "success") {
       this.handleSuccess(step.name);
     } else if (result.status === "failure") {
-      // If continueOnError is true, treat as success for dependents
+      // If continueOnError is true, treat as success for dependents to unblock the workflow
       if (this.taskDefinitions.get(step.name)?.continueOnError) {
         this.handleSuccess(step.name);
       } else {
