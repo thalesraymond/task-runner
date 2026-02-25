@@ -1,0 +1,24 @@
+## 1. Implementation
+
+- [ ] 1.1 Define `ICacheProvider` interface in `src/contracts/ICacheProvider.ts` with `get(key)`, `set(key, result, ttl)`, and `delete(key)` methods.
+- [ ] 1.2 Implement `MemoryCacheProvider` in `src/utils/MemoryCacheProvider.ts` as the default in-memory cache implementation.
+- [ ] 1.3 Update `TaskStep` interface in `src/TaskStep.ts` to include optional `cache` configuration:
+    - `key`: `(context: TContext) => string | Promise<string>`
+    - `ttl`: `number` (optional, default to infinite)
+    - `restore`: `(context: TContext, cachedResult: TaskResult) => void | Promise<void>` (optional, to re-apply context side effects)
+- [ ] 1.4 Create `CachingExecutionStrategy` in `src/strategies/CachingExecutionStrategy.ts`.
+    - It should implement `IExecutionStrategy`.
+    - It should accept an inner `IExecutionStrategy` and an `ICacheProvider`.
+    - In `execute`:
+        - Calculate cache key using `step.cache.key(context)`.
+        - Check cache provider. If hit:
+            - Execute `step.cache.restore(context, result)` if provided.
+            - Return cached result with status `skipped` (or a new status `cached`).
+        - If miss:
+            - Execute inner strategy.
+            - If successful, store result in cache provider using `ttl`.
+            - Return result.
+- [ ] 1.5 Update `TaskRunner.ts` to support configuring the cache provider and wrapping the execution strategy with `CachingExecutionStrategy` if caching is enabled.
+- [ ] 1.6 Add unit tests for `MemoryCacheProvider`.
+- [ ] 1.7 Add unit tests for `CachingExecutionStrategy`, verifying cache hits, misses, and restoration of context.
+- [ ] 1.8 Add integration tests in `tests/TaskRunnerCaching.test.ts` to verify end-to-end caching behavior with context updates.
