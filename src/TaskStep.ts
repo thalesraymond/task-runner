@@ -34,6 +34,12 @@ export interface TaskStep<TContext> {
   continueOnError?: boolean;
 
   /**
+   * Optional maximum execution time in milliseconds.
+   * If the task runs longer than this, it will be cancelled and marked as failed.
+   */
+  timeout?: number;
+
+  /**
    * The core logic of the task.
    * @param context The shared context object, allowing for state to be passed between tasks.
    * @param signal An optional AbortSignal to listen for cancellation.
