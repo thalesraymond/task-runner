@@ -18,6 +18,19 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.3.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.2.0...task-runner-v4.3.0) (2026-03-01)
+
+
+### Features
+
+* add continueOnError support ([#164](https://github.com/thalesraymond/task-runner/issues/164)) ([50dfb38](https://github.com/thalesraymond/task-runner/commit/50dfb3877b0edd1f233435b2d0a9c9046b30b94d))
+* add per-task timeout support ([#174](https://github.com/thalesraymond/task-runner/issues/174)) ([c73abf3](https://github.com/thalesraymond/task-runner/commit/c73abf3002c8e33dbc524fe570b79fe6466839a7))
+
+
+### Performance Improvements
+
+* parallelize plugin initialization in PluginManager ([#171](https://github.com/thalesraymond/task-runner/issues/171)) ([d39781f](https://github.com/thalesraymond/task-runner/commit/d39781fd1af28d2ffeb320745a386c95d74bd3f3))
+
 ## [4.2.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.1.0...task-runner-v4.2.0) (2026-02-15)
 
 
