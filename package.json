@@ -1,6 +1,6 @@
 {
   "name": "@calmo/task-runner",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "A lightweight, type-safe, and domain-agnostic task orchestration engine. It resolves a Directed Acyclic Graph (DAG) of steps, executes independent tasks in parallel, and manages a shared context across the pipeline.",
   "repository": {
     "type": "git",
