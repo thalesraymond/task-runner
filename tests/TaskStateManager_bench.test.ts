@@ -54,4 +54,52 @@ describe("TaskStateManager Performance Benchmark", () => {
     // We use a loose assertion to avoid flakiness while preventing major regressions.
     expect(duration).toBeLessThan(1000);
   });
+
+
+  it("should process 1,000,000 fan-out tasks efficiently", async () => {
+    const taskCount = 1000000;
+    const steps: TaskStep<void>[] = [];
+
+    // T0 is the root. T1...T(N-1) depend on T0.
+    steps.push({
+      name: "T0",
+      run: async () => ({ status: "success" }),
+      dependencies: [],
+    });
+
+    for (let i = 1; i < taskCount; i++) {
+      steps.push({
+        name: `T${i}`,
+        run: async () => ({ status: "success" }),
+        dependencies: ["T0"],
+      });
+    }
+
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    stateManager.initialize(steps);
+
+    let startTime = performance.now();
+    let ready = stateManager.processDependencies();
+
+    // Simulating T0 execution
+    stateManager.markRunning(ready[0]);
+    stateManager.markCompleted(ready[0], { status: "success" });
+
+    // Now all 999,999 tasks should be ready
+    let endTime = performance.now();
+    console.log(`\nBenchmark Result (Fan-out prep): ${(endTime - startTime).toFixed(2)}ms`);
+
+    startTime = performance.now();
+    ready = stateManager.processDependencies(); // This is the call that copies the large readyQueue
+    endTime = performance.now();
+
+    const duration = endTime - startTime;
+    console.log(`\nBenchmark Result (Fan-out N=${taskCount} processDependencies): ${duration.toFixed(2)}ms`);
+
+    expect(ready.length).toBe(taskCount - 1);
+    expect(duration).toBeLessThan(1000); // Loose assertion
+  });
+
 });

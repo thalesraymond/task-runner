@@ -59,7 +59,7 @@ export class TaskStateManager<TContext> {
    * @returns An array of tasks that are ready to run.
    */
   processDependencies(): TaskStep<TContext>[] {
-    const toRun = [...this.readyQueue];
+    const toRun = this.readyQueue;
     this.readyQueue = [];
 
     // Remove them from pendingSteps as they are now handed off to the executor
