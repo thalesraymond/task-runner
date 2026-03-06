@@ -4,6 +4,98 @@ import { EventBus } from "../src/EventBus.js";
 import { TaskStep } from "../src/TaskStep.js";
 
 describe("TaskStateManager Coverage", () => {
+  it("should queue dependent with 'always' runCondition when parent fails", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: [{ step: "A", runCondition: "always" }],
+      run: async () => ({ status: "success" })
+    };
+    const stepC: TaskStep<void> = {
+      name: "C",
+      dependencies: [{ step: "A" }], // Test defaulting runCondition to 'success'
+      run: async () => ({ status: "success" })
+    };
+
+    stateManager.initialize([stepA, stepB, stepC]);
+
+    const readyA = stateManager.processDependencies();
+    expect(readyA).toHaveLength(1);
+    expect(readyA[0].name).toBe("A");
+
+    stateManager.markRunning(readyA[0]);
+    stateManager.markCompleted(readyA[0], { status: "failure", error: "failed" });
+
+    const readyB = stateManager.processDependencies();
+    expect(readyB).toHaveLength(1);
+    expect(readyB[0].name).toBe("B"); // C is skipped because default condition is success
+  });
+
+  it("should skip dependent with 'always' runCondition when parent is skip cascaded transitively", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    // A(fail) -> B(success condition) -> C(always condition on B)
+    // When A fails, B is skipped. Since B is skipped (not failed), C should also be skipped.
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" })
+    };
+    const stepC: TaskStep<void> = {
+      name: "C",
+      dependencies: [{ step: "B", runCondition: "always" }],
+      run: async () => ({ status: "success" })
+    };
+
+    stateManager.initialize([stepA, stepB, stepC]);
+
+    const readyA = stateManager.processDependencies();
+    stateManager.markRunning(readyA[0]);
+    stateManager.markCompleted(readyA[0], { status: "failure", error: "A failed" });
+
+    // Both B and C should be skipped
+    expect(stateManager.getResults().get("B")?.status).toBe("skipped");
+    expect(stateManager.getResults().get("B")?.message).toContain("failed: A failed");
+
+    expect(stateManager.getResults().get("C")?.status).toBe("skipped");
+    expect(stateManager.getResults().get("C")?.message).toContain("was skipped");
+
+    const readyNext = stateManager.processDependencies();
+    expect(readyNext).toHaveLength(0);
+  });
+
+  it("should skip dependent with 'always' runCondition when parent is skipped", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "success" }) };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: [{ step: "A", runCondition: "always" }],
+      run: async () => ({ status: "success" })
+    };
+
+    stateManager.initialize([stepA, stepB]);
+
+    const readyA = stateManager.processDependencies();
+    stateManager.markRunning(readyA[0]);
+
+    // Mark A as skipped
+    stateManager.markSkipped(readyA[0], { status: "skipped", message: "skipped A" });
+
+    // B should be skipped
+    expect(stateManager.getResults().get("B")?.status).toBe("skipped");
+    expect(stateManager.getResults().get("B")?.message).toContain("was skipped");
+
+    const readyB = stateManager.processDependencies();
+    expect(readyB).toHaveLength(0);
+  });
+
   it("should handle leaf task failure gracefully", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);

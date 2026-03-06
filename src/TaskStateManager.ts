@@ -1,6 +1,11 @@
-import { TaskStep } from "./TaskStep.js";
+import { TaskStep, TaskRunCondition } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { EventBus } from "./EventBus.js";
+
+interface DependentTask<TContext> {
+  step: TaskStep<TContext>;
+  condition: TaskRunCondition;
+}
 
 /**
  * Manages the state of the task execution, including results, pending steps, and running tasks.
@@ -12,7 +17,7 @@ export class TaskStateManager<TContext> {
   private running = new Set<string>();
 
   // Optimization structures
-  private dependencyGraph = new Map<string, TaskStep<TContext>[]>();
+  private dependencyGraph = new Map<string, DependentTask<TContext>[]>();
   private dependencyCounts = new Map<string, number>();
   private readyQueue: TaskStep<TContext>[] = [];
   private taskDefinitions = new Map<string, TaskStep<TContext>>();
@@ -41,13 +46,16 @@ export class TaskStateManager<TContext> {
       if (deps.length === 0) {
         this.readyQueue.push(step);
       } else {
-        for (const dep of deps) {
-          let dependents = this.dependencyGraph.get(dep);
+        for (const depConfig of deps) {
+          const depName = typeof depConfig === "string" ? depConfig : depConfig.step;
+          const condition: TaskRunCondition = typeof depConfig === "string" ? "success" : (depConfig.runCondition ?? "success");
+
+          let dependents = this.dependencyGraph.get(depName);
           if (dependents === undefined) {
             dependents = [];
-            this.dependencyGraph.set(dep, dependents);
+            this.dependencyGraph.set(depName, dependents);
           }
-          dependents.push(step);
+          dependents.push({ step, condition });
         }
       }
     }
@@ -175,6 +183,22 @@ export class TaskStateManager<TContext> {
   }
 
   /**
+   * Decrements the dependency count for a dependent task and queues it if ready.
+   */
+  private unblockDependent(dependent: TaskStep<TContext>): void {
+    const currentCount = this.dependencyCounts.get(dependent.name)!;
+    const newCount = currentCount - 1;
+    this.dependencyCounts.set(dependent.name, newCount);
+
+    if (newCount === 0) {
+      // Task is ready. Ensure it's still pending.
+      if (this.pendingSteps.has(dependent)) {
+        this.readyQueue.push(dependent);
+      }
+    }
+  }
+
+  /**
    * Handles successful completion of a task by updating dependents.
    */
   private handleSuccess(stepName: string): void {
@@ -182,16 +206,7 @@ export class TaskStateManager<TContext> {
     if (!dependents) return;
 
     for (const dependent of dependents) {
-      const currentCount = this.dependencyCounts.get(dependent.name)!;
-      const newCount = currentCount - 1;
-      this.dependencyCounts.set(dependent.name, newCount);
-
-      if (newCount === 0) {
-        // Task is ready. Ensure it's still pending.
-        if (this.pendingSteps.has(dependent)) {
-          this.readyQueue.push(dependent);
-        }
-      }
+      this.unblockDependent(dependent.step);
     }
   }
 
@@ -213,16 +228,25 @@ export class TaskStateManager<TContext> {
 
       // Get the result of the failed/skipped dependency to propagate error info if available
       const currentResult = this.results.get(currentName);
+      const currentStatus = currentResult?.status;
       const depError = currentResult?.error ? `: ${currentResult.error}` : "";
 
       for (const dependent of dependents) {
-        const result: TaskResult = {
-          status: "skipped",
-          message: `Skipped because dependency '${currentName}' failed${depError}`,
-        };
+        if (dependent.condition === "always" && currentStatus === "failure") {
+          // If the dependent runs 'always' and the immediate parent failed, treat as unblocked
+          this.unblockDependent(dependent.step);
+        } else {
+          // Parent was skipped, or dependent condition is 'success'
+          const result: TaskResult = {
+            status: "skipped",
+            message: `Skipped because dependency '${currentName}' ${
+              currentStatus === "skipped" ? "was skipped" : `failed${depError}`
+            }`,
+          };
 
-        if (this.internalMarkSkipped(dependent, result)) {
-          queue.push(dependent.name);
+          if (this.internalMarkSkipped(dependent.step, result)) {
+            queue.push(dependent.step.name);
+          }
         }
       }
     }

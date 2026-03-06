@@ -139,8 +139,14 @@ export class TaskRunner<TContext> {
       if (step.dependencies) {
         const stepId = getUniqueId(step.name);
         for (const dep of step.dependencies) {
-          const depId = getUniqueId(dep);
-          graphLines.add(`  ${depId} --> ${stepId}`);
+          const depName = typeof dep === "string" ? dep : dep.step;
+          const depId = getUniqueId(depName);
+
+          if (typeof dep !== "string" && dep.runCondition === "always") {
+            graphLines.add(`  ${depId} -- always --> ${stepId}`);
+          } else {
+            graphLines.add(`  ${depId} --> ${stepId}`);
+          }
         }
       }
     }
@@ -176,7 +182,9 @@ export class TaskRunner<TContext> {
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
         id: step.name,
-        dependencies: step.dependencies ?? [],
+        dependencies: (step.dependencies ?? []).map((dep) =>
+          typeof dep === "string" ? dep : dep.step
+        ),
       })),
     };
 

@@ -5,6 +5,59 @@ import { TaskGraphValidationError } from "../src/TaskGraphValidationError.js";
 import { IExecutionStrategy } from "../src/strategies/IExecutionStrategy.js";
 
 describe("TaskRunner", () => {
+  it("should execute teardown tasks configured with runCondition: 'always' even if a dependency fails", async () => {
+    const executionOrder: string[] = [];
+    const context = { data: "" };
+
+    const steps: TaskStep<typeof context>[] = [
+      {
+        name: "Provision",
+        run: async () => {
+          executionOrder.push("Provision");
+          return { status: "success" };
+        },
+      },
+      {
+        name: "Test",
+        dependencies: ["Provision"],
+        run: async () => {
+          executionOrder.push("Test");
+          return { status: "failure", error: "tests failed" };
+        },
+      },
+      {
+        name: "Deprovision",
+        dependencies: [{ step: "Test", runCondition: "always" }],
+        run: async () => {
+          executionOrder.push("Deprovision");
+          return { status: "success" };
+        },
+      },
+      {
+        name: "Publish Results",
+        dependencies: ["Test"],
+        run: async () => {
+          executionOrder.push("Publish Results");
+          return { status: "success" };
+        },
+      },
+    ];
+
+    const runner = new TaskRunner(context);
+    const results = await runner.execute(steps);
+
+    // Verify order of execution
+    expect(executionOrder).toEqual(["Provision", "Test", "Deprovision"]);
+
+    // Verify correct statuses
+    expect(results.get("Provision")?.status).toBe("success");
+    expect(results.get("Test")?.status).toBe("failure");
+    expect(results.get("Deprovision")?.status).toBe("success");
+
+    // The dependent task that requires "Test" to succeed should be skipped
+    expect(results.get("Publish Results")?.status).toBe("skipped");
+  });
+
   it("should run tasks in the correct sequential order", async () => {
     const executionOrder: string[] = [];
     const steps: TaskStep<unknown>[] = [

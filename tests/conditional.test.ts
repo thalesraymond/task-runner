@@ -97,7 +97,7 @@ describe("WorkflowExecutor Conditional Execution", () => {
         
         expect(results.get("A")?.status).toBe("skipped");
         expect(results.get("B")?.status).toBe("skipped");
-        expect(results.get("B")?.message).toContain("dependency 'A' failed"); // message phrasing in TaskStateManager
+        expect(results.get("B")?.message).toContain("dependency 'A' was skipped"); // message phrasing in TaskStateManager
         expect(runSpyB).not.toHaveBeenCalled();
     });
 

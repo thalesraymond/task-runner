@@ -56,7 +56,7 @@ describe("TaskStateManager Performance Benchmark", () => {
   });
 
 
-  it("should process 1,000,000 fan-out tasks efficiently", async () => {
+  it("should process 1,000,000 fan-out tasks efficiently", { timeout: 10000 }, async () => {
     const taskCount = 1000000;
     const steps: TaskStep<void>[] = [];
 

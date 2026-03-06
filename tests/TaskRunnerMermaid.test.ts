@@ -17,7 +17,7 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(lines).toContain("  B[\"B\"]");
   });
 
-  it("should generate a graph with dependencies", () => {
+  it("should generate a graph with dependencies including runCondition", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "A", run: async () => ({ status: "success" }) },
       {
@@ -27,7 +27,7 @@ describe("TaskRunner Mermaid Graph", () => {
       },
       {
         name: "C",
-        dependencies: ["A"],
+        dependencies: [{ step: "A", runCondition: "always" }],
         run: async () => ({ status: "success" }),
       },
       {
@@ -42,7 +42,7 @@ describe("TaskRunner Mermaid Graph", () => {
 
     expect(lines[0]).toBe("graph TD");
     expect(lines).toContain("  A --> B");
-    expect(lines).toContain("  A --> C");
+    expect(lines).toContain("  A -- always --> C");
     expect(lines).toContain("  B --> D");
     expect(lines).toContain("  C --> D");
   });
