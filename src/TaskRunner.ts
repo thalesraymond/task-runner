@@ -128,11 +128,13 @@ export class TaskRunner<TContext> {
     // Process nodes and edges in a single pass over input steps
     const processedNamesForNodes = new Set<string>();
     for (const step of steps) {
+      const sizeBefore = processedNamesForNodes.size;
+      processedNamesForNodes.add(step.name);
+
       const stepId = getUniqueId(step.name);
 
-      if (!processedNamesForNodes.has(step.name)) {
+      if (processedNamesForNodes.size !== sizeBefore) {
         nodeLines.push(`  ${stepId}[${JSON.stringify(step.name)}]`);
-        processedNamesForNodes.add(step.name);
       }
 
       if (step.dependencies) {
