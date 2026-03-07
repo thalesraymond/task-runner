@@ -88,7 +88,8 @@ export class TaskRunner<TContext> {
    * @returns A string containing the Mermaid graph definition.
    */
   public static getMermaidGraph<T>(steps: TaskStep<T>[]): string {
-    const graphLines = new Set<string>(["graph TD"]);
+    const nodeLines: string[] = ["graph TD"];
+    const edgeLines = new Set<string>();
     const idMap = new Map<string, string>();
     const usedIds = new Set<string>();
     const baseIdCounters = new Map<string, number>();
@@ -124,28 +125,25 @@ export class TaskRunner<TContext> {
       return uniqueId;
     };
 
-    // We process nodes in input order to ensure deterministic ID generation
-    // (getUniqueId is called for each unique step name in order, populating the cache).
+    // Process nodes and edges in a single pass over input steps
     const processedNamesForNodes = new Set<string>();
     for (const step of steps) {
+      const stepId = getUniqueId(step.name);
+
       if (!processedNamesForNodes.has(step.name)) {
-        const stepId = getUniqueId(step.name);
-        graphLines.add(`  ${stepId}[${JSON.stringify(step.name)}]`);
+        nodeLines.push(`  ${stepId}[${JSON.stringify(step.name)}]`);
         processedNamesForNodes.add(step.name);
       }
-    }
 
-    for (const step of steps) {
       if (step.dependencies) {
-        const stepId = getUniqueId(step.name);
         for (const dep of step.dependencies) {
           const depId = getUniqueId(dep);
-          graphLines.add(`  ${depId} --> ${stepId}`);
+          edgeLines.add(`  ${depId} --> ${stepId}`);
         }
       }
     }
 
-    return [...graphLines].join("\n");
+    return nodeLines.concat([...edgeLines]).join("\n");
   }
 
   /**
