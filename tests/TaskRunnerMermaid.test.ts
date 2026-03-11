@@ -80,8 +80,8 @@ describe("TaskRunner Mermaid Graph", () => {
     const lines = graph.split("\n");
 
     expect(lines).toContain("  Task_With_Space[\"Task With Space\"]");
-    // "Task\"Quote\""["Task\"Quote\""]
-    expect(lines).toContain("  Task_Quote_[\"Task\\\"Quote\\\"\"]");
+    // Task_Quote_["Task&quot;Quote&quot;"]
+    expect(lines).toContain("  Task_Quote_[\"Task&quot;Quote&quot;\"]");
     expect(lines).toContain("  Task_With_Space --> Task_Colon");
   });
 
