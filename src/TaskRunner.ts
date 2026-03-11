@@ -126,20 +126,23 @@ export class TaskRunner<TContext> {
     };
 
     // Process nodes and edges in a single pass over input steps
-    const processedNamesForNodes = new Set<string>();
-    for (const step of steps) {
-      const sizeBefore = processedNamesForNodes.size;
-      processedNamesForNodes.add(step.name);
+    const processedNodes = new Set<string>();
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const name = step.name;
+      const stepId = getUniqueId(name);
 
-      const stepId = getUniqueId(step.name);
+      const sizeBefore = processedNodes.size;
+      processedNodes.add(stepId);
 
-      if (processedNamesForNodes.size !== sizeBefore) {
-        nodeLines.push(`  ${stepId}[${JSON.stringify(step.name)}]`);
+      if (processedNodes.size !== sizeBefore) {
+        nodeLines.push(`  ${stepId}[${JSON.stringify(name)}]`);
       }
 
       if (step.dependencies) {
-        for (const dep of step.dependencies) {
-          const depId = getUniqueId(dep);
+        const deps = step.dependencies;
+        for (let j = 0; j < deps.length; j++) {
+          const depId = getUniqueId(deps[j]);
           edgeLines.add(`  ${depId} --> ${stepId}`);
         }
       }
