@@ -27,7 +27,7 @@ export class PluginManager<TContext> {
    * Initializes all registered plugins in parallel.
    */
   public async initialize(): Promise<void> {
-    await Promise.all(this.plugins.map((plugin) => plugin.install(this.context)));
+    await Promise.all(this.plugins.map(async (plugin) => plugin.install(this.context)));
   }
 
   /**
