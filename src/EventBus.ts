@@ -40,10 +40,9 @@ export class EventBus<TContext> {
     event: K,
     callback: RunnerEventListener<TContext, K>
   ): void {
-    if (this.listeners[event]) {
-      (this.listeners[event] as Set<RunnerEventListener<TContext, K>>).delete(
-        callback
-      );
+    const listeners = this.listeners[event];
+    if (listeners) {
+      listeners.delete(callback);
     }
   }
 
@@ -56,9 +55,7 @@ export class EventBus<TContext> {
     event: K,
     data: RunnerEventPayloads<TContext>[K]
   ): void {
-    const listeners = this.listeners[event] as
-      | Set<RunnerEventListener<TContext, K>>
-      | undefined;
+    const listeners = this.listeners[event];
     if (listeners) {
       for (const listener of listeners) {
         // We use queueMicrotask() to schedule the listener on the microtask queue,
