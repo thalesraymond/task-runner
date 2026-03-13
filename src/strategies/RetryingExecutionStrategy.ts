@@ -40,7 +40,13 @@ export class RetryingExecutionStrategy<
         return result;
       }
 
-      // Task failed, check if we should retry
+      // If the task failed and a shouldRetry predicate is defined, check it.
+      // If it returns false, break the retry loop immediately.
+      if (config.shouldRetry && !config.shouldRetry(result.error)) {
+        return result;
+      }
+
+      // Task failed, check if we should retry based on attempts
       if (attempt >= config.attempts) {
         return result; // Max attempts reached, return failure
       }
