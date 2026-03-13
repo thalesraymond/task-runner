@@ -22,9 +22,9 @@ export class DryRunExecutionStrategy<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _signal?: AbortSignal
   ): Promise<TaskResult> {
-    return Promise.resolve({
+    return {
       status: "success",
       message: "Dry run: simulated success " + step.name,
-    });
+    };
   }
 }
