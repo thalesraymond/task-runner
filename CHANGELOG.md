@@ -18,6 +18,30 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.3.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.2.0...task-runner-v4.3.0) (2026-03-14)
+
+
+### Features
+
+* add continueOnError support ([#164](https://github.com/thalesraymond/task-runner/issues/164)) ([50dfb38](https://github.com/thalesraymond/task-runner/commit/50dfb3877b0edd1f233435b2d0a9c9046b30b94d))
+* add per-task timeout support ([#174](https://github.com/thalesraymond/task-runner/issues/174)) ([c73abf3](https://github.com/thalesraymond/task-runner/commit/c73abf3002c8e33dbc524fe570b79fe6466839a7))
+
+
+### Bug Fixes
+
+* filter non-promises before calling Promise.all in PluginManager ([#200](https://github.com/thalesraymond/task-runner/issues/200)) ([e4bd215](https://github.com/thalesraymond/task-runner/commit/e4bd215b2fe0223ec59e85346a4162eff77dc138))
+* **strategies:** remove redundant Promise.resolve in DryRunExecutionStrategy ([#193](https://github.com/thalesraymond/task-runner/issues/193)) ([42f6185](https://github.com/thalesraymond/task-runner/commit/42f61858413c3e0c50c2c698251ef1904d30a0da))
+
+
+### Performance Improvements
+
+* fix pending Promise memory leak in StandardExecutionStrategy ([#201](https://github.com/thalesraymond/task-runner/issues/201)) ([87223b3](https://github.com/thalesraymond/task-runner/commit/87223b3d7facd067604602ef995bbdcc165e8fd6))
+* optimize getMermaidGraph duplicate tracking ([#188](https://github.com/thalesraymond/task-runner/issues/188)) ([f114024](https://github.com/thalesraymond/task-runner/commit/f11402446732db6180cb9b4620f2c7ee53d47a9f))
+* optimize Mermaid graph generation ([#187](https://github.com/thalesraymond/task-runner/issues/187)) ([9b8117b](https://github.com/thalesraymond/task-runner/commit/9b8117ba53613d1b780886afbfb85d1b9b319fa8))
+* optimize Mermaid graph string generation overhead in TaskRunner ([#189](https://github.com/thalesraymond/task-runner/issues/189)) ([513f343](https://github.com/thalesraymond/task-runner/commit/513f343ba2bfdb5a4c362a55da81d26741e5bb6c))
+* parallelize plugin initialization in PluginManager ([#171](https://github.com/thalesraymond/task-runner/issues/171)) ([d39781f](https://github.com/thalesraymond/task-runner/commit/d39781fd1af28d2ffeb320745a386c95d74bd3f3))
+* **TaskStateManager:** optimize ready queue copy ([#179](https://github.com/thalesraymond/task-runner/issues/179)) ([ea77aa0](https://github.com/thalesraymond/task-runner/commit/ea77aa0afc8da5a55730216d081f7e1c80f4982e))
+
 ## [4.2.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.1.0...task-runner-v4.2.0) (2026-02-15)
 
 
