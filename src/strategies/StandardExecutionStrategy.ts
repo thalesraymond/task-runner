@@ -36,25 +36,16 @@ export class StandardExecutionStrategy<
     }
 
     const abortController = new AbortController();
-    const timeoutSignal = abortController.signal;
-
-    // If parent signal exists, listen to it
-    const handleParentAbort = () => {
-      abortController.abort(signal?.reason);
-    };
-
-    if (signal) {
-      if (signal.aborted) {
-        abortController.abort(signal.reason);
-      } else {
-        signal.addEventListener("abort", handleParentAbort);
-      }
-    }
+    const timeoutSignal = signal
+      ? AbortSignal.any([signal, abortController.signal])
+      : abortController.signal;
 
     let timer: NodeJS.Timeout | undefined;
+    let resolveTimeout!: (value: TaskResult) => void;
 
     try {
       const timeoutPromise = new Promise<TaskResult>((resolve) => {
+        resolveTimeout = resolve;
         timer = setTimeout(() => {
           abortController.abort(new Error("Timeout"));
           resolve({
@@ -83,12 +74,9 @@ export class StandardExecutionStrategy<
         error: e instanceof Error ? e.message : String(e),
       };
     } finally {
-      // timer is always assigned in the synchronous Promise executor
       clearTimeout(timer);
-
-      if (signal) {
-        signal.removeEventListener("abort", handleParentAbort);
-      }
+      // Settle the timeout promise to avoid memory leaks from Promise.race
+      resolveTimeout({ status: "cancelled" } as TaskResult);
     }
   }
 }
