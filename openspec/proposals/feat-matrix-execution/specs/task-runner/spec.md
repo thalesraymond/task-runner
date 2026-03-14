@@ -29,8 +29,8 @@ The `TaskRunner` SHALL provide the matrix permutation values to the execution co
 
 #### Scenario: Accessing matrix variables
 
-- **WHEN** a child matrix task is executed
-- **THEN** its `run` function SHALL receive the specific matrix permutation values via the task execution context.
+- **WHEN** a child matrix task is executed for a permutation like `{ os: 'linux', node: 18 }`
+- **THEN** its `run` function SHALL be able to access the permutation values via the context (e.g., `context.matrix.os` would be `'linux'` and `context.matrix.node` would be `18`).
 
 ### Requirement: Matrix Dependency Resolution
 

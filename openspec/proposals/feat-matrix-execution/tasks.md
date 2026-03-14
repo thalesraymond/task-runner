@@ -8,3 +8,4 @@
 - [ ] 1.6 Update the Mermaid Graph utility in `TaskRunner.ts` to correctly output nodes and edges for the dynamically generated matrix steps.
 - [ ] 1.7 Add unit tests covering matrix generation, execution, failure handling, and context passing.
 - [ ] 1.8 Add benchmarks for graph generation and state initialization with large matrix sets to ensure performance targets are met.
+- [ ] 1.9 Add user-facing documentation for the `matrix` feature, including examples.
