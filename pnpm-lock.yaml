@@ -13,7 +13,7 @@ importers:
         version: 20.4.4(@types/node@25.5.0)(conventional-commits-parser@6.3.0)(typescript@5.9.3)
       '@commitlint/config-conventional':
         specifier: ^20.3.1
-        version: 20.4.3
+        version: 20.4.4
       '@eslint/js':
         specifier: ^9.39.2
         version: 9.39.4
@@ -80,8 +80,8 @@ packages:
     engines: {node: '>=v18'}
     hasBin: true
 
-  '@commitlint/config-conventional@20.4.3':
-    resolution: {integrity: sha512-9RtLySbYQAs8yEqWEqhSZo9nYhbm57jx7qHXtgRmv/nmeQIjjMcwf6Dl+y5UZcGWgWx435TAYBURONaJIuCjWg==}
+  '@commitlint/config-conventional@20.4.4':
+    resolution: {integrity: sha512-Usg+XXbPNG2GtFWTgRURNWCge1iH1y6jQIvvklOdAbyn2t8ajfVwZCnf5t5X4gUsy17BOiY+myszGsSMIvhOVA==}
     engines: {node: '>=v18'}
 
   '@commitlint/config-validator@20.4.4':
@@ -138,10 +138,6 @@ packages:
 
   '@commitlint/top-level@20.4.3':
     resolution: {integrity: sha512-qD9xfP6dFg5jQ3NMrOhG0/w5y3bBUsVGyJvXxdWEwBm8hyx4WOk3kKXw28T5czBYvyeCVJgJJ6aoJZUWDpaacQ==}
-    engines: {node: '>=v18'}
-
-  '@commitlint/types@20.4.3':
-    resolution: {integrity: sha512-51OWa1Gi6ODOasPmfJPq6js4pZoomima4XLZZCrkldaH2V5Nb3bVhNXPeT6XV0gubbainSpTw4zi68NqAeCNCg==}
     engines: {node: '>=v18'}
 
   '@commitlint/types@20.4.4':
@@ -1401,9 +1397,9 @@ snapshots:
       - conventional-commits-parser
       - typescript
 
-  '@commitlint/config-conventional@20.4.3':
+  '@commitlint/config-conventional@20.4.4':
     dependencies:
-      '@commitlint/types': 20.4.3
+      '@commitlint/types': 20.4.4
       conventional-changelog-conventionalcommits: 9.3.0
 
   '@commitlint/config-validator@20.4.4':
@@ -1494,11 +1490,6 @@ snapshots:
   '@commitlint/top-level@20.4.3':
     dependencies:
       escalade: 3.2.0
-
-  '@commitlint/types@20.4.3':
-    dependencies:
-      conventional-commits-parser: 6.3.0
-      picocolors: 1.1.1
 
   '@commitlint/types@20.4.4':
     dependencies:
