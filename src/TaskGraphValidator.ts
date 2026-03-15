@@ -110,7 +110,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
       ) {
         // Extract the actual cycle from the path
         // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)
-        const cycleStart = path[path.length - 1];
+        const cycleStart = path.at(-1)!;
         const cycleStartIndex = recursionStack.get(cycleStart)!;
         const cyclePath = path.slice(cycleStartIndex);
 
@@ -147,7 +147,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     });
 
     while (stack.length > 0) {
-      const frame = stack[stack.length - 1];
+      const frame = stack.at(-1)!;
       const { taskId, dependencies } = frame;
 
       if (frame.index < dependencies.length) {
