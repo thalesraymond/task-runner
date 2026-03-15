@@ -40,12 +40,11 @@ export class StandardExecutionStrategy<
       ? AbortSignal.any([signal, abortController.signal])
       : abortController.signal;
 
+    const timeoutPromiseAbortController = new AbortController();
     let timer: NodeJS.Timeout | undefined;
-    let resolveTimeout!: (value: TaskResult) => void;
 
     try {
       const timeoutPromise = new Promise<TaskResult>((resolve) => {
-        resolveTimeout = resolve;
         timer = setTimeout(() => {
           abortController.abort(new Error("Timeout"));
           resolve({
@@ -53,6 +52,12 @@ export class StandardExecutionStrategy<
             error: `Task timed out after ${step.timeout}ms`,
           });
         }, step.timeout);
+
+        timeoutPromiseAbortController.signal.addEventListener(
+          "abort",
+          () => resolve({ status: "cancelled" } as TaskResult),
+          { once: true }
+        );
       });
 
       const taskPromise = step.run(context, timeoutSignal);
@@ -76,7 +81,7 @@ export class StandardExecutionStrategy<
     } finally {
       clearTimeout(timer);
       // Settle the timeout promise to avoid memory leaks from Promise.race
-      resolveTimeout({ status: "cancelled" } as TaskResult);
+      timeoutPromiseAbortController.abort();
     }
   }
 }
