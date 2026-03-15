@@ -97,7 +97,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     errors: ValidationError[]
   ): void {
     const visited = new Set<string>();
-    const recursionStack = new Set<string>();
+    const recursionStack = new Map<string, number>();
 
     for (const task of taskGraph.tasks) {
       if (visited.has(task.id)) {
@@ -111,7 +111,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
         // Extract the actual cycle from the path
         // The path might look like A -> B -> C -> B (if we started at A and found cycle B-C-B)
         const cycleStart = path[path.length - 1];
-        const cycleStartIndex = path.indexOf(cycleStart);
+        const cycleStartIndex = recursionStack.get(cycleStart)!;
         const cyclePath = path.slice(cycleStartIndex);
 
         errors.push({
@@ -129,7 +129,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     startTaskId: string,
     path: string[],
     visited: Set<string>,
-    recursionStack: Set<string>,
+    recursionStack: Map<string, number>,
     taskMap: Map<string, Task>
   ): boolean {
     // Use an explicit stack to avoid maximum call stack size exceeded errors
@@ -137,7 +137,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
       [];
 
     visited.add(startTaskId);
-    recursionStack.add(startTaskId);
+    recursionStack.set(startTaskId, path.length);
     path.push(startTaskId);
 
     stack.push({
@@ -162,7 +162,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
 
         if (!visited.has(dependenceId)) {
           visited.add(dependenceId);
-          recursionStack.add(dependenceId);
+          recursionStack.set(dependenceId, path.length);
           path.push(dependenceId);
 
           stack.push({
