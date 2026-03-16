@@ -113,7 +113,9 @@ describe("EventBus", () => {
        eventBus.on("taskStart", callback);
        eventBus.off("taskStart", callback);
        // Now the set exists but is empty
-       eventBus.off("taskStart", callback);
+       expect(() => {
+         eventBus.off("taskStart", callback);
+       }).not.toThrow();
   });
 
   it("should trigger outer catch block when inner catch fails", async () => {
