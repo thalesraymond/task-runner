@@ -17,24 +17,18 @@ export class StandardExecutionStrategy<
       try {
         return await step.run(context, signal);
       } catch (e) {
-        // Check if error is due to abort
-        if (
-          signal?.aborted &&
-          ((e instanceof Error && e.name === "AbortError") ||
-            signal.reason === e)
-        ) {
-          return {
-            status: "cancelled",
-            message: "Task cancelled during execution",
-          };
-        }
-        return {
-          status: "failure",
-          error: e instanceof Error ? e.message : String(e),
-        };
+        return this.handleError(e, signal);
       }
     }
 
+    return this.executeWithTimeout(step, context, signal);
+  }
+
+  private async executeWithTimeout(
+    step: TaskStep<TContext>,
+    context: TContext,
+    signal?: AbortSignal
+  ): Promise<TaskResult> {
     const abortController = new AbortController();
     const timeoutSignal = signal
       ? AbortSignal.any([signal, abortController.signal])
@@ -51,7 +45,7 @@ export class StandardExecutionStrategy<
             status: "failure",
             error: `Task timed out after ${step.timeout}ms`,
           });
-        }, step.timeout);
+        }, step.timeout!);
 
         timeoutPromiseAbortController.signal.addEventListener(
           "abort",
@@ -64,24 +58,28 @@ export class StandardExecutionStrategy<
 
       return await Promise.race([taskPromise, timeoutPromise]);
     } catch (e) {
-      // Check if error is due to abort
-      if (
-        signal?.aborted &&
-        ((e instanceof Error && e.name === "AbortError") || signal.reason === e)
-      ) {
-        return {
-          status: "cancelled",
-          message: "Task cancelled during execution",
-        };
-      }
-      return {
-        status: "failure",
-        error: e instanceof Error ? e.message : String(e),
-      };
+      return this.handleError(e, signal);
     } finally {
       clearTimeout(timer);
       // Settle the timeout promise to avoid memory leaks from Promise.race
       timeoutPromiseAbortController.abort();
     }
+  }
+
+  private handleError(e: unknown, signal?: AbortSignal): TaskResult {
+    // Check if error is due to abort
+    if (
+      signal?.aborted &&
+      ((e instanceof Error && e.name === "AbortError") || signal.reason === e)
+    ) {
+      return {
+        status: "cancelled",
+        message: "Task cancelled during execution",
+      };
+    }
+    return {
+      status: "failure",
+      error: e instanceof Error ? e.message : String(e),
+    };
   }
 }
