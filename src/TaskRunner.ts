@@ -29,7 +29,7 @@ export class TaskRunner<TContext> {
   private executionStrategy: IExecutionStrategy<TContext> =
     new RetryingExecutionStrategy(new StandardExecutionStrategy());
 
-  private pluginManager: PluginManager<TContext>;
+  private readonly pluginManager: PluginManager<TContext>;
 
   /**
    * @param context The shared context object to be passed to each task.
