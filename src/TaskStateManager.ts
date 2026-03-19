@@ -7,17 +7,17 @@ import { EventBus } from "./EventBus.js";
  * Handles dependency resolution and event emission for state changes.
  */
 export class TaskStateManager<TContext> {
-  private results = new Map<string, TaskResult>();
+  private readonly results = new Map<string, TaskResult>();
   private pendingSteps = new Set<TaskStep<TContext>>();
-  private running = new Set<string>();
+  private readonly running = new Set<string>();
 
   // Optimization structures
-  private dependencyGraph = new Map<string, TaskStep<TContext>[]>();
-  private dependencyCounts = new Map<string, number>();
+  private readonly dependencyGraph = new Map<string, TaskStep<TContext>[]>();
+  private readonly dependencyCounts = new Map<string, number>();
   private readyQueue: TaskStep<TContext>[] = [];
-  private taskDefinitions = new Map<string, TaskStep<TContext>>();
+  private readonly taskDefinitions = new Map<string, TaskStep<TContext>>();
 
-  constructor(private eventBus: EventBus<TContext>) {}
+  constructor(private readonly eventBus: EventBus<TContext>) {}
 
   /**
    * Initializes the state with the given steps.
