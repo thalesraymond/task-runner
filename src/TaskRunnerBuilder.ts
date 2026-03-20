@@ -4,6 +4,9 @@ import {
   RunnerEventListener,
 } from "./contracts/RunnerEvents.js";
 import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
+import { LoopingExecutionStrategy } from "./strategies/LoopingExecutionStrategy.js";
+import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
+import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
 
 /**
  * A builder for configuring and creating TaskRunner instances.
@@ -59,9 +62,9 @@ export class TaskRunnerBuilder<TContext> {
   public build(): TaskRunner<TContext> {
     const runner = new TaskRunner(this.context);
 
-    if (this.strategy) {
-      runner.setExecutionStrategy(this.strategy);
-    }
+    // Apply LoopingExecutionStrategy around the configured strategy, or default strategy chain
+    const baseStrategy = this.strategy ?? new RetryingExecutionStrategy(new StandardExecutionStrategy());
+    runner.setExecutionStrategy(new LoopingExecutionStrategy(baseStrategy));
 
     (
       Object.keys(this.listeners) as Array<keyof RunnerEventPayloads<TContext>>

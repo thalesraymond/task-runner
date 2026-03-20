@@ -1,5 +1,6 @@
 import { TaskResult } from "./TaskResult.js";
 import { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
+import { TaskLoopConfig } from "./contracts/TaskLoopConfig.js";
 
 /**
  * Represents a single, executable step within a workflow.
@@ -12,6 +13,8 @@ export interface TaskStep<TContext> {
   dependencies?: string[];
   /** Optional retry configuration for the task. */
   retry?: TaskRetryConfig;
+  /** Optional loop configuration for the task. */
+  loop?: TaskLoopConfig<TContext>;
   /**
    * Optional function to determine if the task should run.
    * If it returns false (synchronously or asynchronously), the task is skipped.
