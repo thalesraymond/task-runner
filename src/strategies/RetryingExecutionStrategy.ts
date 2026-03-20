@@ -1,6 +1,7 @@
 import { IExecutionStrategy } from "./IExecutionStrategy.js";
 import { TaskStep } from "../TaskStep.js";
 import { TaskResult } from "../TaskResult.js";
+import { sleep } from "../utils/sleep.js";
 
 /**
  * Execution strategy that retries tasks upon failure based on their retry configuration.
@@ -55,7 +56,7 @@ export class RetryingExecutionStrategy<
 
       // Wait for delay, respecting cancellation
       try {
-        await this.sleep(delay, signal);
+        await sleep(delay, signal);
       } catch (e) {
         if (signal?.aborted) {
           return {
@@ -66,31 +67,5 @@ export class RetryingExecutionStrategy<
         throw e;
       }
     }
-  }
-
-  private sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (signal?.aborted) {
-        reject(new Error("AbortError"));
-        return;
-      }
-
-      const timer = setTimeout(() => {
-        cleanup();
-        resolve();
-      }, ms);
-
-      const onAbort = () => {
-        clearTimeout(timer);
-        cleanup();
-        reject(new Error("AbortError"));
-      };
-
-      const cleanup = () => {
-        signal?.removeEventListener("abort", onAbort);
-      };
-
-      signal?.addEventListener("abort", onAbort);
-    });
   }
 }

@@ -203,10 +203,8 @@ describe("RetryingExecutionStrategy", () => {
     );
 
     // Mocking sleep to throw
-    vi.spyOn(
-      strategy as unknown as { sleep: () => Promise<void> },
-      "sleep"
-    ).mockRejectedValue(new Error("Random error"));
+    const sleepModule = await import("../../src/utils/sleep.js");
+    const sleepSpy = vi.spyOn(sleepModule, "sleep").mockRejectedValue(new Error("Random error"));
 
     const task: TaskStep<unknown> = {
       name: "task1",
@@ -215,6 +213,7 @@ describe("RetryingExecutionStrategy", () => {
     };
 
     await expect(strategy.execute(task, {})).rejects.toThrow("Random error");
+    sleepSpy.mockRestore();
   });
 
   it("should handle cancellation if signal is aborted right before sleep (covering fast-fail in sleep)", async () => {

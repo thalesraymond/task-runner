@@ -1,6 +1,7 @@
 import { IExecutionStrategy } from "./IExecutionStrategy.js";
 import { TaskStep } from "../TaskStep.js";
 import { TaskResult } from "../TaskResult.js";
+import { sleep } from "../utils/sleep.js";
 
 /**
  * Execution strategy that conditionally loops a task until a predicate is met.
@@ -50,7 +51,7 @@ export class LoopingExecutionStrategy<TContext> implements IExecutionStrategy<TC
 
       // Wait for interval
       try {
-        await this.sleep(interval, signal);
+        await sleep(interval, signal);
       } catch (e) {
         if (signal?.aborted) {
           return {
@@ -61,35 +62,5 @@ export class LoopingExecutionStrategy<TContext> implements IExecutionStrategy<TC
         throw e;
       }
     }
-  }
-
-  private sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    if (ms <= 0) {
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-      if (signal?.aborted) {
-        reject(new Error("AbortError"));
-        return;
-      }
-
-      const timer = setTimeout(() => {
-        cleanup();
-        resolve();
-      }, ms);
-
-      const onAbort = () => {
-        clearTimeout(timer);
-        cleanup();
-        reject(new Error("AbortError"));
-      };
-
-      const cleanup = () => {
-        signal?.removeEventListener("abort", onAbort);
-      };
-
-      signal?.addEventListener("abort", onAbort);
-    });
   }
 }

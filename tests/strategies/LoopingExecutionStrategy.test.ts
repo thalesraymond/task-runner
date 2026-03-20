@@ -205,9 +205,9 @@ describe("LoopingExecutionStrategy", () => {
       },
     };
 
-    // We can mock sleep to throw an arbitrary error, but sleep is private.
-    // Instead, we can simulate an error in sleep by passing an AbortSignal that aborts, but then we manually unset `signal.aborted` using a Proxy or we stub sleep using vi.spyOn.
-    const sleepSpy = vi.spyOn(strategy as unknown as { sleep: () => Promise<void> }, "sleep").mockRejectedValue(new Error("Unexpected sleep error"));
+    // Mock the imported sleep utility
+    const sleepModule = await import("../../src/utils/sleep.js");
+    const sleepSpy = vi.spyOn(sleepModule, "sleep").mockRejectedValue(new Error("Unexpected sleep error"));
 
     await expect(strategy.execute(step, {})).rejects.toThrow("Unexpected sleep error");
     sleepSpy.mockRestore();
