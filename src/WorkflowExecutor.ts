@@ -21,11 +21,11 @@ export class WorkflowExecutor<TContext> {
    * @param concurrency Maximum number of concurrent tasks.
    */
   constructor(
-    private context: TContext,
-    private eventBus: EventBus<TContext>,
-    private stateManager: TaskStateManager<TContext>,
-    private strategy: IExecutionStrategy<TContext>,
-    private concurrency?: number
+    private readonly context: TContext,
+    private readonly eventBus: EventBus<TContext>,
+    private readonly stateManager: TaskStateManager<TContext>,
+    private readonly strategy: IExecutionStrategy<TContext>,
+    private readonly concurrency?: number
   ) {}
 
   /**
