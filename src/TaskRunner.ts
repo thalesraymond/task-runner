@@ -18,13 +18,14 @@ import { Plugin } from "./contracts/Plugin.js";
 import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
+const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
+
 /**
  * The main class that orchestrates the execution of a list of tasks
  * based on their dependencies, with support for parallel execution.
  * @template TContext The shape of the shared context object.
  */
 export class TaskRunner<TContext> {
-  private static readonly MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
   private eventBus = new EventBus<TContext>();
   private validator = new TaskGraphValidator();
   private executionStrategy: IExecutionStrategy<TContext> =
@@ -159,7 +160,7 @@ export class TaskRunner<TContext> {
    * @returns The sanitized string.
    */
   private static sanitizeMermaidId(id: string): string {
-    return id.replaceAll(this.MERMAID_ID_REGEX, "_");
+    return id.replaceAll(MERMAID_ID_REGEX, "_");
   }
 
   /**
