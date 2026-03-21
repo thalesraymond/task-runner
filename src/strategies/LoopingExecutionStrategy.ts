@@ -8,7 +8,7 @@ import { sleep } from "../utils/sleep.js";
  * It wraps another execution strategy (e.g., RetryingExecutionStrategy or StandardExecutionStrategy).
  */
 export class LoopingExecutionStrategy<TContext> implements IExecutionStrategy<TContext> {
-  constructor(private innerStrategy: IExecutionStrategy<TContext>) {}
+  constructor(private readonly innerStrategy: IExecutionStrategy<TContext>) {}
 
   async execute(
     step: TaskStep<TContext>,
