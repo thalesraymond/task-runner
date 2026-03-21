@@ -18,6 +18,25 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.4.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.3.0...task-runner-v4.4.0) (2026-03-21)
+
+
+### Features
+
+* implement task loop feature ([#211](https://github.com/thalesraymond/task-runner/issues/211)) ([6c115cc](https://github.com/thalesraymond/task-runner/commit/6c115cccb146f7cde7b83d2186bc0c9010444c46))
+
+
+### Bug Fixes
+
+* Mark `innerStrategy` as readonly in `LoopingExecutionStrategy` ([#220](https://github.com/thalesraymond/task-runner/issues/220)) ([de478de](https://github.com/thalesraymond/task-runner/commit/de478de0691d71d0d2978047dda001c8b62f7f51))
+* mark pluginManager as readonly in TaskRunner ([#209](https://github.com/thalesraymond/task-runner/issues/209)) ([294db02](https://github.com/thalesraymond/task-runner/commit/294db0212e2aee6e4989728677e5852a4f3f6c14))
+
+
+### Performance Improvements
+
+* fix pending Promise memory leak in Promise.race handling ([#204](https://github.com/thalesraymond/task-runner/issues/204)) ([a650b8d](https://github.com/thalesraymond/task-runner/commit/a650b8dd34f510e71c03bf84c52811961e9660d1))
+* optimize cycle detection O(N) array search inside `checkCycles` ([#203](https://github.com/thalesraymond/task-runner/issues/203)) ([a05a1f6](https://github.com/thalesraymond/task-runner/commit/a05a1f6b57b0c688b29bb51b97e84685f8bcbe59))
+
 ## [4.3.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.2.0...task-runner-v4.3.0) (2026-03-14)
 
 
