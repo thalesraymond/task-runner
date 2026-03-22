@@ -9,7 +9,7 @@ import { sleep } from "../utils/sleep.js";
 export class RetryingExecutionStrategy<
   TContext,
 > implements IExecutionStrategy<TContext> {
-  constructor(private innerStrategy: IExecutionStrategy<TContext>) {}
+  constructor(private readonly innerStrategy: IExecutionStrategy<TContext>) {}
 
   async execute(
     step: TaskStep<TContext>,
