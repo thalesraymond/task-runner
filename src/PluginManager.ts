@@ -4,7 +4,7 @@ import { Plugin, PluginContext } from "./contracts/Plugin.js";
  * Manages the lifecycle of plugins.
  */
 export class PluginManager<TContext> {
-  private plugins: Plugin<TContext>[] = [];
+  private readonly plugins: Plugin<TContext>[] = [];
 
   constructor(private context: PluginContext<TContext>) {}
 
