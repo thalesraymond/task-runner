@@ -6,7 +6,7 @@ import { Plugin, PluginContext } from "./contracts/Plugin.js";
 export class PluginManager<TContext> {
   private readonly plugins: Plugin<TContext>[] = [];
 
-  constructor(private context: PluginContext<TContext>) {}
+  constructor(private readonly context: PluginContext<TContext>) {}
 
   /**
    * Registers a plugin.

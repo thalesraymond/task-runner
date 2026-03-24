@@ -11,7 +11,7 @@ import { PriorityQueue } from "./utils/PriorityQueue.js";
  * @template TContext The shape of the shared context object.
  */
 export class WorkflowExecutor<TContext> {
-  private readyQueue = new PriorityQueue<TaskStep<TContext>>();
+  private readonly readyQueue = new PriorityQueue<TaskStep<TContext>>();
 
   /**
    * @param context The shared context object.
