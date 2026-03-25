@@ -12,7 +12,7 @@ import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrateg
  * A builder for configuring and creating TaskRunner instances.
  */
 export class TaskRunnerBuilder<TContext> {
-  private context: TContext;
+  private readonly context: TContext;
   private strategy?: IExecutionStrategy<TContext>;
   private listeners: {
     [K in keyof RunnerEventPayloads<TContext>]?: RunnerEventListener<
