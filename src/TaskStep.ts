@@ -3,14 +3,33 @@ import { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
 import { TaskLoopConfig } from "./contracts/TaskLoopConfig.js";
 
 /**
+ * Condition determining when a dependent task should be executed.
+ */
+export type TaskRunCondition = "success" | "always";
+
+/**
+ * Configuration for a task dependency.
+ */
+export interface TaskDependencyConfig {
+  /** The name of the task to depend on. */
+  step: string;
+  /**
+   * When this task should run relative to the dependency.
+   * - "success" (default): Runs only if the dependency completes successfully.
+   * - "always": Runs if the dependency completes successfully or fails (but NOT if it is skipped).
+   */
+  runCondition?: TaskRunCondition;
+}
+
+/**
  * Represents a single, executable step within a workflow.
  * @template TContext The shape of the shared context object.
  */
 export interface TaskStep<TContext> {
   /** A unique identifier for this task. */
   name: string;
-  /** An optional list of task names that must complete successfully before this step can run. */
-  dependencies?: string[];
+  /** An optional list of task dependencies before this step can run. */
+  dependencies?: (string | TaskDependencyConfig)[];
   /** Optional retry configuration for the task. */
   retry?: TaskRetryConfig;
   /** Optional loop configuration for the task. */

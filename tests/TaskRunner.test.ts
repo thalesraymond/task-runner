@@ -267,4 +267,50 @@ describe("TaskRunner", () => {
     const results = await runner.execute(steps);
     expect(results.get("A")?.message).toBe("Executed by custom strategy");
   });
+
+  it("should run teardown tasks using 'always' dependency runCondition", async () => {
+    const executionOrder: string[] = [];
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "Setup",
+        run: async () => {
+          executionOrder.push("Setup");
+          return { status: "success" };
+        },
+      },
+      {
+        name: "Work",
+        dependencies: ["Setup"],
+        run: async () => {
+          executionOrder.push("Work");
+          return { status: "failure", error: "Something failed" };
+        },
+      },
+      {
+        name: "Cleanup",
+        dependencies: [{ step: "Work", runCondition: "always" }],
+        run: async () => {
+          executionOrder.push("Cleanup");
+          return { status: "success" };
+        },
+      },
+      {
+        name: "Publish",
+        dependencies: ["Work"],
+        run: async () => {
+          executionOrder.push("Publish");
+          return { status: "success" };
+        },
+      },
+    ];
+
+    const runner = new TaskRunner({});
+    const results = await runner.execute(steps);
+
+    expect(executionOrder).toEqual(["Setup", "Work", "Cleanup"]);
+    expect(results.get("Setup")?.status).toBe("success");
+    expect(results.get("Work")?.status).toBe("failure");
+    expect(results.get("Cleanup")?.status).toBe("success");
+    expect(results.get("Publish")?.status).toBe("skipped");
+  });
 });

@@ -147,8 +147,17 @@ export class TaskRunner<TContext> {
         const deps = step.dependencies;
         // NOSONAR
         for (let j = 0; j < deps.length; j++) {
-          const depId = getUniqueId(deps[j]);
-          edgeLines.add(`  ${depId} --> ${stepId}`);
+          const rawDep = deps[j];
+          const depName = typeof rawDep === "string" ? rawDep : rawDep.step;
+          // NOSONAR
+          const condition = typeof rawDep === "string" ? "success" : (rawDep.runCondition ?? "success");
+          const depId = getUniqueId(depName);
+
+          if (condition === "always") {
+            edgeLines.add(`  ${depId} -- always --> ${stepId}`);
+          } else {
+            edgeLines.add(`  ${depId} --> ${stepId}`);
+          }
         }
       }
     }
@@ -184,7 +193,9 @@ export class TaskRunner<TContext> {
     const taskGraph: TaskGraph = {
       tasks: steps.map((step) => ({
         id: step.name,
-        dependencies: step.dependencies ?? [],
+        dependencies: (step.dependencies ?? []).map((dep) =>
+          typeof dep === "string" ? dep : dep.step
+        ),
       })),
     };
 

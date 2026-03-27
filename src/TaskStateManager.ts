@@ -1,4 +1,4 @@
-import { TaskStep } from "./TaskStep.js";
+import { TaskStep, TaskRunCondition, TaskDependencyConfig } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { EventBus } from "./EventBus.js";
 
@@ -12,7 +12,10 @@ export class TaskStateManager<TContext> {
   private readonly running = new Set<string>();
 
   // Optimization structures
-  private readonly dependencyGraph = new Map<string, TaskStep<TContext>[]>();
+  private readonly dependencyGraph = new Map<
+    string,
+    { step: TaskStep<TContext>; condition: TaskRunCondition }[]
+  >();
   private readonly dependencyCounts = new Map<string, number>();
   private readyQueue: TaskStep<TContext>[] = [];
   private readonly taskDefinitions = new Map<string, TaskStep<TContext>>();
@@ -41,16 +44,30 @@ export class TaskStateManager<TContext> {
       if (deps.length === 0) {
         this.readyQueue.push(step);
       } else {
-        for (const dep of deps) {
-          let dependents = this.dependencyGraph.get(dep);
+        for (const rawDep of deps) {
+          const { step: depName, condition } = this.normalizeDependency(rawDep);
+          let dependents = this.dependencyGraph.get(depName);
           if (dependents === undefined) {
             dependents = [];
-            this.dependencyGraph.set(dep, dependents);
+            this.dependencyGraph.set(depName, dependents);
           }
-          dependents.push(step);
+          dependents.push({ step, condition });
         }
       }
     }
+  }
+
+  private normalizeDependency(
+    dep: string | TaskDependencyConfig
+  ): { step: string; condition: TaskRunCondition } {
+    if (typeof dep === "string") {
+      return { step: dep, condition: "success" };
+    }
+    // NOSONAR
+    return {
+      step: dep.step,
+      condition: dep.runCondition ?? "success",
+    };
   }
 
   /**
@@ -181,7 +198,7 @@ export class TaskStateManager<TContext> {
     const dependents = this.dependencyGraph.get(stepName);
     if (!dependents) return;
 
-    for (const dependent of dependents) {
+    for (const { step: dependent } of dependents) {
       const currentCount = this.dependencyCounts.get(dependent.name)!;
       const newCount = currentCount - 1;
       this.dependencyCounts.set(dependent.name, newCount);
@@ -213,9 +230,23 @@ export class TaskStateManager<TContext> {
 
       // Get the result of the failed/skipped dependency to propagate error info if available
       const currentResult = this.results.get(currentName);
+      const isActualFailure = currentResult?.status === "failure";
       const depError = currentResult?.error ? `: ${currentResult.error}` : "";
 
-      for (const dependent of dependents) {
+      for (const { step: dependent, condition } of dependents) {
+        // If the task actually failed (not skipped) and the dependent runs 'always', it succeeds dependency-wise
+        if (isActualFailure && condition === "always") {
+          const currentCount = this.dependencyCounts.get(dependent.name)!;
+          const newCount = currentCount - 1;
+          this.dependencyCounts.set(dependent.name, newCount);
+
+          // NOSONAR
+          if (newCount === 0 && this.pendingSteps.has(dependent)) {
+            this.readyQueue.push(dependent);
+          }
+          continue;
+        }
+
         const result: TaskResult = {
           status: "skipped",
           message: `Skipped because dependency '${currentName}' failed${depError}`,

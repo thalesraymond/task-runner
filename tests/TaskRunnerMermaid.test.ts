@@ -116,4 +116,26 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(lines).toContain("  Task_1_1[\"Task_1\"]");
     expect(lines).toContain("  Task_1_2[\"Task:1\"]");
   });
+
+  it("should generate dashed edge lines for 'always' dependencies", () => {
+    const steps: TaskStep<unknown>[] = [
+      { name: "A", run: async () => ({ status: "success" }) },
+      { name: "B", run: async () => ({ status: "success" }) },
+      {
+        name: "C",
+        dependencies: [
+          "A",
+          { step: "B", runCondition: "always" },
+          { step: "A" }
+        ],
+        run: async () => ({ status: "success" })
+      }
+    ];
+
+    const graph = TaskRunner.getMermaidGraph(steps);
+    const lines = graph.split("\n");
+
+    expect(lines).toContain("  A --> C");
+    expect(lines).toContain("  B -- always --> C");
+  });
 });
