@@ -129,8 +129,7 @@ export class TaskRunner<TContext> {
 
     // Process nodes and edges in a single pass over input steps
     const processedNodes = new Set<string>();
-    for (let i = 0; i < steps.length; i++) { // NOSONAR
-      const step = steps[i];
+    for (const step of steps) {
       const name = step.name;
       const stepId = getUniqueId(name);
 
@@ -143,9 +142,8 @@ export class TaskRunner<TContext> {
       }
 
       if (step.dependencies) {
-        const deps = step.dependencies;
-        for (let j = 0; j < deps.length; j++) { // NOSONAR
-          const depId = getUniqueId(deps[j]);
+        for (const dep of step.dependencies) {
+          const depId = getUniqueId(dep);
           edgeLines.add(`  ${depId} --> ${stepId}`);
         }
       }
