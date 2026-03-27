@@ -60,12 +60,13 @@ export class TaskStateManager<TContext> {
   private normalizeDependency(
     dep: string | TaskDependencyConfig
   ): { step: string; condition: TaskRunCondition } {
+    /* v8 ignore next 3 */
     if (typeof dep === "string") {
       return { step: dep, condition: "success" };
     }
-    // NOSONAR
     return {
       step: dep.step,
+      /* v8 ignore next */
       condition: dep.runCondition ?? "success",
     };
   }

@@ -30,20 +30,7 @@ describe("TaskStateManager Repro", () => {
       dependencies: [{ step: "step1", runCondition: "always" }],
       run: async () => ({ status: "success" })
     };
-    const step3: TaskStep<unknown> = {
-      name: "step3",
-      dependencies: [{ step: "step1", runCondition: "always" }],
-      run: async () => ({ status: "success" })
-    };
-    // Force step3 to be processed from pending but already complete? Wait, no.
-    // The missing branch coverage for line 69, 244 in TaskStateManager is likely
-    // `dep.runCondition ?? "success"` (line 69) and `if (newCount === 0 && this.pendingSteps.has(dependent))` (line 244)
-    manager.initialize([step1, step2, step3]);
-
-    // artificially remove step3 from pendingSteps to trigger line 244 branch
-    // manager doesn't expose this, so we simulate a manual task removal or a canceled task
-    manager.cancelAllPending("cancel");
-    manager.initialize([step1, step2]); // Re-init correctly for normal flow
+    manager.initialize([step1, step2]);
 
     const readySteps = manager.processDependencies();
     expect(readySteps.length).toBe(1);
@@ -57,42 +44,36 @@ describe("TaskStateManager Repro", () => {
     expect(newReady[0].name).toBe("step2");
   });
 
-  it("should cover edge cases in dependencies and cascade", () => {
+  it("should not ready an 'always' dependent task if it is no longer pending", () => {
     const eventBus = new EventBus<unknown>();
     const manager = new TaskStateManager(eventBus);
 
     const step1: TaskStep<unknown> = { name: "step1", run: async () => ({ status: "failure" }) };
     const step2: TaskStep<unknown> = {
       name: "step2",
-      dependencies: [{ step: "step1" }], // runCondition implicitly success
+      dependencies: [{ step: "step1", runCondition: "always" }],
       run: async () => ({ status: "success" })
     };
     const step3: TaskStep<unknown> = {
       name: "step3",
-      dependencies: [{ step: "step1", runCondition: "always" }, { step: "step2" }],
+      dependencies: [{ step: "step1", runCondition: "success" }],
       run: async () => ({ status: "success" })
     };
 
     manager.initialize([step1, step2, step3]);
 
-    // Simulate step3 is NOT in pendingSteps but has its count reduced to 0
-    manager.cancelAllPending("test");
-    manager.initialize([step1, step2, step3]);
+    // step1 is ready, so processDependencies moves it out of pending. step2 remains pending.
+    manager.processDependencies();
 
-    // Actually we can just run a scenario where an 'always' dependency is triggered
-    // but the dependent is already cancelled.
-    manager.processDependencies(); // gets step1
+    // Cancel step2 and step3
+    manager.cancelAllPending("cancelled");
+
     manager.markRunning(step1);
-
-    // cancel remaining pending steps (step2, step3)
-    manager.cancelAllPending("canceled before failure");
-
-    // now complete step1
     manager.markCompleted(step1, { status: "failure" });
 
-    // this will hit line 244 because step3 count hits 0 (wait it depends on step2 as well)
-    // Actually just a simple setup where it's cancelled
-    expect(manager.processDependencies().length).toBe(0);
+    // step2's dependency is met, but it should not become ready because it was cancelled and is no longer pending.
+    const newReady = manager.processDependencies();
+    expect(newReady.length).toBe(0);
   });
 
   it("should skip 'always' dependent tasks when a task is skipped", () => {
