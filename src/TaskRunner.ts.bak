@@ -142,8 +142,15 @@ export class TaskRunner<TContext> {
       }
 
       if (step.dependencies) {
+<<<<<<< Updated upstream
+        for (const dep of step.dependencies) {
+          const depId = getUniqueId(dep);
+          edgeLines.add(`  ${depId} --> ${stepId}`);
+=======
+        const deps = step.dependencies;
         // NOSONAR
-        for (const rawDep of step.dependencies) {
+        for (let j = 0; j < deps.length; j++) {
+          const rawDep = deps[j];
           const depName = typeof rawDep === "string" ? rawDep : rawDep.step;
           // NOSONAR
           const condition = typeof rawDep === "string" ? "success" : (rawDep.runCondition ?? "success");
@@ -154,6 +161,7 @@ export class TaskRunner<TContext> {
           } else {
             edgeLines.add(`  ${depId} --> ${stepId}`);
           }
+>>>>>>> Stashed changes
         }
       }
     }
