@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { TaskRunnerBuilder } from "../src/TaskRunnerBuilder.js";
 
 describe("TaskRunnerBuilder Coverage", () => {
@@ -19,7 +19,7 @@ describe("TaskRunnerBuilder Coverage", () => {
     const builder = new TaskRunnerBuilder({});
 
     // Force listeners object to have an undefined property that passes hasOwnProperty
-    (builder as any).listeners = { workflowStart: undefined };
+    Object.assign(builder, { listeners: { workflowStart: undefined } });
 
     expect(() => builder.build()).not.toThrow();
   });
