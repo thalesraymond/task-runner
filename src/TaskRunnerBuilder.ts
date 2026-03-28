@@ -67,17 +67,18 @@ export class TaskRunnerBuilder<TContext> {
     runner.setExecutionStrategy(new LoopingExecutionStrategy(baseStrategy));
 
     for (const key in this.listeners) {
-      const event = key as keyof RunnerEventPayloads<TContext>;
-      const callbacks = this.listeners[event];
-      // callbacks is always defined because we are iterating keys of the object
-      for (let i = 0; i < callbacks!.length; i++) {
-        runner.on(
-          event,
-          callbacks![i] as unknown as RunnerEventListener<
-            TContext,
-            keyof RunnerEventPayloads<TContext>
-          >
-        );
+      if (Object.prototype.hasOwnProperty.call(this.listeners, key)) {
+        const event = key as keyof RunnerEventPayloads<TContext>;
+        const callbacks = this.listeners[event] ?? [];
+        for (const callback of callbacks) {
+          runner.on(
+            event,
+            callback as unknown as RunnerEventListener<
+              TContext,
+              keyof RunnerEventPayloads<TContext>
+            >
+          );
+        }
       }
     }
 
