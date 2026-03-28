@@ -22,6 +22,10 @@ The system SHALL provide a mechanism to configure execution filters via an inter
   - `excludeNames`: Optional array of task names. Tasks with matching names will be excluded.
   - `includeDependencies`: Optional boolean. If true, dependencies of included tasks are automatically included.
 
+#### Scenario: Multiple Inclusion Filters Combine with OR Logic
+- **WHEN** multiple `include*` properties are provided (e.g., `includeTags: ['frontend']` and `includeNames: ['lint']`)
+- **THEN** a task SHALL be included if it matches **any** of the criteria (OR logic).
+
 ### Requirement: Filtering Utility Module
 
 The system SHALL provide a `filterTasks` utility function that accepts an array of `TaskStep`s and a `TaskFilterConfig` and returns a filtered subset of tasks.
@@ -42,6 +46,10 @@ The system SHALL provide a `filterTasks` utility function that accepts an array 
 - **WHEN** a task is implicitly included because it is a dependency of an explicitly selected task
 - **AND** the implicitly included task matches an explicit exclusion criteria (e.g., `excludeTags`)
 - **THEN** the explicitly excluded task SHALL NOT be included in the returned array.
+
+#### Scenario: Union of Inclusion Filters
+- **WHEN** multiple `include*` criteria are provided
+- **THEN** the final set of included tasks SHALL be the union of tasks matching each individual `include*` filter.
 
 ### Requirement: Task Execution Filtering Support
 

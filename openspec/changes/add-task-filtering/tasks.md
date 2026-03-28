@@ -1,7 +1,7 @@
 ## 1. Implementation
 
 - [ ] 1.1 Update `TaskStep` interface in `src/TaskStep.ts` to include an optional `tags?: string[]` property.
-- [ ] 1.2 Define a new type or interface `TaskFilterConfig` in `src/contracts/TaskFilterConfig.ts` with optional arrays for `includeTags`, `excludeTags`, `includeNames`, and `excludeNames`.
+- [ ] 1.2 Define a new type or interface `TaskFilterConfig` in `src/contracts/TaskFilterConfig.ts` with optional properties for `includeTags`, `excludeTags`, `includeNames`, `excludeNames`, and `includeDependencies`.
 - [ ] 1.3 Create a utility module `src/utils/TaskFilter.ts`.
     - Implement a pure function `filterTasks(steps: TaskStep<any>[], config: TaskFilterConfig): TaskStep<any>[]`.
     - Ensure filtering handles both names and tags.
