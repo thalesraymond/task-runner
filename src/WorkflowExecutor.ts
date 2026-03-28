@@ -154,34 +154,39 @@ export class WorkflowExecutor<TContext> {
   }
 
   /**
-   * Executes a single task step, handling conditions and status updates.
+   * Evaluates the task condition and updates the task status if skipped or cancelled.
+   * @returns `true` if execution should proceed, `false` otherwise.
    */
-  private async executeTaskStep(
+  private async evaluateCondition(
     step: TaskStep<TContext>,
     signal?: AbortSignal
-  ): Promise<void> {
+  ): Promise<boolean> {
+    if (!step.condition) {
+      return true;
+    }
+
     try {
-      if (step.condition) {
-        const check = step.condition(this.context);
-        const shouldRun = check instanceof Promise ? await check : check;
+      const check = step.condition(this.context);
+      const shouldRun = check instanceof Promise ? await check : check;
 
-        if (signal?.aborted) {
-          this.stateManager.markCompleted(step, {
-            status: "cancelled",
-            message: ExecutionConstants.CANCELLED_DURING_CONDITION,
-          });
-          return;
-        }
-
-        if (!shouldRun) {
-          const result: TaskResult = {
-            status: "skipped",
-            message: ExecutionConstants.SKIPPED_BY_CONDITION,
-          };
-          this.stateManager.markSkipped(step, result);
-          return;
-        }
+      if (signal?.aborted) {
+        this.stateManager.markCompleted(step, {
+          status: "cancelled",
+          message: ExecutionConstants.CANCELLED_DURING_CONDITION,
+        });
+        return false;
       }
+
+      if (!shouldRun) {
+        const result: TaskResult = {
+          status: "skipped",
+          message: ExecutionConstants.SKIPPED_BY_CONDITION,
+        };
+        this.stateManager.markSkipped(step, result);
+        return false;
+      }
+
+      return true;
     } catch (error) {
       const result: TaskResult = {
         status: "failure",
@@ -192,6 +197,19 @@ export class WorkflowExecutor<TContext> {
         error: error instanceof Error ? error.message : String(error),
       };
       this.stateManager.markCompleted(step, result);
+      return false;
+    }
+  }
+
+  /**
+   * Executes a single task step, handling conditions and status updates.
+   */
+  private async executeTaskStep(
+    step: TaskStep<TContext>,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const shouldProceed = await this.evaluateCondition(step, signal);
+    if (!shouldProceed) {
       return;
     }
 
