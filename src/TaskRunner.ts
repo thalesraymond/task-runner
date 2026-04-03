@@ -17,6 +17,7 @@ import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrateg
 import { Plugin } from "./contracts/Plugin.js";
 import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
+import { filterTasks } from "./utils/TaskFilter.js";
 
 const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
 
@@ -176,9 +177,11 @@ export class TaskRunner<TContext> {
     // Initialize plugins
     await this.pluginManager.initialize();
 
+    const filteredSteps = config?.filter ? filterTasks(steps, config.filter) : steps;
+
     // Validate the task graph before execution
     const taskGraph: TaskGraph = {
-      tasks: steps.map((step) => ({
+      tasks: filteredSteps.map((step) => ({
         id: step.name,
         dependencies: step.dependencies ?? [],
       })),
@@ -210,13 +213,13 @@ export class TaskRunner<TContext> {
     if (config?.timeout !== undefined) {
       return this.executeWithTimeout(
         executor,
-        steps,
+        filteredSteps,
         config.timeout,
         config.signal
       );
     }
 
-    return executor.execute(steps, config?.signal);
+    return executor.execute(filteredSteps, config?.signal);
   }
 
   /**
