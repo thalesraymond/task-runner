@@ -17,6 +17,7 @@ import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrateg
 import { Plugin } from "./contracts/Plugin.js";
 import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
+import { CachingExecutionStrategy } from "./strategies/CachingExecutionStrategy.js";
 
 const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
 
@@ -197,6 +198,8 @@ export class TaskRunner<TContext> {
     let strategy = this.executionStrategy;
     if (config?.dryRun) {
       strategy = new DryRunExecutionStrategy<TContext>();
+    } else if (config?.cacheProvider) {
+      strategy = new CachingExecutionStrategy<TContext>(strategy, config.cacheProvider);
     }
 
     const executor = new WorkflowExecutor(

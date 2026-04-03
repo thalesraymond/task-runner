@@ -1,3 +1,5 @@
+import { ICacheProvider } from "./contracts/ICacheProvider.js";
+
 /**
  * Configuration options for TaskRunner execution.
  */
@@ -20,4 +22,8 @@ export interface TaskRunnerExecutionConfig {
    * If undefined, all ready tasks will be run in parallel.
    */
   concurrency?: number;
+  /**
+   * Optional cache provider to enable task caching.
+   */
+  cacheProvider?: ICacheProvider;
 }
