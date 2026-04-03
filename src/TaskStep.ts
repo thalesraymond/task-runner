@@ -9,6 +9,12 @@ import { TaskLoopConfig } from "./contracts/TaskLoopConfig.js";
 export interface TaskStep<TContext> {
   /** A unique identifier for this task. */
   name: string;
+  /** Optional cache configuration. */
+  cache?: {
+    key: (context: TContext) => string | Promise<string>;
+    ttl?: number;
+    restore?: (context: TContext, cachedResult: TaskResult) => void | Promise<void>;
+  };
   /** An optional list of task names that must complete successfully before this step can run. */
   dependencies?: string[];
   /** Optional retry configuration for the task. */

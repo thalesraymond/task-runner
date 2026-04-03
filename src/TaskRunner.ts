@@ -17,6 +17,8 @@ import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrateg
 import { Plugin } from "./contracts/Plugin.js";
 import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
+import { ICacheProvider } from "./contracts/ICacheProvider.js";
+import { CachingExecutionStrategy } from "./strategies/CachingExecutionStrategy.js";
 
 const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
 
@@ -32,6 +34,7 @@ export class TaskRunner<TContext> {
     new RetryingExecutionStrategy(new StandardExecutionStrategy());
 
   private readonly pluginManager: PluginManager<TContext>;
+  private cacheProvider?: ICacheProvider;
 
   /**
    * @param context The shared context object to be passed to each task.
@@ -81,6 +84,16 @@ export class TaskRunner<TContext> {
    */
   public setExecutionStrategy(strategy: IExecutionStrategy<TContext>): this {
     this.executionStrategy = strategy;
+    return this;
+  }
+
+  /**
+   * Sets the cache provider for task caching.
+   * @param provider The cache provider.
+   * @returns The TaskRunner instance for chaining.
+   */
+  public setCacheProvider(provider: ICacheProvider): this {
+    this.cacheProvider = provider;
     return this;
   }
 
@@ -195,6 +208,11 @@ export class TaskRunner<TContext> {
     const stateManager = new TaskStateManager(this.eventBus);
 
     let strategy = this.executionStrategy;
+
+    if (this.cacheProvider && !config?.dryRun) {
+      strategy = new CachingExecutionStrategy(strategy, this.cacheProvider);
+    }
+
     if (config?.dryRun) {
       strategy = new DryRunExecutionStrategy<TContext>();
     }
