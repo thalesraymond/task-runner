@@ -15,6 +15,16 @@ export interface TaskStep<TContext> {
   retry?: TaskRetryConfig;
   /** Optional loop configuration for the task. */
   loop?: TaskLoopConfig<TContext>;
+
+  /** Optional caching configuration for the task. */
+  cache?: {
+    /** A function that returns a cache key based on the context. */
+    key: (context: TContext) => string | Promise<string>;
+    /** Optional time-to-live in milliseconds. Defaults to infinite if not provided. */
+    ttl?: number;
+    /** Optional function to re-apply side effects to the context from a cached result. */
+    restore?: (context: TContext, cachedResult: TaskResult) => void | Promise<void>;
+  };
   /**
    * Optional function to determine if the task should run.
    * If it returns false (synchronously or asynchronously), the task is skipped.
