@@ -1,3 +1,5 @@
+import { TaskFilterConfig } from "./contracts/TaskFilterConfig.js";
+
 /**
  * Configuration options for TaskRunner execution.
  */
@@ -20,4 +22,8 @@ export interface TaskRunnerExecutionConfig {
    * If undefined, all ready tasks will be run in parallel.
    */
   concurrency?: number;
+  /**
+   * Filter configuration to selectively run tasks.
+   */
+  filter?: TaskFilterConfig;
 }
