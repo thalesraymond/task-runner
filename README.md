@@ -173,6 +173,23 @@ runner.use(MyLoggerPlugin);
 await runner.execute(steps);
 ```
 
+### Built-in Plugins
+
+The package comes with some built-in plugins that you can use right away.
+
+#### CLIReporterPlugin
+
+Provides real-time CLI observability of workflow progress. It hooks into lifecycle events to display task states and a final summary.
+
+```typescript
+import { TaskRunner, CLIReporterPlugin } from "@calmo/task-runner";
+
+const runner = new TaskRunner(context);
+runner.use(new CLIReporterPlugin());
+
+await runner.execute(steps);
+```
+
 ## Skip Propagation
 
 If a task fails or is skipped, the `TaskRunner` automatically marks all subsequent tasks that depend on it as `skipped`. This ensures that your pipeline doesn't attempt to run steps with missing prerequisites.
