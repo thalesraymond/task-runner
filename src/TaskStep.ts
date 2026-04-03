@@ -3,6 +3,27 @@ import { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
 import { TaskLoopConfig } from "./contracts/TaskLoopConfig.js";
 
 /**
+ * Configuration for task output caching.
+ * @template TContext The shape of the shared context object.
+ */
+export interface TaskCacheConfig<TContext> {
+  /**
+   * Function to determine the cache key based on the context.
+   */
+  key: (context: TContext) => string | Promise<string>;
+
+  /**
+   * Optional time-to-live for the cached result in milliseconds.
+   */
+  ttl?: number;
+
+  /**
+   * Optional function to re-apply context side effects from a cached result.
+   */
+  restore?: (context: TContext, cachedResult: TaskResult) => void | Promise<void>;
+}
+
+/**
  * Represents a single, executable step within a workflow.
  * @template TContext The shape of the shared context object.
  */
@@ -15,6 +36,8 @@ export interface TaskStep<TContext> {
   retry?: TaskRetryConfig;
   /** Optional loop configuration for the task. */
   loop?: TaskLoopConfig<TContext>;
+  /** Optional cache configuration for the task. */
+  cache?: TaskCacheConfig<TContext>;
   /**
    * Optional function to determine if the task should run.
    * If it returns false (synchronously or asynchronously), the task is skipped.
