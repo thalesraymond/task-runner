@@ -9,3 +9,6 @@ export type { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
 export type { TaskStep } from "./TaskStep.js";
 export type { TaskResult } from "./TaskResult.js";
 export type { TaskStatus } from "./TaskStatus.js";
+
+// Plugins
+export { CLIReporterPlugin } from "./plugins/CLIReporterPlugin.js";

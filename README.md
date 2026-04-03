@@ -173,6 +173,20 @@ runner.use(MyLoggerPlugin);
 await runner.execute(steps);
 ```
 
+### Built-in Plugins
+
+#### CLIReporterPlugin
+
+The `CLIReporterPlugin` provides real-time structured CLI display to track task progress, visualize success/failure/skip states, and review summarized performance metrics.
+
+```typescript
+import { TaskRunnerBuilder, CLIReporterPlugin } from "@calmo/task-runner";
+
+const runner = new TaskRunnerBuilder(context)
+  .usePlugin(new CLIReporterPlugin())
+  .build();
+```
+
 ## Skip Propagation
 
 If a task fails or is skipped, the `TaskRunner` automatically marks all subsequent tasks that depend on it as `skipped`. This ensures that your pipeline doesn't attempt to run steps with missing prerequisites.
