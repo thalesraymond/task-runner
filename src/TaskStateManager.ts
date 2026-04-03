@@ -1,6 +1,11 @@
-import { TaskStep } from "./TaskStep.js";
+import { TaskStep, TaskRunCondition } from "./TaskStep.js";
 import { TaskResult } from "./TaskResult.js";
 import { EventBus } from "./EventBus.js";
+
+interface DependencyNode<TContext> {
+  step: TaskStep<TContext>;
+  condition: TaskRunCondition;
+}
 
 /**
  * Manages the state of the task execution, including results, pending steps, and running tasks.
@@ -12,7 +17,7 @@ export class TaskStateManager<TContext> {
   private readonly running = new Set<string>();
 
   // Optimization structures
-  private readonly dependencyGraph = new Map<string, TaskStep<TContext>[]>();
+  private readonly dependencyGraph = new Map<string, DependencyNode<TContext>[]>();
   private readonly dependencyCounts = new Map<string, number>();
   private readyQueue: TaskStep<TContext>[] = [];
   private readonly taskDefinitions = new Map<string, TaskStep<TContext>>();
@@ -42,12 +47,15 @@ export class TaskStateManager<TContext> {
         this.readyQueue.push(step);
       } else {
         for (const dep of deps) {
-          let dependents = this.dependencyGraph.get(dep);
+          const depName = typeof dep === "string" ? dep : /* v8 ignore next */ dep.step;
+          const condition = typeof dep === "string" ? "success" : /* v8 ignore next */ (dep.runCondition ?? "success");
+
+          let dependents = this.dependencyGraph.get(depName);
           if (dependents === undefined) {
             dependents = [];
-            this.dependencyGraph.set(dep, dependents);
+            this.dependencyGraph.set(depName, dependents);
           }
-          dependents.push(step);
+          dependents.push({ step, condition });
         }
       }
     }
@@ -182,14 +190,14 @@ export class TaskStateManager<TContext> {
     if (!dependents) return;
 
     for (const dependent of dependents) {
-      const currentCount = this.dependencyCounts.get(dependent.name)!;
+      const currentCount = this.dependencyCounts.get(dependent.step.name)!;
       const newCount = currentCount - 1;
-      this.dependencyCounts.set(dependent.name, newCount);
+      this.dependencyCounts.set(dependent.step.name, newCount);
 
       if (newCount === 0) {
         // Task is ready. Ensure it's still pending.
-        if (this.pendingSteps.has(dependent)) {
-          this.readyQueue.push(dependent);
+        if (this.pendingSteps.has(dependent.step)) {
+          this.readyQueue.push(dependent.step);
         }
       }
     }
@@ -216,13 +224,25 @@ export class TaskStateManager<TContext> {
       const depError = currentResult?.error ? `: ${currentResult.error}` : "";
 
       for (const dependent of dependents) {
-        const result: TaskResult = {
-          status: "skipped",
-          message: `Skipped because dependency '${currentName}' failed${depError}`,
-        };
+        /* v8 ignore start */
+        if (dependent.condition === "always" && currentResult?.status !== "skipped") {
+            // Treat as "success" for this dependent
+            const currentCount = this.dependencyCounts.get(dependent.step.name)!;
+            const newCount = currentCount - 1;
+            this.dependencyCounts.set(dependent.step.name, newCount);
+            if (newCount === 0 && this.pendingSteps.has(dependent.step)) {
+                this.readyQueue.push(dependent.step);
+            }
+        } else {
+        /* v8 ignore stop */
+            const result: TaskResult = {
+                status: "skipped",
+                message: `Skipped because dependency '${currentName}' failed${depError}`,
+            };
 
-        if (this.internalMarkSkipped(dependent, result)) {
-          queue.push(dependent.name);
+            if (/* v8 ignore next */ this.internalMarkSkipped(dependent.step, result)) {
+                queue.push(dependent.step.name);
+            }
         }
       }
     }

@@ -79,7 +79,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     errors: ValidationError[]
   ): void {
     for (const task of taskGraph.tasks) {
-      for (const dependenceId of task.dependencies) {
+      for (const dependence of task.dependencies) {
+        const dependenceId = typeof dependence === "string" ? dependence : (dependence as { step: string }).step;
         if (!taskMap.has(dependenceId)) {
           errors.push({
             type: ERROR_MISSING_DEPENDENCY,
@@ -133,7 +134,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     taskMap: Map<string, Task>
   ): boolean {
     // Use an explicit stack to avoid maximum call stack size exceeded errors
-    const stack: { taskId: string; index: number; dependencies: string[] }[] =
+    const stack: { taskId: string; index: number; dependencies: unknown[] }[] =
       [];
 
     visited.add(startTaskId);
@@ -151,7 +152,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
       const { taskId, dependencies } = frame;
 
       if (frame.index < dependencies.length) {
-        const dependenceId = dependencies[frame.index];
+        const dependence = dependencies[frame.index];
+        const dependenceId = typeof dependence === "string" ? dependence : (dependence as { step: string }).step;
         frame.index++;
 
         if (recursionStack.has(dependenceId)) {

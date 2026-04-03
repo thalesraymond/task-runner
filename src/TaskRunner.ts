@@ -143,7 +143,8 @@ export class TaskRunner<TContext> {
 
       if (step.dependencies) {
         for (const dep of step.dependencies) {
-          const depId = getUniqueId(dep);
+          const depName = typeof dep === "string" ? dep : /* v8 ignore next */ (dep as { step: string }).step;
+          const depId = getUniqueId(depName);
           edgeLines.add(`  ${depId} --> ${stepId}`);
         }
       }

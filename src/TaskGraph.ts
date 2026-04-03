@@ -5,7 +5,7 @@ export interface Task {
   /** Unique identifier for the task. */
   id: string;
   /** An array of task IDs that this task directly depends on. */
-  dependencies: string[];
+  dependencies: unknown[];
   /** Allows for any other properties specific to the task's payload or configuration. */
   [key: string]: unknown;
 }
