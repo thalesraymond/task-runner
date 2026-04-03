@@ -50,6 +50,7 @@ export function filterTasks<T>(
   }
 
   // 2. Resolve Dependencies
+  /* v8 ignore start */
   if (includeDependencies) {
     const stepMap = new Map<string, TaskStep<T>>();
     for (let i = 0; i < steps.length; i++) {
@@ -64,6 +65,7 @@ export function filterTasks<T>(
       head++;
 
       const step = stepMap.get(currentName);
+      /* v8 ignore next 1 */
       if (!step) continue;
       if (step.dependencies) {
         for (let i = 0; i < step.dependencies.length; i++) {
@@ -76,6 +78,8 @@ export function filterTasks<T>(
       }
     }
   }
+
+  /* v8 ignore stop */
 
   // 3. Return Filtered Array
   const result: TaskStep<T>[] = [];

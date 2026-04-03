@@ -86,11 +86,38 @@ describe("filterTasks", () => {
     const missingDepTasks: TaskStep<unknown>[] = [
       { name: "task1", dependencies: ["nonExistent"], run: defaultTaskRun },
     ];
-    const filtered = filterTasks(missingDepTasks, { includeNames: ["task1"], includeDependencies: true });
-    // It should include task1, and since 'nonExistent' is not in the stepMap, it will not throw an error and will add it to selectedTasks but skip resolving it.
+    // Force resolving an undefined step from stepMap
+    const filtered = filterTasks(missingDepTasks, { includeNames: ["task1", "nonExistent"], includeDependencies: true });
     expect(filtered).toHaveLength(1);
     expect(filtered.map(t => t.name)).toEqual(["task1"]);
   });
+
+  it("should handle undefined dependencies during resolution", () => {
+    const noDepsTasks: TaskStep<unknown>[] = [
+      { name: "task1", run: defaultTaskRun },
+    ];
+    const filtered = filterTasks(noDepsTasks, { includeNames: ["task1"], includeDependencies: true });
+    expect(filtered).toHaveLength(1);
+    expect(filtered.map(t => t.name)).toEqual(["task1"]);
+  });
+
+  it("should ignore tasks if they somehow have no tags and excludeTags is passed", () => {
+    const missingDepTasks: TaskStep<unknown>[] = [
+      { name: "task1", run: defaultTaskRun },
+    ];
+    const filtered = filterTasks(missingDepTasks, { excludeTags: ["sometag"] });
+    expect(filtered).toHaveLength(1);
+    expect(filtered.map(t => t.name)).toEqual(["task1"]);
+  });
+
+  it("should ignore tasks if they somehow have no tags and includeTags is passed", () => {
+    const missingDepTasks: TaskStep<unknown>[] = [
+      { name: "task1", run: defaultTaskRun },
+    ];
+    const filtered = filterTasks(missingDepTasks, { includeTags: ["sometag"] });
+    expect(filtered).toHaveLength(0);
+  });
+
   it("should not crash if includeTags is uninitialized somehow", () => {
     // Calling with empty object defaults covered, now try forcing undefined
     const filtered = filterTasks(tasks, { includeTags: undefined, excludeTags: undefined });
