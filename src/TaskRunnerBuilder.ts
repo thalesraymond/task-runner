@@ -7,6 +7,7 @@ import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { LoopingExecutionStrategy } from "./strategies/LoopingExecutionStrategy.js";
 import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
+import { ICacheProvider } from "./contracts/ICacheProvider.js";
 
 /**
  * A builder for configuring and creating TaskRunner instances.
@@ -20,12 +21,27 @@ export class TaskRunnerBuilder<TContext> {
       K
     >[];
   } = {};
+  private cacheProvider?: ICacheProvider;
+  private useCaching: boolean = false;
 
   /**
    * @param context The shared context object.
    */
   constructor(context: TContext) {
     this.context = context;
+  }
+
+  /**
+   * Enables task output caching.
+   * @param provider The cache provider to use. Defaults to MemoryCacheProvider.
+   * @returns The builder instance.
+   */
+  public withCache(provider?: ICacheProvider): this {
+    this.useCaching = true;
+    if (provider) {
+      this.cacheProvider = provider;
+    }
+    return this;
   }
 
   /**
@@ -65,6 +81,10 @@ export class TaskRunnerBuilder<TContext> {
     // Apply LoopingExecutionStrategy around the configured strategy, or default strategy chain
     const baseStrategy = this.strategy ?? new RetryingExecutionStrategy(new StandardExecutionStrategy());
     runner.setExecutionStrategy(new LoopingExecutionStrategy(baseStrategy));
+
+    if (this.useCaching) {
+      runner.withCache(this.cacheProvider);
+    }
 
     (
       Object.keys(this.listeners) as Array<keyof RunnerEventPayloads<TContext>>

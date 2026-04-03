@@ -17,6 +17,9 @@ import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrateg
 import { Plugin } from "./contracts/Plugin.js";
 import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
+import { ICacheProvider } from "./contracts/ICacheProvider.js";
+import { MemoryCacheProvider } from "./utils/MemoryCacheProvider.js";
+import { CachingExecutionStrategy } from "./strategies/CachingExecutionStrategy.js";
 
 const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
 
@@ -81,6 +84,20 @@ export class TaskRunner<TContext> {
    */
   public setExecutionStrategy(strategy: IExecutionStrategy<TContext>): this {
     this.executionStrategy = strategy;
+    return this;
+  }
+
+  /**
+   * Enables task output caching.
+   * @param provider The cache provider to use. Defaults to MemoryCacheProvider.
+   * @returns The TaskRunner instance for chaining.
+   */
+  public withCache(provider?: ICacheProvider): this {
+    const cacheProvider = provider ?? new MemoryCacheProvider();
+    this.executionStrategy = new CachingExecutionStrategy(
+      this.executionStrategy,
+      cacheProvider
+    );
     return this;
   }
 
