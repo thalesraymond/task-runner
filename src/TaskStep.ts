@@ -11,6 +11,8 @@ export interface TaskStep<TContext> {
   name: string;
   /** An optional list of task names that must complete successfully before this step can run. */
   dependencies?: string[];
+  /** Optional tags for filtering tasks. */
+  tags?: string[];
   /** Optional retry configuration for the task. */
   retry?: TaskRetryConfig;
   /** Optional loop configuration for the task. */
