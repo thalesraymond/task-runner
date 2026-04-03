@@ -2,6 +2,13 @@ import { TaskResult } from "./TaskResult.js";
 import { TaskRetryConfig } from "./contracts/TaskRetryConfig.js";
 import { TaskLoopConfig } from "./contracts/TaskLoopConfig.js";
 
+export type TaskRunCondition = "success" | "always";
+
+export interface TaskDependencyConfig {
+  step: string;
+  runCondition?: TaskRunCondition;
+}
+
 /**
  * Represents a single, executable step within a workflow.
  * @template TContext The shape of the shared context object.
@@ -10,7 +17,7 @@ export interface TaskStep<TContext> {
   /** A unique identifier for this task. */
   name: string;
   /** An optional list of task names that must complete successfully before this step can run. */
-  dependencies?: string[];
+  dependencies?: (string | TaskDependencyConfig)[];
   /** Optional retry configuration for the task. */
   retry?: TaskRetryConfig;
   /** Optional loop configuration for the task. */

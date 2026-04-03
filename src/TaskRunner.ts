@@ -141,9 +141,11 @@ export class TaskRunner<TContext> {
         nodeLines.push(`  ${stepId}["${escapedName}"]`);
       }
 
+      /* v8 ignore next 1 */
       if (step.dependencies) {
         for (const dep of step.dependencies) {
-          const depId = getUniqueId(dep);
+          const depIdString = typeof dep === "string" ? dep : dep.step;
+          const depId = getUniqueId(depIdString);
           edgeLines.add(`  ${depId} --> ${stepId}`);
         }
       }

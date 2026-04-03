@@ -79,7 +79,8 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     errors: ValidationError[]
   ): void {
     for (const task of taskGraph.tasks) {
-      for (const dependenceId of task.dependencies) {
+      for (const dep of task.dependencies) {
+        const dependenceId = typeof dep === "string" ? dep : dep.step;
         if (!taskMap.has(dependenceId)) {
           errors.push({
             type: ERROR_MISSING_DEPENDENCY,
@@ -140,10 +141,15 @@ export class TaskGraphValidator implements ITaskGraphValidator {
     recursionStack.set(startTaskId, path.length);
     path.push(startTaskId);
 
+    const getDepIds = (taskId: string) => {
+      const deps = taskMap.get(taskId)!.dependencies;
+      return deps.map((d) => (typeof d === "string" ? d : d.step));
+    };
+
     stack.push({
       taskId: startTaskId,
       index: 0,
-      dependencies: taskMap.get(startTaskId)!.dependencies,
+      dependencies: getDepIds(startTaskId),
     });
 
     while (stack.length > 0) {
@@ -168,7 +174,7 @@ export class TaskGraphValidator implements ITaskGraphValidator {
           stack.push({
             taskId: dependenceId,
             index: 0,
-            dependencies: taskMap.get(dependenceId)!.dependencies,
+            dependencies: getDepIds(dependenceId),
           });
         }
       } else {

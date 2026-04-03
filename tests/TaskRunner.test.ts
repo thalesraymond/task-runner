@@ -84,6 +84,42 @@ describe("TaskRunner", () => {
     expect(results.get("B")?.status).toBe("skipped");
   });
 
+  it("should run cleanup task even if a dependency fails (Teardown scenario)", async () => {
+    const executionOrder: string[] = [];
+    const steps: TaskStep<unknown>[] = [
+      {
+        name: "Setup",
+        run: async () => {
+          executionOrder.push("Setup");
+          return { status: "success" };
+        },
+      },
+      {
+        name: "Work",
+        dependencies: ["Setup"],
+        run: async () => {
+          executionOrder.push("Work");
+          return { status: "failure", error: "Work failed" };
+        },
+      },
+      {
+        name: "Cleanup",
+        dependencies: [{ step: "Work", runCondition: "always" }],
+        run: async () => {
+          executionOrder.push("Cleanup");
+          return { status: "success" };
+        },
+      },
+    ];
+
+    const runner = new TaskRunner({});
+    const results = await runner.execute(steps);
+
+    expect(executionOrder).toEqual(["Setup", "Work", "Cleanup"]);
+    expect(results.get("Work")?.status).toBe("failure");
+    expect(results.get("Cleanup")?.status).toBe("success");
+  });
+
   it.each([
     {
       name: "circular dependency",

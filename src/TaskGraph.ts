@@ -1,11 +1,13 @@
+import { TaskDependencyConfig } from "./TaskStep.js";
+
 /**
  * Represents a single task in the task graph.
  */
 export interface Task {
   /** Unique identifier for the task. */
   id: string;
-  /** An array of task IDs that this task directly depends on. */
-  dependencies: string[];
+  /** An array of task IDs or configurations that this task directly depends on. */
+  dependencies: (string | TaskDependencyConfig)[];
   /** Allows for any other properties specific to the task's payload or configuration. */
   [key: string]: unknown;
 }
