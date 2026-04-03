@@ -1,7 +1,16 @@
 /**
  * Configuration options for TaskRunner execution.
  */
+import { TaskFilterConfig } from "./contracts/TaskFilterConfig.js";
+
+/**
+ * Configuration options for TaskRunner execution.
+ */
 export interface TaskRunnerExecutionConfig {
+  /**
+   * Optional filtering configuration to selectively execute tasks.
+   */
+  filter?: TaskFilterConfig;
   /**
    * An AbortSignal to cancel the workflow externally.
    */
