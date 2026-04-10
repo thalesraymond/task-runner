@@ -66,4 +66,68 @@ describe("TaskStateManager Coverage", () => {
 
     expect(stateManager.getResults().get("B")?.status).toBe("cancelled");
   });
+  it("should push 'always' dependent to readyQueue when dependency fails", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const stepB: TaskStep<void> = { name: "B", dependencies: [{ step: "A", runCondition: "always" }], run: async () => ({ status: "success" }) };
+
+    stateManager.initialize([stepA, stepB]);
+
+    const readyA = stateManager.processDependencies();
+    expect(readyA).toHaveLength(1);
+    expect(readyA[0].name).toBe("A");
+
+    stateManager.markRunning(readyA[0]);
+    stateManager.markCompleted(readyA[0], { status: "failure", error: "failed A" });
+
+    // B should be queued because of 'always' condition despite A failing
+    const readyB = stateManager.processDependencies();
+    expect(readyB).toHaveLength(1);
+    expect(readyB[0].name).toBe("B");
+  });
+
+  it("should skip 'always' dependent if dependency is skipped", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    const stepX: TaskStep<void> = { name: "X", run: async () => ({ status: "failure" }) };
+    const stepA: TaskStep<void> = { name: "A", dependencies: ["X"], run: async () => ({ status: "success" }) };
+    const stepB: TaskStep<void> = { name: "B", dependencies: [{ step: "A", runCondition: "always" }], run: async () => ({ status: "success" }) };
+
+    stateManager.initialize([stepX, stepA, stepB]);
+
+    const readyX = stateManager.processDependencies();
+    expect(readyX).toHaveLength(1);
+
+    stateManager.markRunning(readyX[0]);
+    stateManager.markCompleted(readyX[0], { status: "failure" }); // X fails -> A skips
+
+    // processDependencies should be empty because A is skipped, and B is skipped too
+    const readyB = stateManager.processDependencies();
+    expect(readyB).toHaveLength(0);
+
+    expect(stateManager.getResults().get("A")?.status).toBe("skipped");
+    expect(stateManager.getResults().get("B")?.status).toBe("skipped");
+  });
+
+  it("should handle default runCondition when TaskDependencyConfig omits it", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const stepB: TaskStep<void> = { name: "B", dependencies: [{ step: "A" }], run: async () => ({ status: "success" }) };
+
+    stateManager.initialize([stepA, stepB]);
+
+    const readyA = stateManager.processDependencies();
+    stateManager.markRunning(readyA[0]);
+    stateManager.markCompleted(readyA[0], { status: "failure" });
+
+    // B should be skipped because it defaults to 'success'
+    const readyB = stateManager.processDependencies();
+    expect(readyB).toHaveLength(0);
+    expect(stateManager.getResults().get("B")?.status).toBe("skipped");
+  });
 });

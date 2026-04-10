@@ -267,4 +267,33 @@ describe("TaskRunner", () => {
     const results = await runner.execute(steps);
     expect(results.get("A")?.message).toBe("Executed by custom strategy");
   });
+
+  describe("teardown scenarios", () => {
+    it("should execute a cleanup task even if the preceding task fails, using 'always' runCondition", async () => {
+      const runner = new TaskRunner<Record<string, unknown>>({});
+
+      const setup: TaskStep<Record<string, unknown>> = {
+        name: "Setup",
+        run: async () => ({ status: "success" }),
+      };
+
+      const work: TaskStep<Record<string, unknown>> = {
+        name: "Work",
+        dependencies: ["Setup"],
+        run: async () => ({ status: "failure", error: "Something broke" }),
+      };
+
+      const teardown: TaskStep<Record<string, unknown>> = {
+        name: "Teardown",
+        dependencies: [{ step: "Work", runCondition: "always" }],
+        run: async () => ({ status: "success" }),
+      };
+
+      const results = await runner.execute([setup, work, teardown]);
+
+      expect(results.get("Setup")?.status).toBe("success");
+      expect(results.get("Work")?.status).toBe("failure");
+      expect(results.get("Teardown")?.status).toBe("success"); // Teardown ran despite Work failing!
+    });
+  });
 });
