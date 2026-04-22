@@ -176,6 +176,8 @@ jobs:
             const apiVersion = '2026-03-10';
             const commonHeaders = { 'X-GitHub-Api-Version': apiVersion };
 
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
             if (!fs.existsSync(reportPath)) {
               console.log('No mutation report found. Skipping individual issues.');
               return;
@@ -218,6 +220,16 @@ jobs:
               survivorMap.set(title, s);
             });
 
+            let apiCounter = 0;
+            const throttle = async () => {
+              apiCounter++;
+              await sleep(1000); // Official recommendation: 1s between writes
+              if (apiCounter % 10 === 0) {
+                console.log(`Reached ${apiCounter} API calls, cooling down for 30s...`);
+                await sleep(30000); // 30s break every 10 calls to be extra safe
+              }
+            };
+
             // Handle survivors
             for (const [title, s] of survivorMap) {
               const existing = existingIssues.find(i => i.title === title);
@@ -240,6 +252,7 @@ jobs:
                   headers: commonHeaders
                 });
                 console.log(`Updated mutant issue #${existing.number}`);
+                await throttle();
               } else {
                 const newIssue = await github.rest.issues.create({
                   owner: context.repo.owner,
@@ -250,6 +263,7 @@ jobs:
                   headers: commonHeaders
                 });
                 console.log(`Created mutant issue #${newIssue.data.number}`);
+                await throttle();
               }
             }
 
@@ -263,6 +277,7 @@ jobs:
                   body: `Fixed: Mutant is no longer present in the latest report. \n\nWorkflow Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
                   headers: commonHeaders
                 });
+                await throttle();
                 await github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -271,6 +286,7 @@ jobs:
                   headers: commonHeaders
                 });
                 console.log(`Closed mutant issue #${issue.number}`);
+                await throttle();
               }
             }
 
