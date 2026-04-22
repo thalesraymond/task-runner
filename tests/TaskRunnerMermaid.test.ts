@@ -95,9 +95,9 @@ describe("TaskRunner Mermaid Graph", () => {
     const graph = TaskRunner.getMermaidGraph(steps);
     const lines = graph.split("\n");
 
-    // Current implementation fails to sanitize these, leading to invalid Mermaid syntax
-    // e.g., Task[1]["Task[1]"] which is confusing/invalid
-    expect(lines).toContain("  Task_3_[\"Task{3}\"]");
+    expect(lines).toContain("  Task_1_[\"Task&#91;1&#93;\"]");
+    expect(lines).toContain("  Task_2_[\"Task&#40;2&#41;\"]");
+    expect(lines).toContain("  Task_3_[\"Task&#123;3&#125;\"]");
   });
 
   it("should handle ID collisions by appending a counter", () => {
