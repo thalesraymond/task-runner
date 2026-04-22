@@ -137,7 +137,14 @@ export class TaskRunner<TContext> {
       processedNodes.add(stepId);
 
       if (processedNodes.size !== sizeBefore) {
-        const escapedName = name.replaceAll("\"", "&quot;");
+        const escapedName = name
+          .replaceAll("\"", "&quot;")
+          .replaceAll("[", "&#91;")
+          .replaceAll("]", "&#93;")
+          .replaceAll("(", "&#40;")
+          .replaceAll(")", "&#41;")
+          .replaceAll("{", "&#123;")
+          .replaceAll("}", "&#125;");
         nodeLines.push(`  ${stepId}["${escapedName}"]`);
       }
 
