@@ -48,6 +48,7 @@ jobs:
           path: reports/mutation/
 
       - name: Report Mutation Results
+        id: global-report
         if: always()
         uses: actions/github-script@v7
         with:
@@ -86,17 +87,19 @@ jobs:
               }
             }
 
+            // Find existing issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: [label],
+              state: 'open',
+              headers: commonHeaders
+            });
+
             // Decide if we need to create/update an issue
             // We report if there are survivors OR if the report doesn't exist (failed run)
             if (survivors === 0 && reportExists) {
               console.log('No surviving mutations found. Checking for existing issue to close.');
-              const issues = await github.rest.issues.listForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                labels: [label],
-                state: 'open',
-                headers: commonHeaders
-              });
               
               if (issues.data.length > 0) {
                 const issueNumber = issues.data[0].number;
@@ -114,18 +117,10 @@ jobs:
                   state: 'closed',
                   headers: commonHeaders
                 });
+                core.setOutput('issue-number', issueNumber);
               }
               return;
             }
-
-            // Find existing issue
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: [label],
-              state: 'open',
-              headers: commonHeaders
-            });
 
             const date = new Date().toISOString().split('T')[0];
             const issueTitle = reportExists 
@@ -143,8 +138,9 @@ jobs:
                 `The mutation testing job failed to produce a report. This usually indicates a crash or a configuration error.\n\n` +
                 `**Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
+            let issueNumber;
             if (issues.data.length > 0) {
-              const issueNumber = issues.data[0].number;
+              issueNumber = issues.data[0].number;
               await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -155,7 +151,7 @@ jobs:
               });
               console.log(`Updated issue #${issueNumber}`);
             } else {
-              await github.rest.issues.create({
+              const result = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: issueTitle,
@@ -163,7 +159,135 @@ jobs:
                 labels: [label, 'bug'],
                 headers: commonHeaders
               });
-              console.log('Created new issue');
+              issueNumber = result.data.number;
+              console.log(`Created new issue #${issueNumber}`);
+            }
+            core.setOutput('issue-number', issueNumber);
+
+      - name: Report Individual Mutations
+        if: always() && steps.global-report.outputs.issue-number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = 'reports/mutation/mutation.json';
+            const parentIssueNumber = parseInt('${{ steps.global-report.outputs.issue-number }}');
+            const label = 'mutant';
+            const apiVersion = '2026-03-10';
+            const commonHeaders = { 'X-GitHub-Api-Version': apiVersion };
+
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            if (!fs.existsSync(reportPath)) {
+              console.log('No mutation report found. Skipping individual issues.');
+              return;
+            }
+
+            let reportData;
+            try {
+              reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            } catch (e) {
+              console.error('Error parsing report:', e);
+              return;
+            }
+
+            const currentSurvivors = [];
+            for (const filePath in reportData.files) {
+              const file = reportData.files[filePath];
+              file.mutants.forEach(mutant => {
+                if (mutant.status === 'Survived' || mutant.status === 'NoCoverage') {
+                  currentSurvivors.push({
+                    filePath,
+                    mutant
+                  });
+                }
+              });
+            }
+
+            // Get all open mutant issues
+            const existingIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: [label],
+              state: 'open',
+              headers: commonHeaders
+            });
+
+            const survivorMap = new Map();
+            currentSurvivors.forEach(s => {
+              // Title includes file, line, and mutator for unique identification
+              const title = `[Mutant] ${s.filePath}:${s.mutant.location.start.line} - ${s.mutant.mutatorName}`;
+              survivorMap.set(title, s);
+            });
+
+            let apiCounter = 0;
+            const throttle = async () => {
+              apiCounter++;
+              await sleep(1000); // Official recommendation: 1s between writes
+              if (apiCounter % 10 === 0) {
+                console.log(`Reached ${apiCounter} API calls, cooling down for 30s...`);
+                await sleep(30000); // 30s break every 10 calls to be extra safe
+              }
+            };
+
+            // Handle survivors
+            for (const [title, s] of survivorMap) {
+              const existing = existingIssues.find(i => i.title === title);
+              const body = `### Surviving Mutant Details\n\n` +
+                `- **File:** \`${s.filePath}\`\n` +
+                `- **Line:** ${s.mutant.location.start.line}\n` +
+                `- **Mutator:** ${s.mutant.mutatorName}\n` +
+                `- **Status:** ${s.mutant.status}\n` +
+                `- **Replacement:** \`${s.mutant.replacement.replace(/`/g, '\\`').substring(0, 1000)}\`\n\n` +
+                `**Parent Issue:** #${parentIssueNumber}\n\n` +
+                `**Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+              if (existing) {
+                // Update existing issue if needed (e.g. to keep it fresh or link to new run)
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body: body,
+                  headers: commonHeaders
+                });
+                console.log(`Updated mutant issue #${existing.number}`);
+                await throttle();
+              } else {
+                const newIssue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: title,
+                  body: body,
+                  labels: [label, 'bug'],
+                  headers: commonHeaders
+                });
+                console.log(`Created mutant issue #${newIssue.data.number}`);
+                await throttle();
+              }
+            }
+
+            // Close issues for mutants that no longer exist
+            for (const issue of existingIssues) {
+              if (!survivorMap.has(issue.title)) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `Fixed: Mutant is no longer present in the latest report. \n\nWorkflow Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                  headers: commonHeaders
+                });
+                await throttle();
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  headers: commonHeaders
+                });
+                console.log(`Closed mutant issue #${issue.number}`);
+                await throttle();
+              }
             }
 
 
