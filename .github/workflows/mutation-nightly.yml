@@ -55,6 +55,9 @@ jobs:
             const fs = require('fs');
             const label = 'mutation-report';
             const reportPath = 'reports/mutation/mutation.json';
+            const apiVersion = '2026-03-10';
+            const commonHeaders = { 'X-GitHub-Api-Version': apiVersion };
+
             let survivors = 0;
             let totalMutants = 0;
             let reportExists = false;
@@ -91,7 +94,8 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 labels: [label],
-                state: 'open'
+                state: 'open',
+                headers: commonHeaders
               });
               
               if (issues.data.length > 0) {
@@ -100,13 +104,15 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  body: `Fixed: All mutations are now covered/killed! \n\nWorkflow Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                  body: `Fixed: All mutations are now covered/killed! \n\nWorkflow Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                  headers: commonHeaders
                 });
                 await github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issueNumber,
-                  state: 'closed'
+                  state: 'closed',
+                  headers: commonHeaders
                 });
               }
               return;
@@ -117,7 +123,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: [label],
-              state: 'open'
+              state: 'open',
+              headers: commonHeaders
             });
 
             const date = new Date().toISOString().split('T')[0];
@@ -143,7 +150,8 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: issueNumber,
                 title: issueTitle,
-                body: issueBody
+                body: issueBody,
+                headers: commonHeaders
               });
               console.log(`Updated issue #${issueNumber}`);
             } else {
@@ -152,8 +160,10 @@ jobs:
                 repo: context.repo.repo,
                 title: issueTitle,
                 body: issueBody,
-                labels: [label, 'bug']
+                labels: [label, 'bug'],
+                headers: commonHeaders
               });
               console.log('Created new issue');
             }
+
 
