@@ -42,13 +42,23 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Cache Stryker Incremental File
+        uses: actions/cache@v4
+        with:
+          path: reports/stryker-incremental.json
+          key: ${{ runner.os }}-stryker-incremental-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-stryker-incremental-refs/heads/main
+            ${{ runner.os }}-stryker-incremental-
+
       - name: Incremental Mutation Test
         run: |
           CHANGED_FILES=$(git diff --name-only origin/main -- src/ | grep '\.ts$' | grep -v '\.d\.ts$' | tr '\n' ',' | sed 's/,$//')
           if [ -n "$CHANGED_FILES" ]; then
-            pnpm mutate -m "$CHANGED_FILES" --allowEmpty
+            pnpm mutate --force -m "$CHANGED_FILES" --allowEmpty
           else
-            echo "No TypeScript source files changed, skipping incremental mutation tests."
+            echo "No TypeScript source files changed, running incremental mutation tests without custom file paths."
+            pnpm mutate
           fi
 
       - name: SonarQube Scan
