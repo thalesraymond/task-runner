@@ -8,6 +8,7 @@
   ],
   "reporters": [
     "html",
+    "json",
     "clear-text",
     "progress"
   ],
