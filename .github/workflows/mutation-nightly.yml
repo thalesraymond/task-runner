@@ -40,24 +40,120 @@ jobs:
       - name: Run mutation tests
         run: pnpm mutate
 
-      - name: Upload HTML report
+      - name: Upload Mutation Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mutation-report
-          path: reports/mutation/mutation.html
+          path: reports/mutation/
 
-      - name: Create Issue on Failure
-        if: failure()
+      - name: Report Mutation Results
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
-            const issueTitle = `Nightly Mutation Testing Failed: ${new Date().toISOString().split('T')[0]}`;
-            const issueBody = `The nightly mutation testing job has failed.\n\nPlease check the workflow run and the artifact uploaded to view the report.\n\nWorkflow Run URL: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.issues.create({
+            const fs = require('fs');
+            const label = 'mutation-report';
+            const reportPath = 'reports/mutation/mutation.json';
+            let survivors = 0;
+            let totalMutants = 0;
+            let reportExists = false;
+            let mutationScore = 0;
+
+            if (fs.existsSync(reportPath)) {
+              try {
+                const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                reportExists = true;
+                
+                for (const file in reportData.files) {
+                  reportData.files[file].mutants.forEach(mutant => {
+                    totalMutants++;
+                    if (mutant.status === 'Survived' || mutant.status === 'NoCoverage') {
+                      survivors++;
+                    }
+                  });
+                }
+                
+                // Calculate mutation score if possible
+                const killed = totalMutants - survivors;
+                mutationScore = totalMutants > 0 ? ((killed / totalMutants) * 100).toFixed(2) : 0;
+              } catch (e) {
+                console.error('Error parsing report:', e);
+                reportExists = false;
+              }
+            }
+
+            // Decide if we need to create/update an issue
+            // We report if there are survivors OR if the report doesn't exist (failed run)
+            if (survivors === 0 && reportExists) {
+              console.log('No surviving mutations found. Checking for existing issue to close.');
+              const issues = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [label],
+                state: 'open'
+              });
+              
+              if (issues.data.length > 0) {
+                const issueNumber = issues.data[0].number;
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: `Fixed: All mutations are now covered/killed! \n\nWorkflow Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  state: 'closed'
+                });
+              }
+              return;
+            }
+
+            // Find existing issue
+            const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: issueTitle,
-              body: issueBody,
-              labels: ['bug']
+              labels: [label],
+              state: 'open'
             });
+
+            const date = new Date().toISOString().split('T')[0];
+            const issueTitle = reportExists 
+              ? `Mutation Testing Report: ${survivors} survivors (${mutationScore}%)`
+              : `Mutation Testing Failed: Execution Error`;
+            
+            const issueBody = reportExists
+              ? `### Mutation Testing Report - ${date}\n\n` +
+                `- **Surviving Mutants:** ${survivors}\n` +
+                `- **Total Mutants:** ${totalMutants}\n` +
+                `- **Mutation Score:** ${mutationScore}%\n\n` +
+                `Please download the \`mutation-report\` artifact from the workflow run to view the full HTML report.\n\n` +
+                `**Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+              : `### Mutation Testing Failed - ${date}\n\n` +
+                `The mutation testing job failed to produce a report. This usually indicates a crash or a configuration error.\n\n` +
+                `**Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            if (issues.data.length > 0) {
+              const issueNumber = issues.data[0].number;
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                title: issueTitle,
+                body: issueBody
+              });
+              console.log(`Updated issue #${issueNumber}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: [label, 'bug']
+              });
+              console.log('Created new issue');
+            }
+
