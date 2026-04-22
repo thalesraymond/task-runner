@@ -43,7 +43,13 @@ jobs:
         run: pnpm test
 
       - name: Incremental Mutation Test
-        run: pnpm mutate --since origin/main
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/main -- src/ | grep '\.ts$' | grep -v '\.d\.ts$' | tr '\n' ',' | sed 's/,$//')
+          if [ -n "$CHANGED_FILES" ]; then
+            pnpm mutate -m "$CHANGED_FILES" --allowEmpty
+          else
+            echo "No TypeScript source files changed, skipping incremental mutation tests."
+          fi
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v7
