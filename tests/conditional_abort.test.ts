@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { WorkflowExecutor } from "../src/WorkflowExecutor.js";
 import { EventBus } from "../src/EventBus.js";
 import { TaskStateManager } from "../src/TaskStateManager.js";
