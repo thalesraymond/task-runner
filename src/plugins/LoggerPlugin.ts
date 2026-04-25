@@ -29,21 +29,25 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
     });
 
     context.events.on("workflowEnd", (payload) => {
-      const resultsArray = Array.from(payload.results.entries());
       if (this.format === "text") {
-        const successCount = resultsArray.filter(([, res]) => res.status === "success").length;
-        const failedCount = resultsArray.filter(([, res]) => res.status === "failure").length;
+        let successCount = 0;
+        let failedCount = 0;
+        for (const result of payload.results.values()) {
+          if (result.status === "success") successCount++;
+          else if (result.status === "failure") failedCount++;
+        }
         console.log(`[WorkflowEnd] Workflow completed. Success: ${successCount}, Failed: ${failedCount}.`);
       } else {
+        const statusSummary: Record<string, string> = {};
+        for (const [name, result] of payload.results) {
+          statusSummary[name] = result.status;
+        }
         console.log(
           JSON.stringify({
             event: "workflowEnd",
             timestamp: new Date().toISOString(),
-            totalTasks: resultsArray.length,
-            statusSummary: resultsArray.reduce((acc, [name, result]) => {
-                acc[name] = result.status;
-                return acc;
-            }, {} as Record<string, string>)
+            totalTasks: payload.results.size,
+            statusSummary,
           })
         );
       }
@@ -67,7 +71,7 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
       const duration = payload.result.metrics?.duration;
 
       if (this.format === "text") {
-        const durStr = duration !== undefined ? ` in ${duration}ms` : "";
+        const durStr = duration === undefined ? "" : ` in ${duration}ms`;
         console.log(`[TaskEnd] Task '${payload.step.name}' ended with status '${payload.result.status}'${durStr}.`);
       } else {
         console.log(
