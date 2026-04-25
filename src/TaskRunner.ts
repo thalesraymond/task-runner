@@ -19,6 +19,16 @@ import { PluginManager } from "./PluginManager.js";
 import { DryRunExecutionStrategy } from "./strategies/DryRunExecutionStrategy.js";
 
 const MERMAID_ID_REGEX = /[^a-zA-Z0-9_-]/g;
+const MERMAID_ESCAPE_MAP: Record<string, string> = {
+  "\"": "&quot;",
+  "[": "&#91;",
+  "]": "&#93;",
+  "(": "&#40;",
+  ")": "&#41;",
+  "{": "&#123;",
+  "}": "&#125;",
+};
+const MERMAID_ESCAPE_REGEX = /["[\](){}]/g;
 
 /**
  * The main class that orchestrates the execution of a list of tasks
@@ -137,14 +147,10 @@ export class TaskRunner<TContext> {
       processedNodes.add(stepId);
 
       if (processedNodes.size !== sizeBefore) {
-        const escapedName = name
-          .replaceAll("\"", "&quot;")
-          .replaceAll("[", "&#91;")
-          .replaceAll("]", "&#93;")
-          .replaceAll("(", "&#40;")
-          .replaceAll(")", "&#41;")
-          .replaceAll("{", "&#123;")
-          .replaceAll("}", "&#125;");
+        const escapedName = name.replace(
+          MERMAID_ESCAPE_REGEX,
+          (match) => MERMAID_ESCAPE_MAP[match]
+        );
         nodeLines.push(`  ${stepId}["${escapedName}"]`);
       }
 
@@ -165,7 +171,7 @@ export class TaskRunner<TContext> {
    * @returns The sanitized string.
    */
   private static sanitizeMermaidId(id: string): string {
-    return id.replaceAll(MERMAID_ID_REGEX, "_");
+    return id.replace(MERMAID_ID_REGEX, "_");
   }
 
   /**
