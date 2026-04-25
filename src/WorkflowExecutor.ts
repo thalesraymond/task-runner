@@ -80,20 +80,9 @@ export class WorkflowExecutor<TContext> {
       // Initial pass
       this.processLoop(executingPromises, signalWork, signal);
 
-      while (
-        this.stateManager.hasPendingTasks() ||
-        this.stateManager.hasRunningTasks() ||
-        executingPromises.size > 0
-      ) {
-        // Safety check: if no tasks are running and we still have pending tasks,
-        // it means we are stuck (e.g. cycle or unhandled dependency).
-        // Since valid graphs shouldn't have this, we break to avoid infinite loop.
-        if (executingPromises.size === 0) {
-          break;
-        } else {
-          // Wait for the next task to finish
-          await signalPromise;
-        }
+      while (executingPromises.size > 0) {
+        // Wait for the next task to finish
+        await signalPromise;
 
         if (signal?.aborted) {
           this.stateManager.cancelAllPending(
@@ -133,7 +122,7 @@ export class WorkflowExecutor<TContext> {
     // Execute ready tasks while respecting concurrency limit
     while (!this.readyQueue.isEmpty()) {
       if (
-        this.concurrency !== undefined &&
+        typeof this.concurrency === "number" &&
         executingPromises.size >= this.concurrency
       ) {
         break;
