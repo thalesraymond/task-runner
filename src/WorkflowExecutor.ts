@@ -42,14 +42,14 @@ export class WorkflowExecutor<TContext> {
     this.stateManager.initialize(steps);
 
     // Check if already aborted
-    if (signal?.aborted) { // NOSONAR /* v8 ignore start */
+    if (signal?.aborted) {
       this.stateManager.cancelAllPending(
         ExecutionConstants.CANCELLED_BEFORE_START
       );
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
       return results;
-    } /* v8 ignore stop */
+    }
 
     const executingPromises = new Set<Promise<void>>();
 
@@ -80,26 +80,15 @@ export class WorkflowExecutor<TContext> {
       // Initial pass
       this.processLoop(executingPromises, signalWork, signal);
 
-      while (
+      while (executingPromises.size > 0) {
+        // Wait for the next task to finish
+        await signalPromise;
 
-
-        executingPromises.size > 0
-      ) {
-        // Safety check: if no tasks are running and we still have pending tasks,
-        // it means we are stuck (e.g. cycle or unhandled dependency).
-        // Since valid graphs shouldn't have this, we break to avoid infinite loop.
-        if (executingPromises.size === 0) { // NOSONAR /* v8 ignore start */
-          break; /* v8 ignore stop */
-        } else {
-          // Wait for the next task to finish
-          await signalPromise;
-        }
-
-        if (signal?.aborted) { // NOSONAR /* v8 ignore start */
+        if (signal?.aborted) {
           this.stateManager.cancelAllPending(
             ExecutionConstants.WORKFLOW_CANCELLED
           );
-        } /* v8 ignore stop */
+        }
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)
@@ -108,11 +97,11 @@ export class WorkflowExecutor<TContext> {
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
       return results;
-    } finally { // NOSONAR /* v8 ignore start */
+    } finally {
       if (signal) {
         signal.removeEventListener("abort", onAbort);
       }
-    } /* v8 ignore stop */
+    }
   }
 
   /**
@@ -136,7 +125,7 @@ export class WorkflowExecutor<TContext> {
         typeof this.concurrency === "number" &&
         executingPromises.size >= this.concurrency
       ) {
-        break; /* v8 ignore stop */
+        break;
       }
 
       const step = this.readyQueue.pop()!;
