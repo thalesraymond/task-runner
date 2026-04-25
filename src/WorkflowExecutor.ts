@@ -158,7 +158,7 @@ export class WorkflowExecutor<TContext> {
       const check = step.condition(this.context);
       const shouldRun = check instanceof Promise ? await check : check;
 
-      if (signal?.aborted) { // NOSONAR /* v8 ignore start */
+      if (signal?.aborted) {
         return {
           status: "cancelled",
           message: ExecutionConstants.CANCELLED_DURING_CONDITION,
@@ -202,7 +202,7 @@ export class WorkflowExecutor<TContext> {
       return;
     }
 
-    if (signal?.aborted) { // NOSONAR /* v8 ignore start */
+    if (signal?.aborted) {
       this.stateManager.markCompleted(step, {
         status: "cancelled",
         message: ExecutionConstants.TASK_CANCELLED_BEFORE_START,
