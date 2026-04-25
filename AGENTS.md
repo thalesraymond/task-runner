@@ -20,12 +20,12 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 ## Additional Rules
 
 - Never edit CHANGELOG.md manually. This file is for semantic release and is filled automatically.
-- Never use Any type or try to bypass with "as unknown as neededType". Avoid using 'any' type at all costs.
+- Never use the 'any' type or attempt to bypass it with 'as unknown as T'.
 - Never add comments ignoring coverage or sonar issues. Always prefer to add more tests instead of simply bypassing coverage validation with comments.
-- Follow SOLID principles and object calisthenics whenever possible.
+- Follow SOLID principles and Object Calisthenics whenever possible.
 - Use TDD as a development process, writing tests first.
-- Try to find balance between readability and performance.
-- Document public facing methods/APIs so clients have more information on the implementations.
+- Try to find a balance between readability and performance.
+- Document public-facing methods/APIs so clients have more information on the implementations.
 - Its forbidden to have coverage drop below 100%, thats non negotiable.
 - **Strict Null Safety:** Do not use `??` or optional chaining `?.` when you can guarantee existence via prior validation. Use non-null assertions `!` only when the invariant is locally provable or enforced by a validator.
 - **Dead Code Elimination:** Avoid `v8 ignore` comments. If code is unreachable, restructure the logic to prove it is unreachable to the compiler, or remove the branch if the invariant is guaranteed.
