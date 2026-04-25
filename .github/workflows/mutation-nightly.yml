@@ -32,7 +32,7 @@ jobs:
         run: pnpm install
 
       - name: Cache Stryker Incremental File
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: reports/stryker-incremental.json
           key: ${{ runner.os }}-stryker-incremental-refs/heads/main
