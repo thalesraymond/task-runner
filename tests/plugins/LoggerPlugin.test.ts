@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { LoggerPlugin } from "../../src/plugins/LoggerPlugin.js";
 import { TaskRunnerBuilder } from "../../src/TaskRunnerBuilder.js";
