@@ -57,10 +57,11 @@ export class EventBus<TContext> {
   ): void {
     const listeners = this.listeners[event];
     if (listeners) {
-      for (const listener of listeners) {
-        // We use queueMicrotask() to schedule the listener on the microtask queue,
-        // ensuring the emit method remains non-blocking.
-        queueMicrotask(() => {
+      // We use queueMicrotask() to schedule the listeners on the microtask queue,
+      // ensuring the emit method remains non-blocking. Wrapping the loop avoids
+      // excessive closure allocation per listener per emit.
+      queueMicrotask(() => {
+        for (const listener of listeners) {
           try {
             try {
               const result = listener(data);
@@ -87,8 +88,8 @@ export class EventBus<TContext> {
               error
             );
           }
-        });
-      }
+        }
+      });
     }
   }
 }
