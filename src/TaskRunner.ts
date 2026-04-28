@@ -105,14 +105,6 @@ export class TaskRunner<TContext> {
       const sanitized = this.sanitizeMermaidId(name);
       let uniqueId = sanitized;
 
-      // First check if the base sanitized ID is available
-      if (!usedIds.has(uniqueId)) {
-        usedIds.add(uniqueId);
-        idMap.set(name, uniqueId);
-        return uniqueId;
-      }
-
-      // If not, use the counter for this base ID
       let counter = baseIdCounters.get(sanitized) || 1;
 
       while (usedIds.has(uniqueId)) {
@@ -136,7 +128,8 @@ export class TaskRunner<TContext> {
       const sizeBefore = processedNodes.size;
       processedNodes.add(stepId);
 
-      if (processedNodes.size !== sizeBefore) {
+      const sizeDiff = processedNodes.size - sizeBefore;
+      if (sizeDiff > 0) {
         const escapedName = name
           .replaceAll("\"", "&quot;")
           .replaceAll("[", "&#91;")
