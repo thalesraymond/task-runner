@@ -167,38 +167,6 @@ describe("TaskRunner Mermaid Graph", () => {
     expect(rawGraph).not.toContain("FirstTask_1");
   });
 
-  it("should evaluate if (!usedIds.has(uniqueId)) perfectly against block mutations", () => {
-    // If the block is empty:
-    // `if (!usedIds.has(uniqueId)) {}`
-    // It proceeds to `while(usedIds.has(uniqueId))`.
-    // It then sets uniqueId to `${uniqueId}_${counter}`. Wait!
-    // NO IT DOESN'T!
-    // uniqueId is NOT in usedIds. So the while loop `while(usedIds.has(uniqueId))` is skipped!
-    // Then it executes:
-    // baseIdCounters.set(sanitized, counter);
-    // usedIds.add(uniqueId);
-    // idMap.set(name, uniqueId);
-    // return uniqueId;
 
-    // Oh! The block literally does the EXACT SAME THING as the code below it if there are no collisions!!
-    // Let's look at the code:
-    // if (!usedIds.has(uniqueId)) {
-    //   usedIds.add(uniqueId);
-    //   idMap.set(name, uniqueId);
-    //   return uniqueId;
-    // }
-    // let counter = baseIdCounters.get(sanitized) || 1;
-    // while (usedIds.has(uniqueId)) { uniqueId = `${sanitized}_${counter}`; counter++; }
-    // baseIdCounters.set(sanitized, counter);
-    // usedIds.add(uniqueId);
-    // idMap.set(name, uniqueId);
-    // return uniqueId;
-
-    // If we remove the if block entirely, what breaks?
-    // NOTHING! The while loop won't execute if it's unique.
-    // It will just do `baseIdCounters.set(sanitized, counter);` which is 1.
-    // Then it adds to usedIds and idMap and returns uniqueId.
-    // THIS IS WHY THE MUTANT SURVIVES! The code is logically redundant!
-  });
 
 });

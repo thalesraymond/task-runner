@@ -128,8 +128,7 @@ export class TaskRunner<TContext> {
       const sizeBefore = processedNodes.size;
       processedNodes.add(stepId);
 
-      const sizeDiff = processedNodes.size - sizeBefore;
-      if (sizeDiff > 0) {
+      if (processedNodes.size > sizeBefore) {
         const escapedName = name
           .replaceAll("\"", "&quot;")
           .replaceAll("[", "&#91;")
