@@ -149,7 +149,7 @@ describe("StandardExecutionStrategy Timeout", () => {
     const step: TaskStep<unknown> = {
       name: "slow-task",
       timeout: 10,
-      run: async (context, signal) => {
+      run: async () => {
         await new Promise((resolve) => setTimeout(resolve, 50));
         return { status: "success" };
       },
@@ -161,7 +161,7 @@ describe("StandardExecutionStrategy Timeout", () => {
   });
 
   it("should handle timeout abort cleanly with specific return type", async () => {
-    const raceSpy = vi.spyOn(Promise, 'race');
+    const raceSpy = vi.spyOn(Promise, "race");
 
     const step: TaskStep<unknown> = {
       name: "fast-task",
@@ -174,7 +174,7 @@ describe("StandardExecutionStrategy Timeout", () => {
     await strategy.execute(step, {});
 
     expect(raceSpy).toHaveBeenCalled();
-    const promises = raceSpy.mock.calls[0][0] as Promise<any>[];
+    const promises = raceSpy.mock.calls[0][0] as Promise<unknown>[];
 
     const timeoutPromise = promises[1];
     const resolvedValue = await timeoutPromise;
