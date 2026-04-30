@@ -301,14 +301,15 @@ describe("TaskRunner Cancellation", () => {
   it("should trigger cleanup empty block mutant", async () => {
     const controller = new AbortController();
     const originalRemove = controller.signal.removeEventListener;
-    let removedEvent = '';
-    controller.signal.removeEventListener = (event: any, handler: any) => {
+    let removedEvent: unknown = "";
+    controller.signal.removeEventListener = (event: unknown, handler: unknown) => {
       removedEvent = event;
-      originalRemove.call(controller.signal, event, handler);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      originalRemove.call(controller.signal, event as any, handler as any);
     };
 
     await sleep(1, controller.signal);
-    expect(removedEvent).toBe('abort');
+    expect(removedEvent).toBe("abort");
   });
 
   it("should trigger early resolve empty block mutant", async () => {
@@ -376,14 +377,15 @@ describe("TaskRunner Cancellation", () => {
   it("should trigger cleanup empty block mutant", async () => {
     const controller = new AbortController();
     const originalRemove = controller.signal.removeEventListener;
-    let removedEvent = '';
-    controller.signal.removeEventListener = (event: any, handler: any) => {
+    let removedEvent: unknown = "";
+    controller.signal.removeEventListener = (event: unknown, handler: unknown) => {
       removedEvent = event;
-      originalRemove.call(controller.signal, event, handler);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      originalRemove.call(controller.signal, event as any, handler as any);
     };
 
     await sleep(1, controller.signal);
-    expect(removedEvent).toBe('abort');
+    expect(removedEvent).toBe("abort");
   });
 
   it("should trigger early resolve empty block mutant", async () => {

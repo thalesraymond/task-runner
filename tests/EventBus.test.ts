@@ -51,7 +51,7 @@ describe("EventBus", () => {
 
     eventBus.on("taskStart", callback);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    eventBus.emit("taskStart", { step: {} as any });
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
 
     // Wait for microtasks
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -70,7 +70,7 @@ describe("EventBus", () => {
 
     eventBus.on("taskStart", callback);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    eventBus.emit("taskStart", { step: {} as any });
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
 
     // Wait for microtasks
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -84,7 +84,7 @@ describe("EventBus", () => {
   it("should handle emit with no listeners", () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      eventBus.emit("taskStart", { step: {} as any });
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
     }).not.toThrow();
   });
 
@@ -133,7 +133,7 @@ describe("EventBus", () => {
 
     eventBus.on("taskStart", callback);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    eventBus.emit("taskStart", { step: {} as any });
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
 
     // Wait for microtasks
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -157,7 +157,7 @@ describe("EventBus", () => {
     eventBus.on("taskStart", callback2); // This hits the 'else' branch (listeners already exist)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    eventBus.emit("taskStart", { step: {} as any });
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
 
     // Wait for microtasks
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -170,7 +170,8 @@ describe("EventBus", () => {
   it("should not catch if sync listener returns non-promise value", async () => {
     const callback = vi.fn().mockReturnValue(123);
     eventBus.on("taskStart", callback);
-    eventBus.emit("taskStart", { step: {} as any });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(callback).toHaveBeenCalled();
   });
@@ -178,7 +179,8 @@ describe("EventBus", () => {
   it("should not catch if sync listener returns non-promise value", async () => {
     const callback = vi.fn().mockReturnValue(123);
     eventBus.on("taskStart", callback);
-    eventBus.emit("taskStart", { step: {} as any });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(callback).toHaveBeenCalled();
   });
@@ -186,7 +188,8 @@ describe("EventBus", () => {
   it("should not catch if sync listener returns non-promise value", async () => {
     const callback = vi.fn().mockReturnValue(123);
     eventBus.on("taskStart", callback);
-    eventBus.emit("taskStart", { step: {} as any });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    eventBus.emit("taskStart", { step: {} as unknown } as any);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(callback).toHaveBeenCalled();
   });
