@@ -166,4 +166,28 @@ describe("EventBus", () => {
     expect(callback2).toHaveBeenCalled();
   });
 
+
+  it("should not catch if sync listener returns non-promise value", async () => {
+    const callback = vi.fn().mockReturnValue(123);
+    eventBus.on("taskStart", callback);
+    eventBus.emit("taskStart", { step: {} as any });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(callback).toHaveBeenCalled();
+  });
+
+  it("should not catch if sync listener returns non-promise value", async () => {
+    const callback = vi.fn().mockReturnValue(123);
+    eventBus.on("taskStart", callback);
+    eventBus.emit("taskStart", { step: {} as any });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(callback).toHaveBeenCalled();
+  });
+
+  it("should not catch if sync listener returns non-promise value", async () => {
+    const callback = vi.fn().mockReturnValue(123);
+    eventBus.on("taskStart", callback);
+    eventBus.emit("taskStart", { step: {} as any });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(callback).toHaveBeenCalled();
+  });
 });

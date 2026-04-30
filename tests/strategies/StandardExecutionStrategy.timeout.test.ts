@@ -144,4 +144,42 @@ describe("StandardExecutionStrategy Timeout", () => {
     expect(result.status).toBe("failure");
     expect(result.error).toBe("String error");
   });
+
+  it("should ignore timeout status if another error is thrown during promise race", async () => {
+    const step: TaskStep<unknown> = {
+      name: "slow-task",
+      timeout: 10,
+      run: async (context, signal) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return { status: "success" };
+      },
+    };
+
+    const result = await strategy.execute(step, {});
+    expect(result.status).toBe("failure");
+    expect(result.error).toBe("Task timed out after 10ms");
+  });
+
+  it("should handle timeout abort cleanly with specific return type", async () => {
+    const raceSpy = vi.spyOn(Promise, 'race');
+
+    const step: TaskStep<unknown> = {
+      name: "fast-task",
+      timeout: 100,
+      run: async () => {
+        return { status: "success" };
+      },
+    };
+
+    await strategy.execute(step, {});
+
+    expect(raceSpy).toHaveBeenCalled();
+    const promises = raceSpy.mock.calls[0][0] as Promise<any>[];
+
+    const timeoutPromise = promises[1];
+    const resolvedValue = await timeoutPromise;
+    expect(resolvedValue).toEqual({ status: "cancelled" });
+
+    raceSpy.mockRestore();
+  });
 });

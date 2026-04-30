@@ -72,4 +72,26 @@ describe("PriorityQueue", () => {
     expect(pq.pop()).toBe("one");
     expect(pq.size()).toBe(0);
   });
+
+  it("should trigger sinkDown swapIndex === null condition", () => {
+    pq.push("A", 100); // root
+    pq.push("B", 10); // left
+    pq.push("C", 90); // right
+    pq.push("D", 5);  // l_left
+    pq.push("E", 8);  // l_right
+    pq.push("F", 50); // r_left
+
+    expect(pq.pop()).toBe("A"); // 100
+    expect(pq.peek()).toBe("C"); // 90
+
+    expect(pq.pop()).toBe("C");
+    expect(pq.pop()).toBe("F");
+  });
+
+  it("should trigger bubbleUp early break", () => {
+    pq.push("A", 10);
+    pq.push("B", 20); // bubbles up past A
+    pq.push("C", 5); // doesn't bubble up past A
+    expect(pq.peek()).toBe("B");
+  });
 });

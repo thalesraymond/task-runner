@@ -42,6 +42,9 @@ describe("LoggerPlugin", () => {
       results.set("task1", { status: "success" });
       results.set("task2", { status: "failure" });
       results.set("task3", { status: "skipped" });
+      results.set("task4", { status: "cancelled" });
+      results.set("task4", { status: "cancelled" });
+      results.set("task4", { status: "cancelled" });
       eventBus.emit("workflowEnd", { context: {}, results: results as any });
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledWith("[WorkflowEnd] Workflow completed. Success: 1, Failed: 1.");
