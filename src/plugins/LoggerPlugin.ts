@@ -33,8 +33,8 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
         let successCount = 0;
         let failedCount = 0;
         for (const result of payload.results.values()) {
-          if (result.status === "success") successCount++;
-          else if (result.status === "failure") failedCount++;
+          if (result.status === "success") { successCount++; }
+          else if (result.status === "failure") { failedCount++; }
         }
         console.log(`[WorkflowEnd] Workflow completed. Success: ${successCount}, Failed: ${failedCount}.`);
       } else {

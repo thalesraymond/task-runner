@@ -84,11 +84,6 @@ export class WorkflowExecutor<TContext> {
         // Wait for the next task to finish
         await signalPromise;
 
-        if (signal?.aborted) {
-          this.stateManager.cancelAllPending(
-            ExecutionConstants.WORKFLOW_CANCELLED
-          );
-        }
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)
