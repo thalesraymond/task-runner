@@ -50,7 +50,7 @@ jobs:
       - name: Report Mutation Results
         id: global-report
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -166,7 +166,7 @@ jobs:
 
       - name: Report Individual Mutations
         if: always() && steps.global-report.outputs.issue-number
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
