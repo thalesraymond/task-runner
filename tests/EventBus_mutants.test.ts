@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { EventBus } from "../src/EventBus.js";
 
 describe("EventBus Mutants", () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+
   it("should not await result if listener returns non-Promise", async () => {
     const bus = new EventBus<void>();
 
@@ -13,6 +15,6 @@ describe("EventBus Mutants", () => {
 
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(true).toBe(true);
+    expect(console.error).not.toHaveBeenCalled();
   });
 });

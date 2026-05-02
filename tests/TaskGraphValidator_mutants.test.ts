@@ -24,7 +24,7 @@ describe("TaskGraphValidator Mutants", () => {
     );
   });
 
-  it("should include taskId in details for missing dependency error", () => {
+  it("should include taskId in details for duplicate task error", () => {
       const validator = new TaskGraphValidator();
       const graph: TaskGraph = {
           tasks: [

@@ -167,7 +167,7 @@ describe("TaskStateManager Mutants", () => {
 
       const ready = stateManager.processDependencies();
       expect(ready).toHaveLength(0);
-      expect(ready).not.toContain("Stryker was here");
+
   });
 
   it("should format depError if error is available via optional chaining", () => {
