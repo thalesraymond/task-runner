@@ -29,11 +29,20 @@ export class PluginManager<TContext> {
    * Initializes all registered plugins in parallel.
    */
   public async initialize(): Promise<void> {
-    const installPromises = this.plugins
-      .map((plugin) => plugin.install(this.context))
-      .filter((result): result is Promise<void> => result instanceof Promise);
+    let installPromises: Promise<void>[] | undefined;
+    for (const plugin of this.plugins) {
+      const result = plugin.install(this.context);
+      if (result instanceof Promise) {
+        if (!installPromises) {
+          installPromises = [];
+        }
+        installPromises.push(result);
+      }
+    }
 
-    await Promise.all(installPromises);
+    if (installPromises) {
+      await Promise.all(installPromises);
+    }
   }
 
   /**
