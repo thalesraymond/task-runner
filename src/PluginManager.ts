@@ -31,7 +31,9 @@ export class PluginManager<TContext> {
   public async initialize(): Promise<void> {
     let installPromises: Promise<void>[] | undefined;
     const plugins = this.plugins;
-    for (let i = 0; i < plugins.length; i++) {
+    let i = 0;
+    const len = plugins.length;
+    while (i < len) {
       const result = plugins[i].install(this.context);
       if (result instanceof Promise) {
         if (!installPromises) {
@@ -39,6 +41,7 @@ export class PluginManager<TContext> {
         }
         installPromises.push(result);
       }
+      i++;
     }
 
     if (installPromises) {

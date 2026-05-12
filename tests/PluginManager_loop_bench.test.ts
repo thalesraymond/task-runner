@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { PluginManager } from "../src/PluginManager.js";
 import { EventBus } from "../src/EventBus.js";
 
@@ -28,6 +28,8 @@ describe("PluginManager Loop Benchmark", () => {
     await manager.initialize();
     const end = performance.now();
 
-    console.log(`Initialization of ${pluginCount} sync plugins took ${end - start}ms`);
+    const duration = end - start;
+    console.log(`Initialization of ${pluginCount} sync plugins took ${duration}ms`);
+    expect(duration).toBeLessThan(100); // Ensures an assertion is present and the execution is fast
   });
 });
