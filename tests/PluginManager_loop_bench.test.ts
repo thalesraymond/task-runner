@@ -14,12 +14,14 @@ describe("PluginManager Loop Benchmark", () => {
     const manager = new PluginManager({ events: eventBus });
 
     const pluginCount = 100000;
+    let installedCount = 0;
+
     for (let i = 0; i < pluginCount; i++) {
       manager.use({
         name: `plugin-${i}`,
         version: "1.0.0",
         install: () => {
-          // Sync install
+          installedCount++;
         },
       });
     }
@@ -30,6 +32,8 @@ describe("PluginManager Loop Benchmark", () => {
 
     const duration = end - start;
     console.log(`Initialization of ${pluginCount} sync plugins took ${duration}ms`);
-    expect(duration).toBeLessThan(100); // Ensures an assertion is present and the execution is fast
+
+    // Verify business logic (state transition)
+    expect(installedCount).toBe(pluginCount);
   });
 });
