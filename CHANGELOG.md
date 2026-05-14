@@ -18,6 +18,37 @@
 * refactor: Refactor TaskRunner to reduce cognitive complexity (#89) ([95c67d9](https://github.com/thalesraymond/task-runner/commit/95c67d9)), closes [#89](https://github.com/thalesraymond/task-runner/issues/89)
 * Refactor TaskGraphValidator to address SonarCloud issues (#88) ([77c1538](https://github.com/thalesraymond/task-runner/commit/77c1538)), closes [#88](https://github.com/thalesraymond/task-runner/issues/88)
 
+## [4.4.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.3.0...task-runner-v4.4.0) (2026-05-14)
+
+
+### Features
+
+* implement StrykerJS mutation testing ([#265](https://github.com/thalesraymond/task-runner/issues/265)) ([322831b](https://github.com/thalesraymond/task-runner/commit/322831b20d08253184e9e2a0e06cccd6c583c8c7))
+* implement task loop feature ([#211](https://github.com/thalesraymond/task-runner/issues/211)) ([6c115cc](https://github.com/thalesraymond/task-runner/commit/6c115cccb146f7cde7b83d2186bc0c9010444c46))
+* implement task runner observability and archive spec ([#365](https://github.com/thalesraymond/task-runner/issues/365)) ([17ab132](https://github.com/thalesraymond/task-runner/commit/17ab1325e28f9b172349b2f6dafcc7131304e10b))
+
+
+### Bug Fixes
+
+* 🐛 fix stryker report path for ci ([#268](https://github.com/thalesraymond/task-runner/issues/268)) ([040bfc3](https://github.com/thalesraymond/task-runner/commit/040bfc3093c1adf56cbdd33e9f8abe2601f3e4e8))
+* address sonarcloud readonly smells and ignore for-of rules in performance critical loop ([#223](https://github.com/thalesraymond/task-runner/issues/223)) ([f6ebad7](https://github.com/thalesraymond/task-runner/commit/f6ebad7f09cc58ab7eb53468203ff67e1ff1cdd0))
+* fix SonarCloud issue typescript:S4138 in TaskRunner.ts ([#225](https://github.com/thalesraymond/task-runner/issues/225)) ([af544e7](https://github.com/thalesraymond/task-runner/commit/af544e71a25f97b7d3caeb74653d81b24a4964a7))
+* Mark `innerStrategy` as readonly in `LoopingExecutionStrategy` ([#220](https://github.com/thalesraymond/task-runner/issues/220)) ([de478de](https://github.com/thalesraymond/task-runner/commit/de478de0691d71d0d2978047dda001c8b62f7f51))
+* mark pluginManager as readonly in TaskRunner ([#209](https://github.com/thalesraymond/task-runner/issues/209)) ([294db02](https://github.com/thalesraymond/task-runner/commit/294db0212e2aee6e4989728677e5852a4f3f6c14))
+* mark plugins as readonly in PluginManager ([#222](https://github.com/thalesraymond/task-runner/issues/222)) ([ff74550](https://github.com/thalesraymond/task-runner/commit/ff745508e5bf0da1d7b5753b3c2afcc8a9c35a30))
+* resolve mutation survivals across core utility and executor modules ([#384](https://github.com/thalesraymond/task-runner/issues/384)) ([156accb](https://github.com/thalesraymond/task-runner/commit/156accbb9627947e68b4b93e77e1a69cbb871cd5))
+* resolve surviving mutants in WorkflowExecutor logic ([#356](https://github.com/thalesraymond/task-runner/issues/356)) ([b34e3f7](https://github.com/thalesraymond/task-runner/commit/b34e3f7bbb7a0f686d2144550a7f4fd48aaec4f8))
+* sanitize brackets and parentheses in Mermaid generation ([#267](https://github.com/thalesraymond/task-runner/issues/267)) ([bfcb3e1](https://github.com/thalesraymond/task-runner/commit/bfcb3e1b1b06617db250d980e9fbe2ee7712366e))
+* **sonar:** add readonly modifier to innerStrategy ([#221](https://github.com/thalesraymond/task-runner/issues/221)) ([56968ff](https://github.com/thalesraymond/task-runner/commit/56968ffe48766266cafb59432098ee2e36d6f814))
+
+
+### Performance Improvements
+
+* fix pending Promise memory leak in Promise.race handling ([#204](https://github.com/thalesraymond/task-runner/issues/204)) ([a650b8d](https://github.com/thalesraymond/task-runner/commit/a650b8dd34f510e71c03bf84c52811961e9660d1))
+* optimize cycle detection O(N) array search inside `checkCycles` ([#203](https://github.com/thalesraymond/task-runner/issues/203)) ([a05a1f6](https://github.com/thalesraymond/task-runner/commit/a05a1f6b57b0c688b29bb51b97e84685f8bcbe59))
+* optimize duplicate plugin check in PluginManager ([#266](https://github.com/thalesraymond/task-runner/issues/266)) ([eb91959](https://github.com/thalesraymond/task-runner/commit/eb919598632c8e95530e51ce98cfa24157b0aca4))
+* **PluginManager:** further optimize initialize with lazy allocation and microtask avoidance ([#402](https://github.com/thalesraymond/task-runner/issues/402)) ([b1f5812](https://github.com/thalesraymond/task-runner/commit/b1f5812557382f9183e8b6d3f006779e62597a32))
+
 ## [4.3.0](https://github.com/thalesraymond/task-runner/compare/task-runner-v4.2.0...task-runner-v4.3.0) (2026-03-14)
 
 
