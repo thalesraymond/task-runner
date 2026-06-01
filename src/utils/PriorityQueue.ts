@@ -40,7 +40,7 @@ export class PriorityQueue<T> {
     const element = this.heap[index];
 
     while (index > 0) {
-      const parentIndex = (index - 1) >> 1;
+      const parentIndex = (index - 1) >>> 1;
       const parent = this.heap[parentIndex];
 
       if (this.compare(element, parent) <= 0) break;
