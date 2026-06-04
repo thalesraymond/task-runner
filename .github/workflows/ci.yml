@@ -62,7 +62,7 @@ jobs:
           fi
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@7295e71c9583053f5bf40e9d4068a0c974603ec8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
