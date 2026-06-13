@@ -174,7 +174,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const reportPath = 'reports/mutation/mutation.json';
+            const reportPath = 'ts/reports/mutation/mutation.json';
             const parentIssueNumber = parseInt('${{ steps.global-report.outputs.issue-number }}');
             const label = 'mutant';
             const apiVersion = '2026-03-10';
