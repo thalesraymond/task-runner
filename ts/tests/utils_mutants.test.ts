@@ -76,6 +76,86 @@ describe("PriorityQueue Mutants", () => {
       queue.push("D", 2);
       expect(queue.pop()).toBe("A");
   });
+
+  it("should handle compare exact equality gracefully", () => {
+    // Since sequence IDs are unique per push, compare() NEVER returns exactly 0
+    // for two different elements. To kill `>= 0` vs `> 0` mutant, we must force it.
+    // We can do this by using the internal method if possible, or by mocking sequenceId
+    // or we can test true/false by bypassing visibility checks to push duplicate sequenceIds
+    const queue = new PriorityQueue<number>();
+    // @ts-expect-error Accessing private property to force same sequenceId
+    queue.sequenceCounter = 1;
+    queue.push(10, 10); // root (seq 1) -> popped
+    // @ts-expect-error Accessing private property
+    queue.sequenceCounter = 1;
+    queue.push(2, 2);   // left child (seq 1)
+    // @ts-expect-error Accessing private property
+    queue.sequenceCounter = 1;
+    queue.push(5, 5);   // right child (seq 1)
+    // @ts-expect-error Accessing private property
+    queue.sequenceCounter = 1;
+    queue.push(5, 5);   // next root (seq 1)
+
+    // After pop:
+    // root is D(5, seq1)
+    // left is B(2, seq1) -> compare(B, D) = 2-5 = -3 < 0. swapIndex = null
+    // right is C(5, seq1) -> compare(C, D) = 5-5 = 0. seq1-seq1 = 0.
+    // If we use >= 0, swapIndex becomes rightChild (2).
+    // If > 0, swapIndex remains null.
+    // So if >= 0, root swaps with right child.
+    // Meaning C becomes root, D becomes right child.
+    // Pop again: if it swapped, we pop C. If not, we pop D.
+    // Wait, C and D are both 5.
+    // Let's use different items to distinguish:
+
+    const queue2 = new PriorityQueue<string>();
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("A", 10);
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("B", 2); // left
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("C", 5); // right
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("D", 5); // next root
+
+    queue2.pop(); // pops A, D becomes root
+    // D is root. left is B, right is C.
+    // B vs D: B(2) < D(5) -> swapIndex = null
+    // C vs D: C(5) == D(5), seq == seq -> compare = 0.
+    // If > 0: no swap. D is root. Next pop returns D.
+    // If >= 0: swap with C. C is root. Next pop returns C.
+    expect(queue2.pop()).toBe("D");
+  });
+
+  it("should handle compare exact equality when swapIndex !== null", () => {
+    const queue2 = new PriorityQueue<string>();
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("A", 10);
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("B", 5); // left
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 1;
+    queue2.push("C", 5); // right
+    // @ts-expect-error Bypass
+    queue2.sequenceCounter = 2; // D seq=2, so B>D and C>D
+    queue2.push("D", 2); // next root
+
+    queue2.pop(); // pops A, D becomes root
+    // D(2, seq2) is root. left is B(5, seq1), right is C(5, seq1).
+    // B vs D: B(5) > D(2) -> swapIndex = leftChild (1)
+    // C vs B: C(5) == B(5), seq1 == seq1 -> compare = 0.
+    // If swapIndex !== null && compare(right, left) >= 0: swapIndex becomes rightChild (2).
+    // If > 0: swapIndex remains leftChild (1).
+    // So if >= 0, C becomes root. Next pop is C.
+    // If > 0, B becomes root. Next pop is B.
+    expect(queue2.pop()).toBe("B");
+  });
 });
 
 describe("sleep Mutants", () => {
