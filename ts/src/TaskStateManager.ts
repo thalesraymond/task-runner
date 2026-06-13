@@ -212,8 +212,8 @@ export class TaskStateManager<TContext> {
       if (!dependents) continue;
 
       // Get the result of the failed/skipped dependency to propagate error info if available
-      const currentResult = this.results.get(currentName);
-      const depError = currentResult?.error ? `: ${currentResult.error}` : "";
+      const currentResult = this.results.get(currentName)!;
+      const depError = currentResult.error ? `: ${currentResult.error}` : "";
 
       for (const dependent of dependents) {
         const result: TaskResult = {
