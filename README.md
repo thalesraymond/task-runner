@@ -9,6 +9,42 @@ A lightweight, type-safe, and domain-agnostic task orchestration engine. It reso
 
 Try the [Showcase App](https://task-runner-mu.vercel.app/) to see the runner in action.
 
+## Repository Structure
+
+This repository is a **polyglot monorepo** hosting both the stable TypeScript implementation and the in-progress Go rewrite:
+
+```
+task-runner/
+├── ts/          # TypeScript implementation (stable, published to npm)
+│   ├── src/     # Source code
+│   ├── tests/   # Test suite
+│   └── ...      # TS configs, package.json, etc.
+├── go/          # Go implementation (in development)
+│   ├── cmd/     # Binary entry points
+│   ├── internal/# Private packages
+│   └── go.mod
+└── ...          # Shared: README, LICENSE, .github/, openspec/
+```
+
+### TypeScript (`ts/`)
+
+```bash
+cd ts
+pnpm install    # Install dependencies
+pnpm build      # Compile TypeScript
+pnpm test       # Run tests (100% coverage required)
+pnpm lint       # Lint source
+```
+
+### Go (`go/`)
+
+```bash
+cd go
+go build ./...  # Build all packages
+go test ./...   # Run tests
+go vet ./...    # Vet for common issues
+```
+
 ## Features
 
 - **Domain Agnostic**: Separate your business logic ("What") from the execution engine ("How").

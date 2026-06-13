@@ -1,21 +1,3 @@
-<!-- OPENSPEC:START -->
-# OpenSpec Instructions
-
-These instructions are for AI assistants working in this project.
-
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
-
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
 
 ## Additional Rules
 
@@ -50,25 +32,44 @@ Auto-generated from all feature plans. Last updated: 2026-01-17
 
 ## Active Technologies
 
-- TypeScript 5.9.3 + vitest 4.0.17 (for testing) (004-pre-execution-validation)
-- TypeScript 5.9.3 + vitest 4.0.17, AbortSignal/AbortController (standard Web APIs) (002-task-cancellation)
-- N/A (in-memory context object) (002-task-cancellation)
-- N/A (in-memory queue for tasks) (005-concurrency-control)
+**TypeScript (`ts/`):**
+- TypeScript 5.9.3 + vitest 4.0.17 (for testing)
+- AbortSignal/AbortController (standard Web APIs for cancellation)
+- pnpm (package manager)
 
-- TypeScript 5.9.3 + vitest 4.0.17 (003-refactor-file-structure)
-
-- (001-generic-task-runner)
+**Go (`go/`):**
+- Go 1.23+
+- Standard library only (for now)
 
 ## Project Structure
 
 ```text
-src/
-tests/
+ts/           # TypeScript implementation (stable)
+  src/        # Source code
+  tests/      # Test suite
+  package.json
+go/           # Go implementation (in development)
+  cmd/task-runner/   # Binary entry point
+  internal/runner/   # Core logic
+  go.mod
 ```
 
 ## Commands
 
-# Add commands for
+**TypeScript (run from `ts/`):**
+```bash
+cd ts && pnpm install   # Install dependencies
+cd ts && pnpm build     # Compile TypeScript
+cd ts && pnpm test      # Run tests (100% coverage required)
+cd ts && pnpm lint      # Lint source
+```
+
+**Go (run from `go/`):**
+```bash
+cd go && go build ./... # Build
+cd go && go test ./...  # Test
+cd go && go vet ./...   # Vet
+```
 
 ## Code Style
 
