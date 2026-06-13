@@ -7,6 +7,7 @@ import { IExecutionStrategy } from "./strategies/IExecutionStrategy.js";
 import { LoopingExecutionStrategy } from "./strategies/LoopingExecutionStrategy.js";
 import { RetryingExecutionStrategy } from "./strategies/RetryingExecutionStrategy.js";
 import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrategy.js";
+import { LoggerPlugin } from "./plugins/LoggerPlugin.js";
 
 /**
  * A builder for configuring and creating TaskRunner instances.
@@ -14,6 +15,7 @@ import { StandardExecutionStrategy } from "./strategies/StandardExecutionStrateg
 export class TaskRunnerBuilder<TContext> {
   private readonly context: TContext;
   private strategy?: IExecutionStrategy<TContext>;
+  private loggerFormat?: "text" | "json";
   private listeners: {
     [K in keyof RunnerEventPayloads<TContext>]?: RunnerEventListener<
       TContext,
@@ -56,11 +58,25 @@ export class TaskRunnerBuilder<TContext> {
   }
 
   /**
+   * Configures a logger plugin for the runner.
+   * @param format The output format ("text" or "json").
+   * @returns The builder instance.
+   */
+  public withLogger(format: "text" | "json"): this {
+    this.loggerFormat = format;
+    return this;
+  }
+
+  /**
    * Builds the TaskRunner instance.
    * @returns A configured TaskRunner.
    */
   public build(): TaskRunner<TContext> {
     const runner = new TaskRunner(this.context);
+
+    if (this.loggerFormat) {
+      runner.use(new LoggerPlugin({ format: this.loggerFormat }));
+    }
 
     // Apply LoopingExecutionStrategy around the configured strategy, or default strategy chain
     const baseStrategy = this.strategy ?? new RetryingExecutionStrategy(new StandardExecutionStrategy());
