@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      checks: write
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.28.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: ts/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Cache Stryker Incremental File
+        uses: actions/cache@v5
+        with:
+          path: ts/reports/stryker-incremental.json
+          key: ${{ runner.os }}-stryker-incremental-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-stryker-incremental-refs/heads/main
+            ${{ runner.os }}-stryker-incremental-
+
+      - name: Incremental Mutation Test
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/main -- ts/src/ | grep '\.ts$' | grep -v '\.d\.ts$' | tr '\n' ',' | sed 's/,$//')
+          if [ -n "$CHANGED_FILES" ]; then
+            pnpm mutate --force -m "$CHANGED_FILES" --allowEmpty
+          else
+            echo "No TypeScript source files changed, running incremental mutation tests without custom file paths."
+            pnpm mutate
+          fi
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ts/coverage
