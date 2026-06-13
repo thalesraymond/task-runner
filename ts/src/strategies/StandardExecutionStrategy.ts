@@ -49,8 +49,7 @@ export class StandardExecutionStrategy<
 
         timeoutPromiseAbortController.signal.addEventListener(
           "abort",
-          () => resolve({ status: "cancelled" } as TaskResult),
-          { once: true }
+          () => resolve({ status: "cancelled" } as TaskResult)
         );
       });
 
