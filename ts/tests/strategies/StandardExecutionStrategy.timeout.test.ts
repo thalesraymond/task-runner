@@ -38,12 +38,16 @@ describe("StandardExecutionStrategy Timeout", () => {
 
   it("should signal abort to the task on timeout", async () => {
     const abortSpy = vi.fn();
+    let abortReason: unknown;
     const step: TaskStep<unknown> = {
       name: "abort-check",
       timeout: 50,
       run: async (context, signal) => {
         if (signal) {
-          signal.addEventListener("abort", abortSpy);
+          signal.addEventListener("abort", () => {
+            abortReason = signal.reason;
+            abortSpy();
+          });
         }
         await new Promise((resolve) => setTimeout(resolve, 100));
         return { status: "success" };
@@ -52,6 +56,8 @@ describe("StandardExecutionStrategy Timeout", () => {
 
     await strategy.execute(step, {});
     expect(abortSpy).toHaveBeenCalled();
+    expect(abortReason).toBeInstanceOf(Error);
+    expect((abortReason as Error).message).toBe("Timeout");
   });
 
   it("should handle global cancellation correctly even with timeout set", async () => {
