@@ -140,8 +140,13 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 
-#pnpm
 package-lock.json
 test-report.xml
 .stryker-tmp
 reports/
+
+# Go build artifacts
+go/bin/
+*.exe
+*.exe~
+*.out

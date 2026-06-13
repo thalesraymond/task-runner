@@ -1,6 +1,6 @@
 {
   "packages": {
-    ".": {
+    "ts": {
       "release-type": "node",
       "package-name": "@calmo/task-runner"
     }

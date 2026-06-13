@@ -12,6 +12,9 @@ permissions:
 jobs:
   mutate:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ts
 
     steps:
       - name: Checkout repository
@@ -27,6 +30,7 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
+          cache-dependency-path: ts/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install
@@ -34,7 +38,7 @@ jobs:
       - name: Cache Stryker Incremental File
         uses: actions/cache@v5
         with:
-          path: reports/stryker-incremental.json
+          path: ts/reports/stryker-incremental.json
           key: ${{ runner.os }}-stryker-incremental-refs/heads/main
 
       - name: Run mutation tests
@@ -45,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: mutation-report
-          path: reports/mutation/
+          path: ts/reports/mutation/
 
       - name: Report Mutation Results
         id: global-report
@@ -55,7 +59,7 @@ jobs:
           script: |
             const fs = require('fs');
             const label = 'mutation-report';
-            const reportPath = 'reports/mutation/mutation.json';
+            const reportPath = 'ts/reports/mutation/mutation.json';
             const apiVersion = '2026-03-10';
             const commonHeaders = { 'X-GitHub-Api-Version': apiVersion };
 
