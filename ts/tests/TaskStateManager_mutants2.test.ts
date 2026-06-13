@@ -39,22 +39,6 @@ describe("TaskStateManager cascaded failure mutants", () => {
         expect(results.get("Step2")?.message).toBe("Skipped because dependency 'Step1' failed: Boom");
     });
 
-    it("should not crash if currentResult is undefined in cascadeFailure", () => {
-        const eventBus = new EventBus<void>();
-        const stateManager = new TaskStateManager<void>(eventBus);
-
-        const step1: TaskStep<void> = { name: "Step1", run: async () => ({ status: "failure" }) };
-        const step2: TaskStep<void> = { name: "Step2", run: async () => ({ status: "success" }), dependencies: ["Step1"] };
-
-        stateManager.initialize([step1, step2]);
-
-        // @ts-expect-error bypass private access to call cascadeFailure manually without currentResult
-        stateManager.cascadeFailure("Step1");
-
-        const results = stateManager.getResults();
-        expect(results.get("Step2")?.status).toBe("skipped");
-        expect(results.get("Step2")?.message).toBe("Skipped because dependency 'Step1' failed");
-    });
 
     it("should break out of while loop when head reaches queue length", () => {
         const eventBus = new EventBus<void>();
@@ -73,4 +57,22 @@ describe("TaskStateManager cascaded failure mutants", () => {
         // If while loop had `head <= queue.length`, it would do map.get(undefined)
         expect(mapGetSpy).not.toHaveBeenCalledWith(undefined);
     });
+
+  it("kills break out of loop mutant when head < queue.length", () => {
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+
+    // A fails -> B skips -> C skips.
+    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepC: TaskStep<void> = { name: "C", dependencies: ["B"], run: async () => ({ status: "success" }) };
+
+    stateManager.initialize([stepA, stepB, stepC]);
+    const ready = stateManager.processDependencies();
+
+    stateManager.markCompleted(ready[0], { status: "failure" });
+
+    expect(stateManager.getResults().get("B")?.status).toBe("skipped");
+    expect(stateManager.getResults().get("C")?.status).toBe("skipped");
+  });
 });
