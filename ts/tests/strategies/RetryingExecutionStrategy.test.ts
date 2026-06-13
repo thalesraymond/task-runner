@@ -31,6 +31,42 @@ describe("RetryingExecutionStrategy", () => {
     expect(task.run).toHaveBeenCalledTimes(1);
   });
 
+  it("should execute without retry if inner strategy returns cancelled", async () => {
+    const runMock = vi.fn().mockResolvedValue({ status: "cancelled" });
+    const task: TaskStep<unknown> = {
+      name: "task1",
+      retry: {
+        attempts: 2,
+        delay: 100,
+        backoff: "fixed",
+      },
+      run: runMock,
+    };
+
+    const result = await retryingStrategy.execute(task, {});
+
+    expect(result.status).toBe("cancelled");
+    expect(runMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("should execute without retry if inner strategy returns skipped", async () => {
+    const runMock = vi.fn().mockResolvedValue({ status: "skipped" });
+    const task: TaskStep<unknown> = {
+      name: "task1",
+      retry: {
+        attempts: 2,
+        delay: 100,
+        backoff: "fixed",
+      },
+      run: runMock,
+    };
+
+    const result = await retryingStrategy.execute(task, {});
+
+    expect(result.status).toBe("skipped");
+    expect(runMock).toHaveBeenCalledTimes(1);
+  });
+
   it("should execute successfully without retry if task has no retry config", async () => {
     const task: TaskStep<unknown> = {
       name: "task1",

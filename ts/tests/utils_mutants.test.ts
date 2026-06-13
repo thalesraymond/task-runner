@@ -161,7 +161,12 @@ describe("PriorityQueue Mutants", () => {
 describe("sleep Mutants", () => {
   it("should return immediately if ms <= 0", async () => {
     const start = performance.now();
+    const setTimeoutSpy = vi.spyOn(global, "setTimeout");
     await sleep(0);
+    expect(setTimeoutSpy).not.toHaveBeenCalled();
+    await sleep(-1);
+    expect(setTimeoutSpy).not.toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
     expect(performance.now() - start).toBeLessThan(5);
   });
 
