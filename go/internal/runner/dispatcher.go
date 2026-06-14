@@ -12,12 +12,13 @@ type eventWithContext struct {
 
 // EventDispatcher broadcasts events to registered plugins asynchronously.
 type EventDispatcher struct {
-	mu      sync.RWMutex
-	plugins []any
-	closed  bool
-	eventCh chan eventWithContext
-	wg      sync.WaitGroup
-	cancel  context.CancelFunc
+	mu          sync.RWMutex
+	plugins     []any
+	closed      bool
+	activeSends sync.WaitGroup
+	eventCh     chan eventWithContext
+	wg          sync.WaitGroup
+	cancel      context.CancelFunc
 }
 
 // NewEventDispatcher creates a new dispatcher and starts its background goroutine.
@@ -46,11 +47,14 @@ func (d *EventDispatcher) RegisterPlugin(plugin any) {
 // It safely ignores events sent after the dispatcher has been shutdown.
 func (d *EventDispatcher) Dispatch(ctx context.Context, event Event) {
 	d.mu.RLock()
-	defer d.mu.RUnlock()
-	
 	if d.closed {
+		d.mu.RUnlock()
 		return
 	}
+	d.activeSends.Add(1)
+	d.mu.RUnlock()
+
+	defer d.activeSends.Done()
 	d.eventCh <- eventWithContext{ctx: ctx, event: event}
 }
 
@@ -111,7 +115,8 @@ func (d *EventDispatcher) Shutdown() {
 	d.closed = true
 	d.mu.Unlock()
 
-	close(d.eventCh) // signal no more events
-	d.wg.Wait()      // wait for drain
-	d.cancel()       // clean up context
+	d.activeSends.Wait() // wait for pending Dispatch sends to complete
+	close(d.eventCh)     // signal no more events
+	d.wg.Wait()          // wait for drain
+	d.cancel()           // clean up context
 }
