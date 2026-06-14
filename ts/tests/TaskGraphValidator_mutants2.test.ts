@@ -8,15 +8,12 @@ describe("TaskGraphValidator Mutants - ArrayDeclaration", () => {
     const graph: TaskGraph = {
       tasks: [
         { id: "A", dependencies: ["B"] },
-        { id: "B", dependencies: ["C"] },
-        { id: "C", dependencies: ["B"] }, // cycle B -> C -> B
+        { id: "B", dependencies: ["A"] }, // Cycle A->B->A
       ],
     };
+
     const result = validator.validate(graph);
-
-
-    // We expect the path initialization array inside `checkCycles` to be []
-    // So the cycle extraction should work correctly
-    expect(result.errors[0].message).toBe("Cycle detected: B -> C -> B");
+    expect(result.errors.length).toBe(1);
+    expect(result.errors[0].message).toBe("Cycle detected: A -> B -> A");
   });
 });
