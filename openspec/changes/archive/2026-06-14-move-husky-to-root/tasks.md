@@ -13,6 +13,6 @@
 
 ## 3. Cleanup
 
-- [ ] 3.1 Verify there are no lingering git hooks installed in `ts/.git/hooks` or similar that conflict with the root
-- [ ] 3.2 Remove any duplicate scripts related to commit hooks from `ts/package.json`
-- [ ] 3.3 Test committing from both the root directory and the `ts/` directory to ensure the hooks execute correctly and the commit is validated
+- [x] 3.1 Verify there are no lingering git hooks installed in `ts/.git/hooks` or similar that conflict with the root
+- [x] 3.2 Remove any duplicate scripts related to commit hooks from `ts/package.json`
+- [x] 3.3 Test committing from both the root directory and the `ts/` directory to ensure the hooks execute correctly and the commit is validated
