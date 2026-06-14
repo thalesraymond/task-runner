@@ -57,6 +57,12 @@ func TestEventDispatcher(t *testing.T) {
 	if plugin.taskEndCalls != 1 {
 		t.Errorf("Expected 1 TaskEnd call, got %d", plugin.taskEndCalls)
 	}
+
+	// Test double shutdown (coverage)
+	dispatcher.Shutdown()
+
+	// Test dispatch after shutdown (coverage)
+	dispatcher.Dispatch(ctx, WorkflowStartEvent{})
 }
 
 func TestEventDispatcher_ChannelFull(t *testing.T) {

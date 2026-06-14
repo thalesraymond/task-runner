@@ -150,3 +150,4 @@ go/bin/
 *.exe
 *.exe~
 *.out
+go/coverage.html
