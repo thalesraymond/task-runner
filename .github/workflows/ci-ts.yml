@@ -3,8 +3,14 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - "ts/**"
+      - ".github/workflows/ci-ts.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "ts/**"
+      - ".github/workflows/ci-ts.yml"
 
 jobs:
   build:
