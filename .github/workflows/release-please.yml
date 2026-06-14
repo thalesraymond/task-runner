@@ -21,29 +21,33 @@ jobs:
                   target-branch: main
 
             - uses: actions/checkout@v6
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v6
               with:
                   version: 10.28.0
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - uses: actions/setup-node@v6
               with:
                   node-version: "lts/*"
                   registry-url: "https://registry.npmjs.org"
                   cache: "pnpm"
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - run: pnpm install --frozen-lockfile
               working-directory: ts
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - run: pnpm build
               working-directory: ts
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - run: pnpm publish --no-git-checks
               working-directory: ts
-              if: ${{ steps.release.outputs.release_created }}
+              if: ${{ steps.release.outputs['ts--release_created'] }}
+
+            - name: Verify Go release
+              if: ${{ steps.release.outputs['go--release_created'] }}
+              run: echo "Go release was created!"

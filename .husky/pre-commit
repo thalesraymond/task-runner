@@ -1,1 +1,7 @@
-cd ts && pnpm build && pnpm lint && pnpm test
+echo "Running ts checks..."
+(cd ts && pnpm run all)
+
+if [ -d "go" ]; then
+  echo "Running go checks..."
+  (cd go && go build ./... && go test ./... && go vet ./...)
+fi

@@ -22,14 +22,7 @@
     "lint:fix": "eslint . --fix",
     "mutate": "stryker run",
     "all": "pnpm run build && pnpm run test && pnpm run lint",
-    "format": "prettier --write .",
-    "prepare": "husky",
-    "commit": "git add . &&git-cz"
-  },
-  "config": {
-    "commitizen": {
-      "path": "git-cz"
-    }
+    "format": "prettier --write ."
   },
   "keywords": [
     "task-runner",
@@ -47,8 +40,6 @@
   "license": "ISC",
   "packageManager": "pnpm@10.28.0",
   "devDependencies": {
-    "@commitlint/cli": "^20.3.1",
-    "@commitlint/config-conventional": "^20.3.1",
     "@eslint/js": "^9.39.2",
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
@@ -56,8 +47,6 @@
     "@vitest/coverage-v8": "4.0.17",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
-    "git-cz": "^4.9.0",
-    "husky": "^9.1.7",
     "prettier": "^3.8.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
