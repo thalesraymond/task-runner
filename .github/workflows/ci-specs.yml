@@ -11,7 +11,8 @@ on:
     paths:
       - "openspec/**"
       - ".github/workflows/ci-specs.yml"
-
+permissions:
+  contents: read
 jobs:
   validate:
     runs-on: ubuntu-latest
