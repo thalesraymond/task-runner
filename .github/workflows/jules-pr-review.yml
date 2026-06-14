@@ -15,7 +15,7 @@ jobs:
       contents: read
       statuses: write
     steps:
-      - uses: sanjay3290/jules-pr-reviewer@v1
+      - uses: thalesraymond/jules-pr-reviewer@v1
         with:
           jules_api_key: ${{ secrets.JULES_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
