@@ -1,0 +1,19 @@
+{
+  "name": "task-runner-root",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "commit": "git add . && git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "git-cz"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
+    "git-cz": "^4.9.0",
+    "husky": "^9.1.7"
+  }
+}
