@@ -12,7 +12,9 @@ type eventWithContext struct {
 
 // EventDispatcher broadcasts events to registered plugins asynchronously.
 type EventDispatcher struct {
+	mu      sync.RWMutex
 	plugins []any
+	closed  bool
 	eventCh chan eventWithContext
 	wg      sync.WaitGroup
 	cancel  context.CancelFunc
@@ -33,20 +35,23 @@ func NewEventDispatcher() *EventDispatcher {
 	return d
 }
 
-// RegisterPlugin adds a plugin to the dispatcher.
+// RegisterPlugin adds a plugin to the dispatcher safely.
 func (d *EventDispatcher) RegisterPlugin(plugin any) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
 	d.plugins = append(d.plugins, plugin)
 }
 
 // Dispatch sends an event to the background goroutine for broadcasting.
-// It is non-blocking up to the channel's buffer size.
+// It safely ignores events sent after the dispatcher has been shutdown.
 func (d *EventDispatcher) Dispatch(ctx context.Context, event Event) {
-	select {
-	case d.eventCh <- eventWithContext{ctx: ctx, event: event}:
-	default:
-		// Channel is full, block to ensure delivery (drop is bad for telemetry).
-		d.eventCh <- eventWithContext{ctx: ctx, event: event}
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	
+	if d.closed {
+		return
 	}
+	d.eventCh <- eventWithContext{ctx: ctx, event: event}
 }
 
 // start runs the background loop to process events.
@@ -68,7 +73,12 @@ func (d *EventDispatcher) start(ctx context.Context) {
 
 // broadcast synchronously calls listener methods for the given event on registered plugins.
 func (d *EventDispatcher) broadcast(ctx context.Context, event Event) {
-	for _, p := range d.plugins {
+	d.mu.RLock()
+	pluginsCopy := make([]any, len(d.plugins))
+	copy(pluginsCopy, d.plugins)
+	d.mu.RUnlock()
+
+	for _, p := range pluginsCopy {
 		switch e := event.(type) {
 		case WorkflowStartEvent:
 			if l, ok := p.(WorkflowStartListener); ok {
@@ -91,7 +101,16 @@ func (d *EventDispatcher) broadcast(ctx context.Context, event Event) {
 }
 
 // Shutdown gracefully stops the dispatcher, waiting for pending events to be processed.
+// It also ensures that any future Dispatch calls are safely ignored.
 func (d *EventDispatcher) Shutdown() {
+	d.mu.Lock()
+	if d.closed {
+		d.mu.Unlock()
+		return
+	}
+	d.closed = true
+	d.mu.Unlock()
+
 	close(d.eventCh) // signal no more events
 	d.wg.Wait()      // wait for drain
 	d.cancel()       // clean up context
