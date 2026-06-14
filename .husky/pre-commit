@@ -1,7 +1,16 @@
-echo "Running ts checks..."
-(cd ts && pnpm run all)
+STAGED_FILES=$(git diff --cached --name-only)
 
-if [ -d "go" ]; then
+if echo "$STAGED_FILES" | grep -q "^ts/"; then
+  echo "Running ts checks..."
+  (cd ts && pnpm run all)
+fi
+
+if echo "$STAGED_FILES" | grep -q "^go/"; then
   echo "Running go checks..."
   (cd go && go build ./... && go test ./... && go vet ./...)
+fi
+
+if echo "$STAGED_FILES" | grep -q "^openspec/"; then
+  echo "Running openspec validation..."
+  openspec validate --all
 fi
