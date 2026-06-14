@@ -1,5 +1,3 @@
-## ADDED Requirements
-
 ## Purpose
 This specification defines the requirements for implementing root-level Git hooks and commit helper utilities in the task-runner repository. The goal is to ensure that developers can easily execute git hooks and commit helper commands from the repository root, streamlining the development workflow and maintaining consistency across all subdirectories.
 

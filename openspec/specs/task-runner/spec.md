@@ -172,7 +172,6 @@ The system SHALL record timing metrics for each executed task, including start t
 #### Scenario: Failed execution
 - **WHEN** a task fails
 - **THEN** the task result contains the start timestamp, end timestamp, and duration in milliseconds
-## ADDED Requirements
 
 ### Requirement: Built-in Observability Logging
 
