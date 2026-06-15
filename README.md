@@ -241,3 +241,4 @@ One of the reasons this project exists is to test 'vibe coding' tools, so yes, t
 Feel free to open issues and PRs. I'm open to feedback and suggestions. I can't promise to act on them but I'll try my best. If you want to play with it, feel free to fork it, change it and use it in your own projects.
 
 ---
+

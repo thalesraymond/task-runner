@@ -10,9 +10,27 @@ type Runner struct {
 	// concurrency limits the number of tasks running simultaneously.
 	// A value of 0 means unlimited.
 	concurrency int
+	
+	// dispatcher handles asynchronous event broadcasting to plugins.
+	dispatcher *EventDispatcher
 }
 
-// New creates a new Runner with the given concurrency limit.
-func New(concurrency int) *Runner {
-	return &Runner{concurrency: concurrency}
+// New creates a new Runner with the given concurrency limit and optional plugins.
+func New(concurrency int, plugins ...any) *Runner {
+	dispatcher := NewEventDispatcher()
+	for _, p := range plugins {
+		dispatcher.RegisterPlugin(p)
+	}
+
+	return &Runner{
+		concurrency: concurrency,
+		dispatcher:  dispatcher,
+	}
+}
+
+// Shutdown stops the runner and its background services.
+func (r *Runner) Shutdown() {
+	if r.dispatcher != nil {
+		r.dispatcher.Shutdown()
+	}
 }
