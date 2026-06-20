@@ -20,7 +20,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   target-branch: main
 
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
               if: ${{ steps.release.outputs['ts--release_created'] }}
 
             - name: Setup pnpm
