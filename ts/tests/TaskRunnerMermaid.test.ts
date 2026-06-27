@@ -120,7 +120,7 @@ describe("TaskRunner Mermaid Graph", () => {
   it("should evaluate uniqueId uniqueness boolean exactly", () => {
     const steps: TaskStep<unknown>[] = [
       { name: "Task 1", run: async () => ({ status: "success" }) },
-      { name: "Task_1", run: async () => ({ status: "success" }) }
+      { name: "Task_1", run: async () => ({ status: "success" }) },
     ];
     const rawGraph = TaskRunner.getMermaidGraph(steps);
     // Task_1 maps to Task_1. Task 1 maps to Task_1. They collide.
@@ -135,7 +135,7 @@ describe("TaskRunner Mermaid Graph", () => {
       { name: "A", run: async () => ({ status: "success" }) },
       // Exact duplicate object reference or just exact name?
       // getUniqueId caches the mapping, so same name means same uniqueId.
-      { name: "A", run: async () => ({ status: "success" }) }
+      { name: "A", run: async () => ({ status: "success" }) },
     ];
     const rawGraph = TaskRunner.getMermaidGraph(steps);
     // Graph should contain A exactly once.
@@ -147,7 +147,7 @@ describe("TaskRunner Mermaid Graph", () => {
     // If we skip the `baseIdCounters.set`, the loop will just re-evaluate `usedIds.has` starting from 1 every time.
     // It is just an optimization but we can test that it evaluates to false if we don't have collisions.
     const steps: TaskStep<unknown>[] = [
-      { name: "B", run: async () => ({ status: "success" }) }
+      { name: "B", run: async () => ({ status: "success" }) },
     ];
     const rawGraph = TaskRunner.getMermaidGraph(steps);
     expect(rawGraph).toContain("B[\"B\"]");
@@ -159,14 +159,11 @@ describe("TaskRunner Mermaid Graph", () => {
     // the code proceeds to the counter loop where counter starts at 1, checks uniqueId + "_1" -> "A_1".
     // So "A" would erroneously map to "A_1".
     const steps: TaskStep<unknown>[] = [
-      { name: "FirstTask", run: async () => ({ status: "success" }) }
+      { name: "FirstTask", run: async () => ({ status: "success" }) },
     ];
     const rawGraph = TaskRunner.getMermaidGraph(steps);
     // It should map to "FirstTask", NOT "FirstTask_1".
     expect(rawGraph).toContain("FirstTask[\"FirstTask\"]");
     expect(rawGraph).not.toContain("FirstTask_1");
   });
-
-
-
 });

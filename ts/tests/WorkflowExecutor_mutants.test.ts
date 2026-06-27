@@ -10,9 +10,17 @@ describe("WorkflowExecutor Mutants", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
     const strategy = new StandardExecutionStrategy<void>();
-    const executor = new WorkflowExecutor<void>(undefined as unknown as void, eventBus, stateManager, strategy);
+    const executor = new WorkflowExecutor<void>(
+      undefined as unknown as void,
+      eventBus,
+      stateManager,
+      strategy
+    );
 
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     const results = await executor.execute([step]);
     expect(results.get("Step1")?.status).toBe("success");
@@ -22,9 +30,17 @@ describe("WorkflowExecutor Mutants", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
     const strategy = new StandardExecutionStrategy<void>();
-    const executor = new WorkflowExecutor<void>(undefined as unknown as void, eventBus, stateManager, strategy);
+    const executor = new WorkflowExecutor<void>(
+      undefined as unknown as void,
+      eventBus,
+      stateManager,
+      strategy
+    );
 
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     const controller = new AbortController();
     const removeSpy = vi.spyOn(controller.signal, "removeEventListener");
@@ -38,9 +54,17 @@ describe("WorkflowExecutor Mutants", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
     const strategy = new StandardExecutionStrategy<void>();
-    const executor = new WorkflowExecutor<void>(undefined as unknown as void, eventBus, stateManager, strategy);
+    const executor = new WorkflowExecutor<void>(
+      undefined as unknown as void,
+      eventBus,
+      stateManager,
+      strategy
+    );
 
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     const controller = new AbortController();
     const removeSpy = vi.spyOn(controller.signal, "removeEventListener");
@@ -51,14 +75,17 @@ describe("WorkflowExecutor Mutants", () => {
   });
 
   it("should clear readyQueue properly during cancelAllPending", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
-      const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
-      stateManager.initialize([step]);
-      stateManager.cancelAllPending("cancelled");
+    stateManager.initialize([step]);
+    stateManager.cancelAllPending("cancelled");
 
-      const ready = stateManager.processDependencies();
-      expect(ready).toHaveLength(0);
+    const ready = stateManager.processDependencies();
+    expect(ready).toHaveLength(0);
   });
 });

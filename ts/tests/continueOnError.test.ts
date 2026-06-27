@@ -30,7 +30,10 @@ describe("TaskRunner - Continue On Error", () => {
     const taskA: TaskStep<TestContext> = {
       name: "A",
       continueOnError: true,
-      run: async () => ({ status: "failure", error: "Task A failed but continued" }),
+      run: async () => ({
+        status: "failure",
+        error: "Task A failed but continued",
+      }),
     };
     const taskB: TaskStep<TestContext> = {
       name: "B",
@@ -49,7 +52,10 @@ describe("TaskRunner - Continue On Error", () => {
     const taskA: TaskStep<TestContext> = {
       name: "A",
       continueOnError: true,
-      run: async () => ({ status: "failure", error: "Task A failed but continued" }),
+      run: async () => ({
+        status: "failure",
+        error: "Task A failed but continued",
+      }),
     };
     const taskB: TaskStep<TestContext> = {
       name: "B",
@@ -57,10 +63,10 @@ describe("TaskRunner - Continue On Error", () => {
       run: async () => ({ status: "success" }),
     };
     const taskC: TaskStep<TestContext> = {
-        name: "C",
-        dependencies: ["B"],
-        run: async () => ({ status: "success" }),
-      };
+      name: "C",
+      dependencies: ["B"],
+      run: async () => ({ status: "success" }),
+    };
 
     const runner = new TaskRunner<TestContext>({});
     const results = await runner.execute([taskA, taskB, taskC]);
@@ -72,20 +78,23 @@ describe("TaskRunner - Continue On Error", () => {
 
   it("should skip dependent if intermediate task fails without continueOnError", async () => {
     const taskA: TaskStep<TestContext> = {
-        name: "A",
-        continueOnError: true,
-        run: async () => ({ status: "failure", error: "Task A failed but continued" }),
+      name: "A",
+      continueOnError: true,
+      run: async () => ({
+        status: "failure",
+        error: "Task A failed but continued",
+      }),
     };
     const taskB: TaskStep<TestContext> = {
-        name: "B",
-        dependencies: ["A"],
-        run: async () => ({ status: "failure", error: "Task B failed" }),
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "failure", error: "Task B failed" }),
     };
     const taskC: TaskStep<TestContext> = {
-        name: "C",
-        dependencies: ["B"],
-        run: async () => ({ status: "success" }),
-      };
+      name: "C",
+      dependencies: ["B"],
+      run: async () => ({ status: "success" }),
+    };
 
     const runner = new TaskRunner<TestContext>({});
     const results = await runner.execute([taskA, taskB, taskC]);

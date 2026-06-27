@@ -83,7 +83,6 @@ export class WorkflowExecutor<TContext> {
       while (executingPromises.size > 0) {
         // Wait for the next task to finish
         await signalPromise;
-
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)

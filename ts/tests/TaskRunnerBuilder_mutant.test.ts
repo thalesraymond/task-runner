@@ -47,8 +47,19 @@ describe("TaskRunnerBuilder mutants", () => {
     // And its inner strategy should be RetryingExecutionStrategy, which inner strategy is StandardExecutionStrategy
     // @ts-expect-error accessing private property
     const loopStrategy = runner.executionStrategy as unknown;
-    expect((loopStrategy as { constructor: { name: string } }).constructor.name).toBe("LoopingExecutionStrategy");
-    expect((loopStrategy as { innerStrategy: { constructor: { name: string } } }).innerStrategy.constructor.name).toBe("RetryingExecutionStrategy");
-    expect((loopStrategy as { innerStrategy: { innerStrategy: { constructor: { name: string } } } }).innerStrategy.innerStrategy.constructor.name).toBe("StandardExecutionStrategy");
+    expect(
+      (loopStrategy as { constructor: { name: string } }).constructor.name
+    ).toBe("LoopingExecutionStrategy");
+    expect(
+      (loopStrategy as { innerStrategy: { constructor: { name: string } } })
+        .innerStrategy.constructor.name
+    ).toBe("RetryingExecutionStrategy");
+    expect(
+      (
+        loopStrategy as {
+          innerStrategy: { innerStrategy: { constructor: { name: string } } };
+        }
+      ).innerStrategy.innerStrategy.constructor.name
+    ).toBe("StandardExecutionStrategy");
   });
 });

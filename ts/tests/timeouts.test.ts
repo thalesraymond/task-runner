@@ -32,7 +32,9 @@ describe("TaskRunner Timeouts", () => {
     const results = await runner.execute(steps);
 
     expect(results.get("slow-task")?.status).toBe("failure");
-    expect(results.get("slow-task")?.error).toContain("Task timed out after 50ms");
+    expect(results.get("slow-task")?.error).toContain(
+      "Task timed out after 50ms"
+    );
     expect(results.get("dependent-task")?.status).toBe("skipped");
     expect(results.get("independent-task")?.status).toBe("success");
   });

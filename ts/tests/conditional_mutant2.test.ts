@@ -13,15 +13,21 @@ describe("WorkflowExecutor Conditional Mutant 2", () => {
     let taskEndEmitted = false;
     let taskSkippedEmitted = false;
 
-    eventBus.on("taskEnd", () => { taskEndEmitted = true; });
-    eventBus.on("taskSkipped", () => { taskSkippedEmitted = true; });
+    eventBus.on("taskEnd", () => {
+      taskEndEmitted = true;
+    });
+    eventBus.on("taskSkipped", () => {
+      taskSkippedEmitted = true;
+    });
 
     // A condition that returns false evaluates to "skipped"
-    const steps = [{
+    const steps = [
+      {
         name: "A",
         condition: () => false,
-        run: async () => ({ status: "success" as const })
-    }];
+        run: async () => ({ status: "success" as const }),
+      },
+    ];
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
     await executor.execute(steps);
