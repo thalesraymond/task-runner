@@ -22,7 +22,7 @@ var escapeMermaidName = strings.NewReplacer(
 // GenerateMermaidGraph creates a Mermaid.js flowchart from a TaskGraph.
 func GenerateMermaidGraph(graph *TaskGraph) string {
 	nodeLines := []string{"graph TD"}
-	
+
 	idMap := make(map[string]string)
 	usedIDs := make(map[string]bool)
 	baseIDCounters := make(map[string]int)
@@ -34,7 +34,7 @@ func GenerateMermaidGraph(graph *TaskGraph) string {
 
 		sanitized := mermaidIDRegex.ReplaceAllString(name, "_")
 		uniqueID := sanitized
-		
+
 		counter := 1
 		if count, exists := baseIDCounters[sanitized]; exists {
 			counter = count
@@ -52,8 +52,9 @@ func GenerateMermaidGraph(graph *TaskGraph) string {
 	}
 
 	processedNodes := make(map[string]bool)
-	var edgeLines []string
-	
+	edgeMap := make(map[string]bool)
+	var uniqueEdgeLines []string
+
 	for _, task := range graph.Tasks {
 		name := task.ID
 		stepID := getUniqueID(name)
@@ -66,17 +67,11 @@ func GenerateMermaidGraph(graph *TaskGraph) string {
 
 		for _, dep := range task.Dependencies {
 			depID := getUniqueID(dep)
-			edgeLines = append(edgeLines, fmt.Sprintf("  %s --> %s", depID, stepID))
-		}
-	}
-	
-	// Deduplicate edge lines like a Set in TypeScript
-	edgeMap := make(map[string]bool)
-	var uniqueEdgeLines []string
-	for _, edge := range edgeLines {
-		if !edgeMap[edge] {
-			edgeMap[edge] = true
-			uniqueEdgeLines = append(uniqueEdgeLines, edge)
+			edgeLine := fmt.Sprintf("  %s --> %s", depID, stepID)
+			if !edgeMap[edgeLine] {
+				edgeMap[edgeLine] = true
+				uniqueEdgeLines = append(uniqueEdgeLines, edgeLine)
+			}
 		}
 	}
 
