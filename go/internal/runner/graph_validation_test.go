@@ -61,7 +61,7 @@ func TestValidate_MissingDependencies(t *testing.T) {
 	if !errors.As(err, &missingErr) {
 		t.Fatalf("expected *MissingDependencyError, got: %v", err)
 	}
-	
+
 	// Could match either A->B or C->D
 	if missingErr.TaskID != "A" && missingErr.TaskID != "C" {
 		t.Errorf("unexpected TaskID in error: %s", missingErr.TaskID)
