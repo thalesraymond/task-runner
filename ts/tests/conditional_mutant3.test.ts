@@ -13,19 +13,25 @@ describe("WorkflowExecutor Conditional Mutant 3", () => {
     let taskEndEmitted = false;
     let taskSkippedEmitted = false;
 
-    eventBus.on("taskEnd", () => { taskEndEmitted = true; });
-    eventBus.on("taskSkipped", () => { taskSkippedEmitted = true; });
+    eventBus.on("taskEnd", () => {
+      taskEndEmitted = true;
+    });
+    eventBus.on("taskSkipped", () => {
+      taskSkippedEmitted = true;
+    });
 
     // A condition that evaluates to undefined (meaning it should run)
     // Wait, if it evaluates to undefined, we return undefined from evaluateCondition
     // and skip the whole if (conditionResult) block.
     // So we need a conditionResult that is NOT skipped, like "cancelled".
     const controller = new AbortController();
-    const steps = [{
+    const steps = [
+      {
         name: "A",
         condition: () => true, // but abort
-        run: async () => ({ status: "success" as const })
-    }];
+        run: async () => ({ status: "success" as const }),
+      },
+    ];
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
     // Abort early so `evaluateCondition` returns { status: "cancelled" }

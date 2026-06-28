@@ -32,9 +32,14 @@ describe("LoggerPlugin", () => {
     });
 
     it("should log workflowStart", async () => {
-      eventBus.emit("workflowStart", { context: {}, steps: [{} as any, {} as any] });
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(logSpy).toHaveBeenCalledWith("[WorkflowStart] Starting workflow with 2 steps.");
+      eventBus.emit("workflowStart", {
+        context: {},
+        steps: [{} as any, {} as any],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(logSpy).toHaveBeenCalledWith(
+        "[WorkflowStart] Starting workflow with 2 steps."
+      );
     });
 
     it("should log workflowEnd", async () => {
@@ -46,13 +51,15 @@ describe("LoggerPlugin", () => {
       results.set("task4", { status: "cancelled" });
       results.set("task4", { status: "cancelled" });
       eventBus.emit("workflowEnd", { context: {}, results: results as any });
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(logSpy).toHaveBeenCalledWith("[WorkflowEnd] Workflow completed. Success: 1, Failed: 1.");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(logSpy).toHaveBeenCalledWith(
+        "[WorkflowEnd] Workflow completed. Success: 1, Failed: 1."
+      );
     });
 
     it("should log taskStart", async () => {
       eventBus.emit("taskStart", { step: { name: "task1" } as any });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledWith("[TaskStart] Task 'task1' started.");
     });
 
@@ -61,8 +68,10 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "success", metrics: { duration: 500 } } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(logSpy).toHaveBeenCalledWith("[TaskEnd] Task 'task1' ended with status 'success' in 500ms.");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(logSpy).toHaveBeenCalledWith(
+        "[TaskEnd] Task 'task1' ended with status 'success' in 500ms."
+      );
     });
 
     it("should log taskEnd without duration", async () => {
@@ -70,8 +79,10 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "success" } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(logSpy).toHaveBeenCalledWith("[TaskEnd] Task 'task1' ended with status 'success'.");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(logSpy).toHaveBeenCalledWith(
+        "[TaskEnd] Task 'task1' ended with status 'success'."
+      );
     });
 
     it("should log taskSkipped", async () => {
@@ -79,8 +90,10 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "skipped" } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(logSpy).toHaveBeenCalledWith("[TaskSkipped] Task 'task1' skipped.");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(logSpy).toHaveBeenCalledWith(
+        "[TaskSkipped] Task 'task1' skipped."
+      );
     });
   });
 
@@ -93,8 +106,11 @@ describe("LoggerPlugin", () => {
     });
 
     it("should log workflowStart as json", async () => {
-      eventBus.emit("workflowStart", { context: {}, steps: [{} as any, {} as any] });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      eventBus.emit("workflowStart", {
+        context: {},
+        steps: [{} as any, {} as any],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const jsonStr = logSpy.mock.calls[0][0];
       const data = JSON.parse(jsonStr);
@@ -108,17 +124,20 @@ describe("LoggerPlugin", () => {
       results.set("task1", { status: "success" });
       results.set("task2", { status: "failure" });
       eventBus.emit("workflowEnd", { context: {}, results: results as any });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const data = JSON.parse(logSpy.mock.calls[0][0]);
       expect(data.event).toBe("workflowEnd");
       expect(data.totalTasks).toBe(2);
-      expect(data.statusSummary).toEqual({ task1: "success", task2: "failure" });
+      expect(data.statusSummary).toEqual({
+        task1: "success",
+        task2: "failure",
+      });
     });
 
     it("should log taskStart as json", async () => {
       eventBus.emit("taskStart", { step: { name: "task1" } as any });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const data = JSON.parse(logSpy.mock.calls[0][0]);
       expect(data.event).toBe("taskStart");
@@ -130,7 +149,7 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "success", metrics: { duration: 500 } } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const data = JSON.parse(logSpy.mock.calls[0][0]);
       expect(data.event).toBe("taskEnd");
@@ -144,7 +163,7 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "success" } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const data = JSON.parse(logSpy.mock.calls[0][0]);
       expect(data.event).toBe("taskEnd");
@@ -156,7 +175,7 @@ describe("LoggerPlugin", () => {
         step: { name: "task1" } as any,
         result: { status: "skipped" } as any,
       });
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(logSpy).toHaveBeenCalledTimes(1);
       const data = JSON.parse(logSpy.mock.calls[0][0]);
       expect(data.event).toBe("taskSkipped");
@@ -178,7 +197,9 @@ describe("TaskRunnerBuilder LoggerPlugin Integration", () => {
   });
 
   it("should configure text logger via builder and log events", async () => {
-    const builder = new TaskRunnerBuilder<Record<string, unknown>>({}).withLogger("text");
+    const builder = new TaskRunnerBuilder<Record<string, unknown>>(
+      {}
+    ).withLogger("text");
     const runner = builder.build();
 
     await runner.execute([
@@ -191,9 +212,28 @@ describe("TaskRunnerBuilder LoggerPlugin Integration", () => {
     expect(logSpy).toHaveBeenCalled();
     const calls = logSpy.mock.calls.map((c: unknown[]) => c[0]);
 
-    expect(calls.some((c: string) => typeof c === "string" && c.includes("[WorkflowStart]"))).toBe(true);
-    expect(calls.some((c: string) => typeof c === "string" && c.includes("[TaskStart] Task 'test-task'"))).toBe(true);
-    expect(calls.some((c: string) => typeof c === "string" && c.includes("[TaskEnd] Task 'test-task' ended"))).toBe(true);
-    expect(calls.some((c: string) => typeof c === "string" && c.includes("[WorkflowEnd]"))).toBe(true);
+    expect(
+      calls.some(
+        (c: string) => typeof c === "string" && c.includes("[WorkflowStart]")
+      )
+    ).toBe(true);
+    expect(
+      calls.some(
+        (c: string) =>
+          typeof c === "string" && c.includes("[TaskStart] Task 'test-task'")
+      )
+    ).toBe(true);
+    expect(
+      calls.some(
+        (c: string) =>
+          typeof c === "string" &&
+          c.includes("[TaskEnd] Task 'test-task' ended")
+      )
+    ).toBe(true);
+    expect(
+      calls.some(
+        (c: string) => typeof c === "string" && c.includes("[WorkflowEnd]")
+      )
+    ).toBe(true);
   });
 });

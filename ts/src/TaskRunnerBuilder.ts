@@ -79,20 +79,20 @@ export class TaskRunnerBuilder<TContext> {
     }
 
     // Apply LoopingExecutionStrategy around the configured strategy, or default strategy chain
-    const baseStrategy = this.strategy ?? new RetryingExecutionStrategy(new StandardExecutionStrategy());
+    const baseStrategy =
+      this.strategy ??
+      new RetryingExecutionStrategy(new StandardExecutionStrategy());
     runner.setExecutionStrategy(new LoopingExecutionStrategy(baseStrategy));
 
     (
       Object.entries(this.listeners) as Array<
         [
           keyof RunnerEventPayloads<TContext>,
-          RunnerEventListener<TContext, keyof RunnerEventPayloads<TContext>>[]
+          RunnerEventListener<TContext, keyof RunnerEventPayloads<TContext>>[],
         ]
       >
     ).forEach(([event, callbacks]) => {
-      callbacks.forEach((callback) =>
-        runner.on(event, callback)
-      );
+      callbacks.forEach((callback) => runner.on(event, callback));
     });
 
     return runner;

@@ -19,15 +19,21 @@ describe("WorkflowExecutor Conditional Abort", () => {
         run: async () => {
           controller.abort();
           return { status: "success" };
-        }
+        },
       },
       {
         name: "B",
-        run: async () => ({ status: "success" })
-      }
+        run: async () => ({ status: "success" }),
+      },
     ];
 
-    const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy, 1);
+    const executor = new WorkflowExecutor(
+      {},
+      eventBus,
+      stateManager,
+      strategy,
+      1
+    );
     const result = await executor.execute(steps, controller.signal);
 
     expect(result.get("B")?.status).toBe("cancelled");
@@ -47,14 +53,16 @@ describe("WorkflowExecutor Conditional Abort", () => {
           controller.abort();
           return true;
         },
-        run: async () => ({ status: "success" })
-      }
+        run: async () => ({ status: "success" }),
+      },
     ];
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
     const result = await executor.execute(steps, controller.signal);
 
     expect(result.get("A")?.status).toBe("cancelled");
-    expect(result.get("A")?.message).toBe("Cancelled during condition evaluation.");
+    expect(result.get("A")?.message).toBe(
+      "Cancelled during condition evaluation."
+    );
   });
 });

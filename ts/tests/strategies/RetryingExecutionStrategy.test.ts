@@ -240,7 +240,9 @@ describe("RetryingExecutionStrategy", () => {
 
     // Mocking sleep to throw
     const sleepModule = await import("../../src/utils/sleep.js");
-    const sleepSpy = vi.spyOn(sleepModule, "sleep").mockRejectedValue(new Error("Random error"));
+    const sleepSpy = vi
+      .spyOn(sleepModule, "sleep")
+      .mockRejectedValue(new Error("Random error"));
 
     const task: TaskStep<unknown> = {
       name: "task1",

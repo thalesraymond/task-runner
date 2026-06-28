@@ -18,12 +18,20 @@ describe("WorkflowExecutor Concurrency Mutant 3", () => {
     // So it skips the break condition and executes tasks.
     // But with the mutant `true && executingPromises.size >= "0"`, it would evaluate to `true` and break!
 
-    const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy, "0" as unknown as number);
+    const executor = new WorkflowExecutor(
+      {},
+      eventBus,
+      stateManager,
+      strategy,
+      "0" as unknown as number
+    );
 
-    const steps = [{
-      name: "A",
-      run: async () => ({ status: "success" as const })
-    }];
+    const steps = [
+      {
+        name: "A",
+        run: async () => ({ status: "success" as const }),
+      },
+    ];
 
     const result = await executor.execute(steps);
     // If mutant `true &&` is alive, it breaks loop and task A never runs, so it finishes empty.

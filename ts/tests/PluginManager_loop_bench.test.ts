@@ -31,7 +31,9 @@ describe("PluginManager Loop Benchmark", () => {
     const end = performance.now();
 
     const duration = end - start;
-    console.log(`Initialization of ${pluginCount} sync plugins took ${duration}ms`);
+    console.log(
+      `Initialization of ${pluginCount} sync plugins took ${duration}ms`
+    );
 
     // Verify business logic (state transition)
     expect(installedCount).toBe(pluginCount);

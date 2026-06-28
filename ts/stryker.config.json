@@ -3,17 +3,7 @@
   "packageManager": "pnpm",
   "testRunner": "vitest",
   "incremental": true,
-  "plugins": [
-    "@stryker-mutator/vitest-runner"
-  ],
-  "reporters": [
-    "html",
-    "json",
-    "clear-text",
-    "progress"
-  ],
-  "mutate": [
-    "src/**/*.ts",
-    "!src/**/*.d.ts"
-  ]
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "reporters": ["html", "json", "clear-text", "progress"],
+  "mutate": ["src/**/*.ts", "!src/**/*.d.ts"]
 }

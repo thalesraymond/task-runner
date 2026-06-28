@@ -207,9 +207,13 @@ describe("LoopingExecutionStrategy", () => {
 
     // Mock the imported sleep utility
     const sleepModule = await import("../../src/utils/sleep.js");
-    const sleepSpy = vi.spyOn(sleepModule, "sleep").mockRejectedValue(new Error("Unexpected sleep error"));
+    const sleepSpy = vi
+      .spyOn(sleepModule, "sleep")
+      .mockRejectedValue(new Error("Unexpected sleep error"));
 
-    await expect(strategy.execute(step, {})).rejects.toThrow("Unexpected sleep error");
+    await expect(strategy.execute(step, {})).rejects.toThrow(
+      "Unexpected sleep error"
+    );
     sleepSpy.mockRestore();
   });
 });

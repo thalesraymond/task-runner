@@ -13,15 +13,23 @@ describe("WorkflowExecutor Conditional Mutant", () => {
     let taskEndEmitted = false;
     let taskSkippedEmitted = false;
 
-    eventBus.on("taskEnd", () => { taskEndEmitted = true; });
-    eventBus.on("taskSkipped", () => { taskSkippedEmitted = true; });
+    eventBus.on("taskEnd", () => {
+      taskEndEmitted = true;
+    });
+    eventBus.on("taskSkipped", () => {
+      taskSkippedEmitted = true;
+    });
 
     // A condition that throws an error evaluates to "failure"
-    const steps = [{
+    const steps = [
+      {
         name: "A",
-        condition: () => { throw new Error("Oops"); },
-        run: async () => ({ status: "success" as const })
-    }];
+        condition: () => {
+          throw new Error("Oops");
+        },
+        run: async () => ({ status: "success" as const }),
+      },
+    ];
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
     await executor.execute(steps);

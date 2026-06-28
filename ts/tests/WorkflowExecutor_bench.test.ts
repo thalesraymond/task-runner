@@ -13,9 +13,9 @@ describe("WorkflowExecutor Benchmark", () => {
       steps.push({
         name: `task-${i}`,
         run: async () => {
-             // Simulate a tiny async work to ensure we actually have pending promises
-             await Promise.resolve();
-             return { status: "success" };
+          // Simulate a tiny async work to ensure we actually have pending promises
+          await Promise.resolve();
+          return { status: "success" };
         },
       });
     }
@@ -25,7 +25,13 @@ describe("WorkflowExecutor Benchmark", () => {
     const strategy = new StandardExecutionStrategy();
 
     // Concurrency 1000 to allow many promises in executingPromises
-    const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy, 1000);
+    const executor = new WorkflowExecutor(
+      {},
+      eventBus,
+      stateManager,
+      strategy,
+      1000
+    );
 
     const start = performance.now();
     await executor.execute(steps);

@@ -17,13 +17,13 @@ describe("WorkflowExecutor Events Mutant", () => {
     let endPropsCorrect = false;
 
     eventBus.on("workflowStart", (data) => {
-        startEmitted = true;
-        if (data.context && data.steps) startPropsCorrect = true;
+      startEmitted = true;
+      if (data.context && data.steps) startPropsCorrect = true;
     });
 
     eventBus.on("workflowEnd", (data) => {
-        endEmitted = true;
-        if (data.context && data.results) endPropsCorrect = true;
+      endEmitted = true;
+      if (data.context && data.results) endPropsCorrect = true;
     });
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
@@ -44,15 +44,18 @@ describe("WorkflowExecutor Events Mutant", () => {
     let correctEventEmitted = false;
 
     eventBus.on("workflowEnd", (data) => {
-        correctEventEmitted = true;
-        if (data.context && data.results) endPropsCorrect = true;
+      correctEventEmitted = true;
+      if (data.context && data.results) endPropsCorrect = true;
     });
 
     const controller = new AbortController();
     controller.abort();
 
     const executor = new WorkflowExecutor({}, eventBus, stateManager, strategy);
-    await executor.execute([{ name: "A", run: async () => ({ status: "success" }) }], controller.signal);
+    await executor.execute(
+      [{ name: "A", run: async () => ({ status: "success" }) }],
+      controller.signal
+    );
 
     expect(correctEventEmitted).toBe(true);
     expect(endPropsCorrect).toBe(true);

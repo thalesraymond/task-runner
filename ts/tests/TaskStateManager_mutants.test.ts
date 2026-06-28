@@ -7,7 +7,10 @@ describe("TaskStateManager Mutants", () => {
   it("should return true for hasPendingTasks when there are pending tasks and false after they are processed", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([step]);
     expect(stateManager.hasPendingTasks()).toBe(true);
@@ -21,7 +24,10 @@ describe("TaskStateManager Mutants", () => {
   it("should return true for hasRunningTasks when a task is running", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([step]);
     const ready = stateManager.processDependencies();
@@ -36,8 +42,15 @@ describe("TaskStateManager Mutants", () => {
   it("should cascade failure to dependents if a task fails", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB]);
 
@@ -50,24 +63,43 @@ describe("TaskStateManager Mutants", () => {
   it("should format depError with error message if available when cascading failure", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB]);
     const ready = stateManager.processDependencies();
 
-    stateManager.markCompleted(ready[0], { status: "failure", error: "Something broke" });
+    stateManager.markCompleted(ready[0], {
+      status: "failure",
+      error: "Something broke",
+    });
 
     const resultB = stateManager.getResults().get("B");
     expect(resultB?.status).toBe("skipped");
-    expect(resultB?.message).toBe("Skipped because dependency 'A' failed: Something broke");
+    expect(resultB?.message).toBe(
+      "Skipped because dependency 'A' failed: Something broke"
+    );
   });
 
   it("should format depError without error message if error is missing when cascading failure", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB]);
     const ready = stateManager.processDependencies();
@@ -82,21 +114,35 @@ describe("TaskStateManager Mutants", () => {
   it("should not mark dependent as ready if only one of its dependencies completed", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "success" }) };
-    const stepB: TaskStep<void> = { name: "B", run: async () => ({ status: "success" }) };
-    const stepC: TaskStep<void> = { name: "C", dependencies: ["A", "B"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "success" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      run: async () => ({ status: "success" }),
+    };
+    const stepC: TaskStep<void> = {
+      name: "C",
+      dependencies: ["A", "B"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB, stepC]);
 
     const ready1 = stateManager.processDependencies(); // A and B
     expect(ready1).toHaveLength(2);
 
-    stateManager.markCompleted(ready1[0].name === "A" ? ready1[0] : ready1[1], { status: "success" });
+    stateManager.markCompleted(ready1[0].name === "A" ? ready1[0] : ready1[1], {
+      status: "success",
+    });
 
     const ready2 = stateManager.processDependencies();
     expect(ready2).toHaveLength(0);
 
-    stateManager.markCompleted(ready1[0].name === "B" ? ready1[0] : ready1[1], { status: "success" });
+    stateManager.markCompleted(ready1[0].name === "B" ? ready1[0] : ready1[1], {
+      status: "success",
+    });
 
     const ready3 = stateManager.processDependencies();
     expect(ready3).toHaveLength(1);
@@ -106,13 +152,24 @@ describe("TaskStateManager Mutants", () => {
   it("should not handle success for cancelled task if continueOnError is true", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", continueOnError: true, run: async () => ({ status: "cancelled" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      continueOnError: true,
+      run: async () => ({ status: "cancelled" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB]);
     const ready = stateManager.processDependencies();
 
-    stateManager.markCompleted(ready[0], { status: "cancelled", message: "Cancelled" });
+    stateManager.markCompleted(ready[0], {
+      status: "cancelled",
+      message: "Cancelled",
+    });
 
     expect(stateManager.getResults().get("B")?.status).toBe("skipped");
   });
@@ -120,13 +177,21 @@ describe("TaskStateManager Mutants", () => {
   it("should return false if task already finished in internalMarkSkipped", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([step]);
 
     stateManager.markCompleted(step, { status: "success" });
 
-    const spy = vi.spyOn(stateManager as unknown as { cascadeFailure: (failedStepName: string) => void }, "cascadeFailure");
+    const spy = vi.spyOn(
+      stateManager as unknown as {
+        cascadeFailure: (failedStepName: string) => void;
+      },
+      "cascadeFailure"
+    );
     stateManager.markSkipped(step, { status: "skipped", message: "skipped" });
 
     expect(spy).not.toHaveBeenCalled();
@@ -135,22 +200,40 @@ describe("TaskStateManager Mutants", () => {
   it("should ignore internalMarkSkipped if step results already has it", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const step: TaskStep<void> = { name: "Step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<void> = {
+      name: "Step1",
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([step]);
 
     /* @ts-expect-error Bypass */
-    expect(stateManager.internalMarkSkipped(step, { status: "skipped" })).toBe(true);
+    expect(stateManager.internalMarkSkipped(step, { status: "skipped" })).toBe(
+      true
+    );
     /* @ts-expect-error Bypass */
-    expect(stateManager.internalMarkSkipped(step, { status: "skipped" })).toBe(false);
+    expect(stateManager.internalMarkSkipped(step, { status: "skipped" })).toBe(
+      false
+    );
   });
 
   it("should process cascadeFailure with multiple dependents correctly", () => {
     const eventBus = new EventBus<void>();
     const stateManager = new TaskStateManager<void>(eventBus);
-    const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-    const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
-    const stepC: TaskStep<void> = { name: "C", dependencies: ["B"], run: async () => ({ status: "success" }) };
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
+    const stepC: TaskStep<void> = {
+      name: "C",
+      dependencies: ["B"],
+      run: async () => ({ status: "success" }),
+    };
 
     stateManager.initialize([stepA, stepB, stepC]);
 
@@ -162,71 +245,103 @@ describe("TaskStateManager Mutants", () => {
   });
 
   it("should process dependencies efficiently without using readyQueue array declaration", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
 
-      const ready = stateManager.processDependencies();
-      expect(ready).toHaveLength(0);
-
+    const ready = stateManager.processDependencies();
+    expect(ready).toHaveLength(0);
   });
 
   it("should format depError if error is available via optional chaining", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
-      const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-      const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
-      stateManager.initialize([stepA, stepB]);
-      const ready = stateManager.processDependencies();
+    stateManager.initialize([stepA, stepB]);
+    const ready = stateManager.processDependencies();
 
-      stateManager.markCompleted(ready[0], { status: "failure", error: "Broken" });
-      const resultB = stateManager.getResults().get("B");
-      expect(resultB?.message).toContain("Broken");
+    stateManager.markCompleted(ready[0], {
+      status: "failure",
+      error: "Broken",
+    });
+    const resultB = stateManager.getResults().get("B");
+    expect(resultB?.message).toContain("Broken");
   });
 
   it("should check continueOnError when dependency fails without optional chaining", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
-      const stepA: TaskStep<void> = { name: "A", continueOnError: true, run: async () => ({ status: "failure" }) };
-      const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+    const stepA: TaskStep<void> = {
+      name: "A",
+      continueOnError: true,
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
-      stateManager.initialize([stepA, stepB]);
-      const ready = stateManager.processDependencies();
+    stateManager.initialize([stepA, stepB]);
+    const ready = stateManager.processDependencies();
 
-      stateManager.markCompleted(ready[0], { status: "failure" });
+    stateManager.markCompleted(ready[0], { status: "failure" });
 
-      const nextReady = stateManager.processDependencies();
-      expect(nextReady[0].name).toBe("B");
+    const nextReady = stateManager.processDependencies();
+    expect(nextReady[0].name).toBe("B");
   });
 
   it("should break out of loop correctly when head < queue.length", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
-      const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
-      const stepB: TaskStep<void> = { name: "B", dependencies: ["A"], run: async () => ({ status: "success" }) };
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
+    const stepB: TaskStep<void> = {
+      name: "B",
+      dependencies: ["A"],
+      run: async () => ({ status: "success" }),
+    };
 
-      stateManager.initialize([stepA, stepB]);
-      const ready = stateManager.processDependencies();
+    stateManager.initialize([stepA, stepB]);
+    const ready = stateManager.processDependencies();
 
-      const spy = vi.spyOn(stateManager as unknown as { internalMarkSkipped: (step: unknown, result: unknown) => boolean }, "internalMarkSkipped");
-      stateManager.markCompleted(ready[0], { status: "failure" });
+    const spy = vi.spyOn(
+      stateManager as unknown as {
+        internalMarkSkipped: (step: unknown, result: unknown) => boolean;
+      },
+      "internalMarkSkipped"
+    );
+    stateManager.markCompleted(ready[0], { status: "failure" });
 
-      expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should fail gracefully when task missing from taskDefinitions on continueOnError check", () => {
-      const eventBus = new EventBus<void>();
-      const stateManager = new TaskStateManager<void>(eventBus);
-      const stepA: TaskStep<void> = { name: "A", run: async () => ({ status: "failure" }) };
+    const eventBus = new EventBus<void>();
+    const stateManager = new TaskStateManager<void>(eventBus);
+    const stepA: TaskStep<void> = {
+      name: "A",
+      run: async () => ({ status: "failure" }),
+    };
 
-      stateManager.initialize([stepA]);
-      const ready = stateManager.processDependencies();
+    stateManager.initialize([stepA]);
+    const ready = stateManager.processDependencies();
 
-      /* @ts-expect-error Bypass */
-      stateManager.taskDefinitions.delete("A");
+    /* @ts-expect-error Bypass */
+    stateManager.taskDefinitions.delete("A");
 
-      stateManager.markCompleted(ready[0], { status: "failure" });
+    stateManager.markCompleted(ready[0], { status: "failure" });
 
-      expect(stateManager.getResults().get("A")?.status).toBe("failure");
+    expect(stateManager.getResults().get("A")?.status).toBe("failure");
   });
 });
