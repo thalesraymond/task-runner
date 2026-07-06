@@ -68,16 +68,16 @@ func TestEventDispatcher(t *testing.T) {
 func TestEventDispatcher_ChannelFull(t *testing.T) {
 	// Create dispatcher, buffer is 100
 	dispatcher := NewEventDispatcher()
-	
+
 	// Register a slow plugin to ensure the channel fills if we spam?
 	// Actually, just pushing events faster than they can be consumed.
 	// But `Dispatch` blocks if full, so we can't just spam if it blocks without another goroutine.
-	
+
 	ctx := context.Background()
 	for i := 0; i < 200; i++ {
 		dispatcher.Dispatch(ctx, WorkflowStartEvent{})
 	}
-	
+
 	dispatcher.Shutdown()
 }
 
@@ -88,7 +88,7 @@ func TestRunnerShutdownWithDispatcher(t *testing.T) {
 
 func TestRunnerShutdownWithoutDispatcher(t *testing.T) {
 	r := &Runner{concurrency: 5} // nil dispatcher
-	r.Shutdown() // Should not panic
+	r.Shutdown()                 // Should not panic
 }
 func TestEventDispatcher_ContextCancellation(t *testing.T) {
 	dispatcher := NewEventDispatcher()

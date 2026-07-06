@@ -10,7 +10,7 @@ type Runner struct {
 	// concurrency limits the number of tasks running simultaneously.
 	// A value of 0 means unlimited.
 	concurrency int
-	
+
 	// dispatcher handles asynchronous event broadcasting to plugins.
 	dispatcher *EventDispatcher
 }
