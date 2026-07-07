@@ -16,7 +16,9 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
   public install(context: PluginContext<TContext>): void {
     context.events.on("workflowStart", (payload) => {
       if (this.format === "text") {
-        console.log(`[WorkflowStart] Starting workflow with ${payload.steps.length} steps.`);
+        console.log(
+          `[WorkflowStart] Starting workflow with ${payload.steps.length} steps.`
+        );
       } else {
         console.log(
           JSON.stringify({
@@ -33,10 +35,15 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
         let successCount = 0;
         let failedCount = 0;
         for (const result of payload.results.values()) {
-          if (result.status === "success") { successCount++; }
-          else if (result.status === "failure") { failedCount++; }
+          if (result.status === "success") {
+            successCount++;
+          } else if (result.status === "failure") {
+            failedCount++;
+          }
         }
-        console.log(`[WorkflowEnd] Workflow completed. Success: ${successCount}, Failed: ${failedCount}.`);
+        console.log(
+          `[WorkflowEnd] Workflow completed. Success: ${successCount}, Failed: ${failedCount}.`
+        );
       } else {
         const statusSummary: Record<string, string> = {};
         for (const [name, result] of payload.results) {
@@ -72,7 +79,9 @@ export class LoggerPlugin<TContext> implements Plugin<TContext> {
 
       if (this.format === "text") {
         const durStr = duration === undefined ? "" : ` in ${duration}ms`;
-        console.log(`[TaskEnd] Task '${payload.step.name}' ended with status '${payload.result.status}'${durStr}.`);
+        console.log(
+          `[TaskEnd] Task '${payload.step.name}' ended with status '${payload.result.status}'${durStr}.`
+        );
       } else {
         console.log(
           JSON.stringify({

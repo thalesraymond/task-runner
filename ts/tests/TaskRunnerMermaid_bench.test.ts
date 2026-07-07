@@ -42,7 +42,9 @@ describe("TaskRunner Mermaid Graph Benchmark", () => {
     const graph = TaskRunner.getMermaidGraph(steps);
     const end = performance.now();
 
-    console.log(`getMermaidGraph with ${numTasks * numDuplicates} steps (${numTasks} unique) took ${end - start}ms`);
+    console.log(
+      `getMermaidGraph with ${numTasks * numDuplicates} steps (${numTasks} unique) took ${end - start}ms`
+    );
     console.log(`Graph length: ${graph.length} characters`);
     expect(end - start).toBeLessThan(1000);
   });

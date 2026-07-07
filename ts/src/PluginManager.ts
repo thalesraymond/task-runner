@@ -19,7 +19,9 @@ export class PluginManager<TContext> {
       // For now, we allow overwriting or just warn?
       // Let's just allow it but maybe log it if we had a logger.
       // Strict check: don't allow duplicate names.
-      throw new Error(`Plugin with name '${plugin.name}' is already registered.`);
+      throw new Error(
+        `Plugin with name '${plugin.name}' is already registered.`
+      );
     }
     this.plugins.push(plugin);
     this.registeredPluginNames.add(plugin.name);

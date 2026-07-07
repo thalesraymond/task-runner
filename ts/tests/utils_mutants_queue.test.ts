@@ -15,10 +15,10 @@ describe("PriorityQueue surviving mutants", () => {
   it("kills EqualityOperator mutant at line 75", () => {
     const queue = new PriorityQueue<string>();
     queue.push("A", 100); // 0
-    queue.push("B", 10);  // 1
-    queue.push("C", 50);  // 2
-    queue.push("D", 5);   // 3
-    queue.push("E", 6);   // 4
+    queue.push("B", 10); // 1
+    queue.push("C", 50); // 2
+    queue.push("D", 5); // 3
+    queue.push("E", 6); // 4
 
     // @ts-expect-error bypass private field
     const heap = queue.heap;

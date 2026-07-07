@@ -28,7 +28,7 @@ describe("PriorityQueue Mutants", () => {
     queue.push("A", 30); // seq 0
     queue.push("B", 20); // seq 1
     queue.push("C", 20); // seq 2
-    queue.push("D", 5);  // seq 3
+    queue.push("D", 5); // seq 3
     queue.pop();
     expect(queue.peek()).toBe("B");
   });
@@ -36,9 +36,9 @@ describe("PriorityQueue Mutants", () => {
   it("should trigger swapIndex === null && rightChild > element", () => {
     const queue = new PriorityQueue<number>();
     queue.push(20, 20); // out first
-    queue.push(2, 2);   // left child
+    queue.push(2, 2); // left child
     queue.push(10, 10); // right child
-    queue.push(5, 5);   // becomes root after pop
+    queue.push(5, 5); // becomes root after pop
     expect(queue.pop()).toBe(20);
     expect(queue.peek()).toBe(10);
   });
@@ -69,12 +69,12 @@ describe("PriorityQueue Mutants", () => {
   });
 
   it("should break sinkDown when swapIndex === null early", () => {
-      const queue = new PriorityQueue<string>();
-      queue.push("A", 10);
-      queue.push("B", 5);
-      queue.push("C", 5);
-      queue.push("D", 2);
-      expect(queue.pop()).toBe("A");
+    const queue = new PriorityQueue<string>();
+    queue.push("A", 10);
+    queue.push("B", 5);
+    queue.push("C", 5);
+    queue.push("D", 2);
+    expect(queue.pop()).toBe("A");
   });
 
   it("should handle compare exact equality gracefully", () => {
@@ -88,13 +88,13 @@ describe("PriorityQueue Mutants", () => {
     queue.push(10, 10); // root (seq 1) -> popped
     // @ts-expect-error Accessing private property
     queue.sequenceCounter = 1;
-    queue.push(2, 2);   // left child (seq 1)
+    queue.push(2, 2); // left child (seq 1)
     // @ts-expect-error Accessing private property
     queue.sequenceCounter = 1;
-    queue.push(5, 5);   // right child (seq 1)
+    queue.push(5, 5); // right child (seq 1)
     // @ts-expect-error Accessing private property
     queue.sequenceCounter = 1;
-    queue.push(5, 5);   // next root (seq 1)
+    queue.push(5, 5); // next root (seq 1)
 
     // After pop:
     // root is D(5, seq1)
@@ -181,7 +181,7 @@ describe("sleep Mutants", () => {
     const sleepPromise = sleep(50, controller.signal);
 
     setTimeout(() => {
-        controller.abort();
+      controller.abort();
     }, 10);
 
     await expect(sleepPromise).rejects.toThrow("AbortError");
@@ -194,7 +194,7 @@ describe("sleep Mutants", () => {
     const sleepPromise = sleep(50, controller.signal);
 
     setTimeout(() => {
-        controller.abort();
+      controller.abort();
     }, 10);
 
     await expect(sleepPromise).rejects.toThrow("AbortError");

@@ -7,7 +7,9 @@ import { sleep } from "../utils/sleep.js";
  * Execution strategy that conditionally loops a task until a predicate is met.
  * It wraps another execution strategy (e.g., RetryingExecutionStrategy or StandardExecutionStrategy).
  */
-export class LoopingExecutionStrategy<TContext> implements IExecutionStrategy<TContext> {
+export class LoopingExecutionStrategy<
+  TContext,
+> implements IExecutionStrategy<TContext> {
   constructor(private readonly innerStrategy: IExecutionStrategy<TContext>) {}
 
   async execute(

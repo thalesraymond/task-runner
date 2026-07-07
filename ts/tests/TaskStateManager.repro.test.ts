@@ -9,14 +9,23 @@ describe("TaskStateManager Repro", () => {
     const emitSpy = vi.spyOn(eventBus, "emit");
     const manager = new TaskStateManager(eventBus);
 
-    const step: TaskStep<unknown> = { name: "step1", run: async () => ({ status: "success" }) };
+    const step: TaskStep<unknown> = {
+      name: "step1",
+      run: async () => ({ status: "success" }),
+    };
     manager.initialize([step]);
 
     manager.cancelAllPending("Cancelled by user");
 
-    expect(emitSpy).toHaveBeenCalledWith("taskEnd", expect.objectContaining({
-      step,
-      result: expect.objectContaining({ status: "cancelled", message: "Cancelled by user" })
-    }));
+    expect(emitSpy).toHaveBeenCalledWith(
+      "taskEnd",
+      expect.objectContaining({
+        step,
+        result: expect.objectContaining({
+          status: "cancelled",
+          message: "Cancelled by user",
+        }),
+      })
+    );
   });
 });

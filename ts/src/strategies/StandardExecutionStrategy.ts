@@ -47,9 +47,8 @@ export class StandardExecutionStrategy<
           });
         }, step.timeout!);
 
-        timeoutPromiseAbortController.signal.addEventListener(
-          "abort",
-          () => resolve({ status: "cancelled" } as TaskResult)
+        timeoutPromiseAbortController.signal.addEventListener("abort", () =>
+          resolve({ status: "cancelled" } as TaskResult)
         );
       });
 

@@ -119,7 +119,10 @@ export class TaskStateManager<TContext> {
    * Internal method to mark skipped without triggering cascade (to be used inside cascade loop).
    * Returns true if the task was actually marked skipped (was not already finished).
    */
-  private internalMarkSkipped(step: TaskStep<TContext>, result: TaskResult): boolean {
+  private internalMarkSkipped(
+    step: TaskStep<TContext>,
+    result: TaskResult
+  ): boolean {
     if (this.results.has(step.name)) {
       return false;
     }
@@ -199,14 +202,9 @@ export class TaskStateManager<TContext> {
    * Cascades failure/skipping to dependents.
    */
   private cascadeFailure(failedStepName: string): void {
-    const queue = [failedStepName];
-    // Optimization: Use index pointer instead of shift() to avoid O(N) array re-indexing
-    let head = 0;
-    // Use a set to track visited nodes in this cascade pass to avoid redundant processing,
-    // although checking results.has() in internalMarkSkipped also prevents it.
+    const queue = new Set<string>([failedStepName]);
 
-    while (head < queue.length) {
-      const currentName = queue[head++];
+    for (const currentName of queue) {
       const dependents = this.dependencyGraph.get(currentName);
 
       if (!dependents) continue;
@@ -222,7 +220,7 @@ export class TaskStateManager<TContext> {
         };
 
         if (this.internalMarkSkipped(dependent, result)) {
-          queue.push(dependent.name);
+          queue.add(dependent.name);
         }
       }
     }

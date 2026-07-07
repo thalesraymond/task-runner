@@ -77,8 +77,8 @@ describe("PriorityQueue", () => {
     pq.push("A", 100); // root
     pq.push("B", 10); // left
     pq.push("C", 90); // right
-    pq.push("D", 5);  // l_left
-    pq.push("E", 8);  // l_right
+    pq.push("D", 5); // l_left
+    pq.push("E", 8); // l_right
     pq.push("F", 50); // r_left
 
     expect(pq.pop()).toBe("A"); // 100

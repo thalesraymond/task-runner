@@ -10,16 +10,22 @@ describe("PluginManager Mutants", () => {
       sharedContext: undefined as unknown as void,
       eventBus,
       stateManager: {} as unknown,
-      executor: {} as unknown
+      executor: {} as unknown,
     } as unknown as unknown;
 
     /* @ts-expect-error Bypass */
     const manager = new PluginManager<void>(context);
-    const plugin: Plugin<void> = { name: "test-plugin", version: "1.0", install: () => {} };
+    const plugin: Plugin<void> = {
+      name: "test-plugin",
+      version: "1.0",
+      install: () => {},
+    };
 
     manager.use(plugin);
 
-    expect(() => manager.use(plugin)).toThrowError("Plugin with name 'test-plugin' is already registered.");
+    expect(() => manager.use(plugin)).toThrowError(
+      "Plugin with name 'test-plugin' is already registered."
+    );
   });
 
   it("should wait for async plugin installation but not for sync ones without failing", async () => {
@@ -28,7 +34,7 @@ describe("PluginManager Mutants", () => {
       sharedContext: undefined as unknown as void,
       eventBus,
       stateManager: {} as unknown,
-      executor: {} as unknown
+      executor: {} as unknown,
     } as unknown as unknown;
 
     /* @ts-expect-error Bypass */
@@ -40,13 +46,13 @@ describe("PluginManager Mutants", () => {
       name: "async-plugin",
       version: "1.0",
       install: async () => {
-        return new Promise<void>(resolve => {
+        return new Promise<void>((resolve) => {
           setTimeout(() => {
             asyncCalled = true;
             resolve();
           }, 10);
         });
-      }
+      },
     };
 
     const syncPlugin: Plugin<void> = {
@@ -54,7 +60,7 @@ describe("PluginManager Mutants", () => {
       version: "1.0",
       install: () => {
         syncCalled = true;
-      }
+      },
     };
 
     manager.use(asyncPlugin);
@@ -72,7 +78,7 @@ describe("PluginManager Mutants", () => {
       sharedContext: undefined as unknown as void,
       eventBus,
       stateManager: {} as unknown,
-      executor: {} as unknown
+      executor: {} as unknown,
     } as unknown as unknown;
 
     /* @ts-expect-error Bypass */
@@ -83,7 +89,7 @@ describe("PluginManager Mutants", () => {
       version: "1.0",
       install: () => {
         return undefined; // Not a promise
-      }
+      },
     };
 
     manager.use(syncPlugin);
@@ -105,7 +111,7 @@ describe("PluginManager Mutants", () => {
       sharedContext: undefined as unknown as void,
       eventBus,
       stateManager: {} as unknown,
-      executor: {} as unknown
+      executor: {} as unknown,
     } as unknown as unknown;
 
     /* @ts-expect-error Bypass */
@@ -116,7 +122,7 @@ describe("PluginManager Mutants", () => {
       version: "1.0",
       install: async () => {
         return Promise.resolve();
-      }
+      },
     };
 
     manager.use(asyncPlugin);
@@ -143,7 +149,7 @@ describe("PluginManager Mutants", () => {
       sharedContext: undefined as unknown as void,
       eventBus,
       stateManager: {} as unknown,
-      executor: {} as unknown
+      executor: {} as unknown,
     } as unknown as unknown;
 
     /* @ts-expect-error Bypass */
