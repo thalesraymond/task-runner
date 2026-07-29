@@ -699,7 +699,7 @@ func TestConcurrentCascadeNoDeadlock(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			// Cascade operations
-			tsm.MarkDependencyFailed("A", errors.New("cascade test"))
+			_, _ = tsm.MarkDependencyFailed("A", errors.New("cascade test"))
 		}()
 	}
 

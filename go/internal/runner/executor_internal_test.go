@@ -37,7 +37,7 @@ func TestHandleResult_AlreadyCompleted(t *testing.T) {
 	)
 
 	// Mark A as completed first
-	sm.MarkCompleted("A", TaskResult{Status: StatusSuccess})
+	_ = sm.MarkCompleted("A", TaskResult{Status: StatusSuccess})
 
 	// Call handleResult - should hit the guard and return without overwriting
 	executor.handleResult(taskCompletion{
@@ -80,7 +80,7 @@ func TestRunTask_MarkRunningFails(t *testing.T) {
 	)
 
 	// Pre-condition: Mark Z as already completed (as if cascade-skipped)
-	sm.MarkCompleted("Z", TaskResult{Status: StatusSkipped})
+	_ = sm.MarkCompleted("Z", TaskResult{Status: StatusSkipped})
 
 	semaphore := make(chan struct{}, 1)
 	results := make(chan taskCompletion, 1)
