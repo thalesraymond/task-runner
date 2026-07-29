@@ -154,9 +154,9 @@ func (e *WorkflowExecutor[T]) handleResult(comp taskCompletion) {
 	}
 
 	if comp.result.Status == StatusFailure && comp.result.Err != nil {
-		e.stateManager.MarkDependencyFailed(comp.taskID, comp.result.Err)
+		_, _ = e.stateManager.MarkDependencyFailed(comp.taskID, comp.result.Err)
 	} else {
-		e.stateManager.MarkCompleted(comp.taskID, comp.result)
+		_ = e.stateManager.MarkCompleted(comp.taskID, comp.result)
 	}
 }
 
