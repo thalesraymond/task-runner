@@ -1,20 +1,29 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack: TypeScript 5.9.3 + vitest 4.0.17 (ts/), Go 1.23+ (go/)
+  Package manager: pnpm (ts/), go modules (go/)
+  Testing: 100% coverage required, TDD process, Vitest (ts/), table-driven tests (go/)
+  Code style: SOLID principles, Object Calisthenics, strict null safety, Conventional commits (Commitlint + Husky)
+  Domain: Task orchestration engine with plugin architecture, cancellation (AbortSignal), pre-execution validation, and concurrency control
+  Core Components: EventBus, TaskGraph, TaskGraphValidator, TaskRunner, WorkflowExecutor
+  Conventions: Atomic commits for complex features, 100% coverage enforcement, standard golang/gofmt patterns
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Include rollback plan
+    - Identify affected teams
+  specs:
+    - Use Given/When/Then format
+    - Reference existing patterns before inventing new ones
+  tasks:
+    - Break tasks into chunks of max 2 hours
+
+operations:
+  apply:
+    guidance:
+      - Run focused tests before the full suite
+      - Ensure coverage remains at 100%
+  archive:
+    guidance:
+      - Keep the completion summary concise
