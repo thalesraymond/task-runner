@@ -1,0 +1,1400 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>task-runner: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/thalesraymond/task-runner/go/cmd/task-runner/main.go (0.0%)</option>
+				
+				<option value="file1">github.com/thalesraymond/task-runner/go/internal/runner/dispatcher.go (100.0%)</option>
+				
+				<option value="file2">github.com/thalesraymond/task-runner/go/internal/runner/dryrun_strategy.go (100.0%)</option>
+				
+				<option value="file3">github.com/thalesraymond/task-runner/go/internal/runner/errors.go (100.0%)</option>
+				
+				<option value="file4">github.com/thalesraymond/task-runner/go/internal/runner/events.go (100.0%)</option>
+				
+				<option value="file5">github.com/thalesraymond/task-runner/go/internal/runner/execution_strategy.go (100.0%)</option>
+				
+				<option value="file6">github.com/thalesraymond/task-runner/go/internal/runner/executor.go (87.3%)</option>
+				
+				<option value="file7">github.com/thalesraymond/task-runner/go/internal/runner/graph_validation.go (100.0%)</option>
+				
+				<option value="file8">github.com/thalesraymond/task-runner/go/internal/runner/mermaid.go (100.0%)</option>
+				
+				<option value="file9">github.com/thalesraymond/task-runner/go/internal/runner/retry_strategy.go (91.7%)</option>
+				
+				<option value="file10">github.com/thalesraymond/task-runner/go/internal/runner/runner.go (100.0%)</option>
+				
+				<option value="file11">github.com/thalesraymond/task-runner/go/internal/runner/task_runner.go (100.0%)</option>
+				
+				<option value="file12">github.com/thalesraymond/task-runner/go/internal/runner/task_state_manager.go (98.0%)</option>
+				
+				<option value="file13">github.com/thalesraymond/task-runner/go/internal/runner/task_status.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "context"
+        "fmt"
+        "log"
+        "time"
+
+        "github.com/thalesraymond/task-runner/go/internal/runner"
+)
+
+func main() <span class="cov0" title="0">{
+        // Define a simple task graph with three tasks where B and C depend on A.
+        graph := &amp;runner.TaskGraph{
+                Tasks: []runner.TaskDefinition{
+                        {ID: "A", Dependencies: []string{}},
+                        {ID: "B", Dependencies: []string{"A"}},
+                        {ID: "C", Dependencies: []string{"A"}},
+                },
+        }
+
+        if err := runner.Validate(graph); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("graph validation failed: %v", err)
+        }</span>
+
+        // Create the task state manager and the event dispatcher.
+        <span class="cov0" title="0">stateManager := runner.NewTaskStateManager(graph)
+        dispatcher := runner.NewEventDispatcher()
+        defer dispatcher.Shutdown()
+
+        // Build the task implementations.
+        tasks := map[string]runner.Task[struct{}]{
+                "A": &amp;simpleTask{id: "A", delay: 100 * time.Millisecond},
+                "B": &amp;simpleTask{id: "B", delay: 50 * time.Millisecond},
+                "C": &amp;simpleTask{id: "C", delay: 50 * time.Millisecond},
+        }
+
+        // Create the executor with a concurrency limit of 2.
+        executor := runner.NewWorkflowExecutor(
+                stateManager,
+                tasks,
+                struct{}{},
+                2,
+                dispatcher,
+        )
+
+        // Run with a 5-second timeout.
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+
+        fmt.Println("Starting workflow execution...")
+
+        start := time.Now()
+        if err := executor.Execute(ctx); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("workflow failed: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">fmt.Printf("Workflow completed in %v\n", time.Since(start))
+
+        // Print results.
+        for _, id := range []string{"A", "B", "C"} </span><span class="cov0" title="0">{
+                result, ok := stateManager.GetResult(id)
+                if ok </span><span class="cov0" title="0">{
+                        fmt.Printf("  %s: %s", id, result.Status)
+                        if result.Err != nil </span><span class="cov0" title="0">{
+                                fmt.Printf(" (%v)", result.Err)
+                        }</span>
+                        <span class="cov0" title="0">fmt.Println()</span>
+                }
+        }
+}
+
+// simpleTask is a minimal task implementation used for the demo.
+type simpleTask struct {
+        id    string
+        delay time.Duration
+}
+
+func (t *simpleTask) Run(ctx context.Context, _ struct{}) runner.TaskResult <span class="cov0" title="0">{
+        select </span>{
+        case &lt;-time.After(t.delay):<span class="cov0" title="0">
+                fmt.Printf("    Task %s completed\n", t.id)
+                return runner.TaskResult{Status: runner.StatusSuccess}</span>
+        case &lt;-ctx.Done():<span class="cov0" title="0">
+                fmt.Printf("    Task %s cancelled\n", t.id)
+                return runner.TaskResult{Status: runner.StatusCancelled, Err: ctx.Err()}</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package runner
+
+import (
+        "context"
+        "sync"
+)
+
+type eventWithContext struct {
+        ctx   context.Context
+        event Event
+}
+
+// EventDispatcher broadcasts events to registered plugins asynchronously.
+type EventDispatcher struct {
+        mu          sync.RWMutex
+        plugins     []any
+        closed      bool
+        activeSends sync.WaitGroup
+        eventCh     chan eventWithContext
+        wg          sync.WaitGroup
+        cancel      context.CancelFunc
+}
+
+// NewEventDispatcher creates a new dispatcher and starts its background goroutine.
+func NewEventDispatcher() *EventDispatcher <span class="cov5" title="18">{
+        ctx, cancel := context.WithCancel(context.Background())
+        d := &amp;EventDispatcher{
+                plugins: make([]any, 0),
+                eventCh: make(chan eventWithContext, 100), // buffered channel
+                cancel:  cancel,
+        }
+
+        d.wg.Add(1)
+        go d.start(ctx)
+
+        return d
+}</span>
+
+// RegisterPlugin adds a plugin to the dispatcher safely.
+func (d *EventDispatcher) RegisterPlugin(plugin any) <span class="cov2" title="3">{
+        d.mu.Lock()
+        defer d.mu.Unlock()
+        d.plugins = append(d.plugins, plugin)
+}</span>
+
+// Dispatch sends an event to the background goroutine for broadcasting.
+// It safely ignores events sent after the dispatcher has been shutdown.
+func (d *EventDispatcher) Dispatch(ctx context.Context, event Event) <span class="cov9" title="293">{
+        d.mu.RLock()
+        if d.closed </span><span class="cov2" title="2">{
+                d.mu.RUnlock()
+                return
+        }</span>
+        <span class="cov9" title="291">d.activeSends.Add(1)
+        d.mu.RUnlock()
+
+        defer d.activeSends.Done()
+        d.eventCh &lt;- eventWithContext{ctx: ctx, event: event}</span>
+}
+
+// start runs the background loop to process events.
+func (d *EventDispatcher) start(ctx context.Context) <span class="cov5" title="18">{
+        defer d.wg.Done()
+        for </span><span class="cov10" title="309">{
+                select </span>{
+                case &lt;-ctx.Done():<span class="cov1" title="1">
+                        return</span>
+                case ev, ok := &lt;-d.eventCh:<span class="cov9" title="307">
+                        if !ok </span><span class="cov5" title="16">{
+                                // Channel closed, graceful shutdown
+                                return
+                        }</span>
+                        <span class="cov9" title="291">d.broadcast(ev.ctx, ev.event)</span>
+                }
+        }
+}
+
+// broadcast synchronously calls listener methods for the given event on registered plugins.
+func (d *EventDispatcher) broadcast(ctx context.Context, event Event) <span class="cov9" title="291">{
+        d.mu.RLock()
+        pluginsCopy := make([]any, len(d.plugins))
+        copy(pluginsCopy, d.plugins)
+        d.mu.RUnlock()
+
+        for _, p := range pluginsCopy </span><span class="cov4" title="10">{
+                switch e := event.(type) </span>{
+                case WorkflowStartEvent:<span class="cov2" title="2">
+                        if l, ok := p.(WorkflowStartListener); ok </span><span class="cov2" title="2">{
+                                l.OnWorkflowStart(ctx, e)
+                        }</span>
+                case WorkflowEndEvent:<span class="cov2" title="2">
+                        if l, ok := p.(WorkflowEndListener); ok </span><span class="cov1" title="1">{
+                                l.OnWorkflowEnd(ctx, e)
+                        }</span>
+                case TaskStartEvent:<span class="cov2" title="3">
+                        if l, ok := p.(TaskStartListener); ok </span><span class="cov1" title="1">{
+                                l.OnTaskStart(ctx, e)
+                        }</span>
+                case TaskEndEvent:<span class="cov2" title="3">
+                        if l, ok := p.(TaskEndListener); ok </span><span class="cov1" title="1">{
+                                l.OnTaskEnd(ctx, e)
+                        }</span>
+                }
+        }
+}
+
+// Shutdown gracefully stops the dispatcher, waiting for pending events to be processed.
+// It also ensures that any future Dispatch calls are safely ignored.
+func (d *EventDispatcher) Shutdown() <span class="cov5" title="17">{
+        d.mu.Lock()
+        if d.closed </span><span class="cov1" title="1">{
+                d.mu.Unlock()
+                return
+        }</span>
+        <span class="cov5" title="16">d.closed = true
+        d.mu.Unlock()
+
+        d.activeSends.Wait() // wait for pending Dispatch sends to complete
+        close(d.eventCh)     // signal no more events
+        d.wg.Wait()          // wait for drain
+        d.cancel()</span>           // clean up context
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package runner
+
+import "context"
+
+// DryRunStrategy skips the actual task execution and returns success
+// immediately. This is useful for testing, validation, or "what-if"
+// analysis without side effects.
+type DryRunStrategy[T any] struct{}
+
+func (s *DryRunStrategy[T]) Execute(_ context.Context, _ Task[T], _ T) TaskResult <span class="cov8" title="1">{
+        return TaskResult{Status: StatusSuccess}
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package runner
+
+import (
+        "fmt"
+        "strings"
+)
+
+// CycleError represents a circular dependency error.
+type CycleError struct {
+        CyclePath []string
+}
+
+func (e *CycleError) Error() string <span class="cov4" title="2">{
+        return fmt.Sprintf("cycle detected: %s", strings.Join(e.CyclePath, " -&gt; "))
+}</span>
+
+// MissingDependencyError represents an error where a task depends on a non-existent task.
+type MissingDependencyError struct {
+        TaskID              string
+        MissingDependencyID string
+}
+
+func (e *MissingDependencyError) Error() string <span class="cov4" title="2">{
+        return fmt.Sprintf("task '%s' depends on missing task '%s'", e.TaskID, e.MissingDependencyID)
+}</span>
+
+// DuplicateTaskError represents an error where multiple tasks have the same ID.
+type DuplicateTaskError struct {
+        TaskID string
+}
+
+func (e *DuplicateTaskError) Error() string <span class="cov1" title="1">{
+        return fmt.Sprintf("duplicate task detected with ID: %s", e.TaskID)
+}</span>
+
+// ValidationErrors is a collection of validation errors.
+// It implements the error interface and the Unwrap() []error method
+// so that errors.Is and errors.As can inspect the individual errors.
+type ValidationErrors []error
+
+func (v ValidationErrors) Error() string <span class="cov4" title="2">{
+        if len(v) == 0 </span><span class="cov1" title="1">{
+                return "no validation errors"
+        }</span>
+        <span class="cov1" title="1">var msgs []string
+        for _, err := range v </span><span class="cov4" title="2">{
+                msgs = append(msgs, err.Error())
+        }</span>
+        <span class="cov1" title="1">return "task graph validation failed: " + strings.Join(msgs, "; ")</span>
+}
+
+func (v ValidationErrors) Unwrap() []error <span class="cov10" title="7">{
+        return v
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package runner
+
+import "context"
+
+// WorkflowStartEvent is emitted when a workflow begins execution.
+type WorkflowStartEvent struct{}
+
+// WorkflowEndEvent is emitted when a workflow completes execution.
+type WorkflowEndEvent struct{}
+
+// TaskStartEvent is emitted just before a task begins execution.
+type TaskStartEvent struct {
+        TaskID string
+}
+
+// TaskEndEvent is emitted just after a task completes execution.
+type TaskEndEvent struct {
+        TaskID string
+        Result TaskResult
+}
+
+// Event is a marker interface for all events to ensure type safety.
+type Event interface {
+        isEvent()
+}
+
+func (WorkflowStartEvent) isEvent() <span class="cov8" title="1">{ _ = 1 }</span>
+func (WorkflowEndEvent) isEvent()   <span class="cov8" title="1">{ _ = 1 }</span>
+func (TaskStartEvent) isEvent()     <span class="cov8" title="1">{ _ = 1 }</span>
+func (TaskEndEvent) isEvent()       <span class="cov8" title="1">{ _ = 1 }</span>
+
+// WorkflowStartListener is implemented by plugins that want to hook into workflow start.
+type WorkflowStartListener interface {
+        OnWorkflowStart(ctx context.Context, event WorkflowStartEvent)
+}
+
+// WorkflowEndListener is implemented by plugins that want to hook into workflow end.
+type WorkflowEndListener interface {
+        OnWorkflowEnd(ctx context.Context, event WorkflowEndEvent)
+}
+
+// TaskStartListener is implemented by plugins that want to hook into task start.
+type TaskStartListener interface {
+        OnTaskStart(ctx context.Context, event TaskStartEvent)
+}
+
+// TaskEndListener is implemented by plugins that want to hook into task end.
+type TaskEndListener interface {
+        OnTaskEnd(ctx context.Context, event TaskEndEvent)
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package runner
+
+import "context"
+
+// ExecutionStrategy defines the contract for wrapping Task.Run calls.
+// Different strategy implementations can add behavior around task execution
+// such as retries, logging, or dry-run mode.
+type ExecutionStrategy[T any] interface {
+        // Execute runs the given task with the provided shared state.
+        Execute(ctx context.Context, task Task[T], sharedState T) TaskResult
+}
+
+// StandardStrategy executes the task directly without any modifications.
+type StandardStrategy[T any] struct{}
+
+func (s *StandardStrategy[T]) Execute(ctx context.Context, task Task[T], sharedState T) TaskResult <span class="cov10" title="17">{
+        return task.Run(ctx, sharedState)
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package runner
+
+import (
+        "context"
+        "fmt"
+)
+
+// taskCompletion carries the outcome of a single task execution back to the
+// main execution loop of WorkflowExecutor.
+type taskCompletion struct {
+        taskID string
+        result TaskResult
+}
+
+// WorkflowExecutor manages the concurrent execution of a task graph using
+// goroutines and channels. It enforces a concurrency limit via a semaphore
+// pattern (buffered channel) and collects task outcomes through a buffered
+// results channel.
+//
+// The executor follows a single-producer-per-task, single-consumer (main loop)
+// model. Ready tasks are dispatched into their own goroutine, each of which:
+//  1. Acquires a semaphore slot (blocks until under the limit, or exits if
+//     the context is cancelled while waiting)
+//  2. Marks the task as running in the TaskStateManager
+//  3. Executes the task's Run method
+//  4. Sends the result back on the results channel
+//  5. Releases the semaphore slot
+//
+// T is the type of the shared state object passed to every task's Run method.
+type WorkflowExecutor[T any] struct {
+        stateManager  *TaskStateManager
+        tasks         map[string]Task[T]
+        sharedState   T
+        maxConcurrent int
+        dispatcher    *EventDispatcher
+}
+
+// NewWorkflowExecutor creates a new WorkflowExecutor with the given
+// dependencies, task map, shared state, concurrency limit, and event
+// dispatcher.
+//
+// If maxConcurrent is zero or negative, it defaults to the total number of
+// tasks (effectively unlimited concurrency for small graphs).
+func NewWorkflowExecutor[T any](
+        stateManager *TaskStateManager,
+        tasks map[string]Task[T],
+        sharedState T,
+        maxConcurrent int,
+        dispatcher *EventDispatcher,
+) *WorkflowExecutor[T] <span class="cov5" title="13">{
+        if maxConcurrent &lt;= 0 </span><span class="cov3" title="5">{
+                maxConcurrent = len(tasks)
+        }</span>
+        <span class="cov5" title="13">return &amp;WorkflowExecutor[T]{
+                stateManager:  stateManager,
+                tasks:         tasks,
+                sharedState:   sharedState,
+                maxConcurrent: maxConcurrent,
+                dispatcher:    dispatcher,
+        }</span>
+}
+
+// Execute runs the full task graph to completion or until the context is
+// cancelled. It returns nil on success, ctx.Err() on cancellation, or an
+// error summarising any task failures.
+//
+// The execution loop:
+//  1. Dispatches every ready task whose dependencies are met and that hasn't
+//     been dispatched yet.
+//  2. Waits for the next task completion (or context cancellation).
+//  3. Updates the TaskStateManager with the result, cascading skips to
+//     dependents if a task fails.
+//  4. Repeats until all tasks reach a completed state.
+func (e *WorkflowExecutor[T]) Execute(ctx context.Context) error <span class="cov5" title="12">{
+        if len(e.tasks) == 0 </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov5" title="11">e.dispatcher.Dispatch(ctx, WorkflowStartEvent{})
+
+        semaphore := make(chan struct{}, e.maxConcurrent)
+        results := make(chan taskCompletion, len(e.tasks))
+        dispatched := make(map[string]bool)
+
+        // allComplete returns true when every task has reached TaskStateCompleted
+        // in the TaskStateManager.
+        allComplete := func() bool </span><span class="cov7" title="42">{
+                for taskID := range e.tasks </span><span class="cov8" title="88">{
+                        state, exists := e.stateManager.GetState(taskID)
+                        if !exists || state != TaskStateCompleted </span><span class="cov6" title="32">{
+                                return false
+                        }</span>
+                }
+                <span class="cov4" title="10">return true</span>
+        }
+
+        <span class="cov5" title="11">for !allComplete() </span><span class="cov6" title="31">{
+                // Dispatch every ready task that hasn't been dispatched yet.
+                for taskID := range e.tasks </span><span class="cov10" title="192">{
+                        if dispatched[taskID] </span><span class="cov9" title="148">{
+                                continue</span>
+                        }
+                        <span class="cov7" title="44">state, exists := e.stateManager.GetState(taskID)
+                        if !exists || state != TaskStatePending </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov7" title="44">if !e.stateManager.AreDependenciesMet(taskID) </span><span class="cov4" title="9">{
+                                continue</span>
+                        }
+                        <span class="cov7" title="35">dispatched[taskID] = true
+                        go e.runTask(ctx, taskID, semaphore, results)</span>
+                }
+
+                <span class="cov6" title="31">select </span>{
+                case &lt;-ctx.Done():<span class="cov1" title="1">
+                        // If all tasks happened to complete right before cancellation
+                        // arrived, finish cleanly.
+                        if allComplete() </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov1" title="1">e.dispatcher.Dispatch(ctx, WorkflowEndEvent{})
+                        return ctx.Err()</span>
+                case completion := &lt;-results:<span class="cov6" title="30">
+                        e.handleResult(completion)</span>
+                }
+        }
+
+        // Aggregate any failures for the return value.
+        <span class="cov4" title="10">var failedTasks []string
+        for taskID := range e.tasks </span><span class="cov6" title="33">{
+                result, ok := e.stateManager.GetResult(taskID)
+                if ok &amp;&amp; result.Status == StatusFailure </span><span class="cov2" title="2">{
+                        failedTasks = append(failedTasks, taskID)
+                }</span>
+        }
+
+        <span class="cov4" title="10">e.dispatcher.Dispatch(ctx, WorkflowEndEvent{})
+
+        if len(failedTasks) &gt; 0 </span><span class="cov2" title="2">{
+                return fmt.Errorf("workflow completed with %d failed task(s): %v",
+                        len(failedTasks), failedTasks)
+        }</span>
+
+        <span class="cov4" title="8">return nil</span>
+}
+
+// handleResult processes a task completion, updating the TaskStateManager.
+// It cascades skips to dependents when a task fails.
+func (e *WorkflowExecutor[T]) handleResult(comp taskCompletion) <span class="cov6" title="30">{
+        state, _ := e.stateManager.GetState(comp.taskID)
+        if state == TaskStateCompleted </span><span class="cov0" title="0">{
+                // Already handled via cascade from another failure or race.
+                return
+        }</span>
+
+        <span class="cov6" title="30">if comp.result.Status == StatusFailure &amp;&amp; comp.result.Err != nil </span><span class="cov2" title="2">{
+                e.stateManager.MarkDependencyFailed(comp.taskID, comp.result.Err)
+        }</span> else<span class="cov6" title="28"> {
+                e.stateManager.MarkCompleted(comp.taskID, comp.result)
+        }</span>
+}
+
+// runTask executes a single task in its own goroutine.
+//
+// It first attempts to acquire a semaphore slot. If the context is cancelled
+// while waiting, it reports the task as cancelled and exits immediately
+// without holding a slot.
+func (e *WorkflowExecutor[T]) runTask(
+        ctx context.Context,
+        taskID string,
+        semaphore chan struct{},
+        results chan&lt;- taskCompletion,
+) <span class="cov7" title="35">{
+        // Acquire semaphore slot or bail on cancellation.
+        select </span>{
+        case semaphore &lt;- struct{}{}:<span class="cov6" title="33">
+                defer func() </span><span class="cov6" title="33">{ &lt;-semaphore }</span>()
+        case &lt;-ctx.Done():<span class="cov2" title="2">
+                results &lt;- taskCompletion{
+                        taskID: taskID,
+                        result: TaskResult{Status: StatusCancelled, Err: ctx.Err()},
+                }
+                return</span>
+        }
+
+        // Attempt to mark the task as running. This can fail if the task was
+        // already skipped via a dependency-failure cascade while this goroutine
+        // was waiting on the semaphore.
+        <span class="cov6" title="33">if err := e.stateManager.MarkRunning(taskID); err != nil </span><span class="cov0" title="0">{
+                result, ok := e.stateManager.GetResult(taskID)
+                if !ok </span><span class="cov0" title="0">{
+                        result = TaskResult{Status: StatusCancelled}
+                }</span>
+                <span class="cov0" title="0">results &lt;- taskCompletion{taskID: taskID, result: result}
+                return</span>
+        }
+
+        <span class="cov6" title="33">task := e.tasks[taskID]
+
+        e.dispatcher.Dispatch(ctx, TaskStartEvent{TaskID: taskID})
+        result := task.Run(ctx, e.sharedState)
+        e.dispatcher.Dispatch(ctx, TaskEndEvent{TaskID: taskID, Result: result})
+
+        results &lt;- taskCompletion{taskID: taskID, result: result}</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package runner
+
+// TaskDefinition defines the metadata for a task in the graph.
+// It is separate from the runnable Task interface to allow validation
+// before executing or instantiating state.
+type TaskDefinition struct {
+        ID           string
+        Dependencies []string
+}
+
+// TaskGraph represents the directed graph of tasks.
+type TaskGraph struct {
+        Tasks []TaskDefinition
+}
+
+// Validate checks a TaskGraph for structural integrity:
+// 1. Duplicate task IDs.
+// 2. Missing dependencies.
+// 3. Circular dependencies (cycles).
+// It returns a ValidationErrors if any issues are found, or nil if valid.
+func Validate(graph *TaskGraph) error <span class="cov7" title="16">{
+        var errs ValidationErrors
+
+        taskMap := make(map[string]TaskDefinition)
+
+        // 1. Check for duplicate IDs and build taskMap
+        for _, task := range graph.Tasks </span><span class="cov9" title="51">{
+                if _, exists := taskMap[task.ID]; exists </span><span class="cov1" title="1">{
+                        errs = append(errs, &amp;DuplicateTaskError{TaskID: task.ID})
+                }</span> else<span class="cov9" title="50"> {
+                        taskMap[task.ID] = task
+                }</span>
+        }
+
+        // 2. Check for missing dependencies
+        <span class="cov7" title="16">hasMissingDeps := false
+        for _, task := range graph.Tasks </span><span class="cov9" title="51">{
+                for _, depID := range task.Dependencies </span><span class="cov7" title="21">{
+                        if _, exists := taskMap[depID]; !exists </span><span class="cov3" title="3">{
+                                errs = append(errs, &amp;MissingDependencyError{
+                                        TaskID:              task.ID,
+                                        MissingDependencyID: depID,
+                                })
+                                hasMissingDeps = true
+                        }</span>
+                }
+        }
+
+        // 3. Check for cycles (only if there are no missing dependencies, to avoid looking up missing nodes)
+        <span class="cov7" title="16">if !hasMissingDeps </span><span class="cov6" title="14">{
+                checkCycles(graph, taskMap, &amp;errs)
+        }</span>
+
+        <span class="cov7" title="16">if len(errs) &gt; 0 </span><span class="cov4" title="5">{
+                return errs
+        }</span>
+        <span class="cov6" title="11">return nil</span>
+}
+
+type stackFrame struct {
+        taskID       string
+        dependencies []string
+        index        int
+}
+
+func checkCycles(graph *TaskGraph, taskMap map[string]TaskDefinition, errs *ValidationErrors) <span class="cov6" title="14">{
+        visited := make(map[string]bool)
+        recursionStack := make(map[string]int)
+
+        for _, task := range graph.Tasks </span><span class="cov9" title="45">{
+                if visited[task.ID] </span><span class="cov1" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov9" title="44">var path []string
+
+                // Use an explicit stack for DFS to prevent deep recursion stack overflow
+                var stack []stackFrame
+
+                visited[task.ID] = true
+                recursionStack[task.ID] = 0
+                path = append(path, task.ID)
+
+                stack = append(stack, stackFrame{
+                        taskID:       task.ID,
+                        dependencies: taskMap[task.ID].Dependencies,
+                        index:        0,
+                })
+
+                cycleFound := false
+
+                for len(stack) &gt; 0 &amp;&amp; !cycleFound </span><span class="cov10" title="60">{
+                        frameIdx := len(stack) - 1
+                        frame := &amp;stack[frameIdx]
+
+                        if frame.index &lt; len(frame.dependencies) </span><span class="cov7" title="18">{
+                                depID := frame.dependencies[frame.index]
+                                frame.index++
+
+                                if pathIdx, ok := recursionStack[depID]; ok </span><span class="cov2" title="2">{
+                                        // Cycle detected!
+                                        cyclePath := make([]string, len(path)-pathIdx)
+                                        copy(cyclePath, path[pathIdx:])
+                                        cyclePath = append(cyclePath, depID)
+
+                                        *errs = append(*errs, &amp;CycleError{CyclePath: cyclePath})
+                                        cycleFound = true
+                                        break</span>
+                                }
+
+                                <span class="cov7" title="16">if !visited[depID] </span><span class="cov2" title="2">{
+                                        visited[depID] = true
+                                        recursionStack[depID] = len(path)
+                                        path = append(path, depID)
+
+                                        stack = append(stack, stackFrame{
+                                                taskID:       depID,
+                                                dependencies: taskMap[depID].Dependencies,
+                                                index:        0,
+                                        })
+                                }</span>
+                        } else<span class="cov9" title="42"> {
+                                // Finished all dependencies for this node
+                                delete(recursionStack, frame.taskID)
+                                path = path[:len(path)-1]
+                                stack = stack[:len(stack)-1]
+                        }</span>
+                }
+
+                // Break after first cycle to avoid spamming similar cycles
+                <span class="cov9" title="44">if cycleFound </span><span class="cov2" title="2">{
+                        break</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package runner
+
+import (
+        "fmt"
+        "regexp"
+        "strings"
+)
+
+var mermaidIDRegex = regexp.MustCompile(`[^a-zA-Z0-9_-]`)
+
+// escapeMermaidName safely escapes characters that would break Mermaid syntax.
+var escapeMermaidName = strings.NewReplacer(
+        "\"", "&amp;quot;",
+        "[", "&amp;#91;",
+        "]", "&amp;#93;",
+        "(", "&amp;#40;",
+        ")", "&amp;#41;",
+        "{", "&amp;#123;",
+        "}", "&amp;#125;",
+).Replace
+
+// GenerateMermaidGraph creates a Mermaid.js flowchart from a TaskGraph.
+func GenerateMermaidGraph(graph *TaskGraph) string <span class="cov4" title="3">{
+        nodeLines := []string{"graph TD"}
+
+        idMap := make(map[string]string)
+        usedIDs := make(map[string]bool)
+        baseIDCounters := make(map[string]int)
+
+        getUniqueID := func(name string) string </span><span class="cov10" title="14">{
+                if id, exists := idMap[name]; exists </span><span class="cov7" title="6">{
+                        return id
+                }</span>
+
+                <span class="cov8" title="8">sanitized := mermaidIDRegex.ReplaceAllString(name, "_")
+                uniqueID := sanitized
+
+                counter := 1
+                if count, exists := baseIDCounters[sanitized]; exists </span><span class="cov1" title="1">{
+                        counter = count
+                }</span>
+
+                <span class="cov8" title="8">for usedIDs[uniqueID] </span><span class="cov1" title="1">{
+                        uniqueID = fmt.Sprintf("%s_%d", sanitized, counter)
+                        counter++
+                }</span>
+
+                <span class="cov8" title="8">baseIDCounters[sanitized] = counter
+                usedIDs[uniqueID] = true
+                idMap[name] = uniqueID
+                return uniqueID</span>
+        }
+
+        <span class="cov4" title="3">processedNodes := make(map[string]bool)
+        edgeMap := make(map[string]bool)
+        var uniqueEdgeLines []string
+
+        for _, task := range graph.Tasks </span><span class="cov8" title="8">{
+                name := task.ID
+                stepID := getUniqueID(name)
+
+                if !processedNodes[stepID] </span><span class="cov8" title="8">{
+                        processedNodes[stepID] = true
+                        escapedName := escapeMermaidName(name)
+                        nodeLines = append(nodeLines, fmt.Sprintf("  %s[\"%s\"]", stepID, escapedName))
+                }</span>
+
+                <span class="cov8" title="8">for _, dep := range task.Dependencies </span><span class="cov7" title="6">{
+                        depID := getUniqueID(dep)
+                        edgeLine := fmt.Sprintf("  %s --&gt; %s", depID, stepID)
+                        if !edgeMap[edgeLine] </span><span class="cov7" title="6">{
+                                edgeMap[edgeLine] = true
+                                uniqueEdgeLines = append(uniqueEdgeLines, edgeLine)
+                        }</span>
+                }
+        }
+
+        <span class="cov4" title="3">result := strings.Join(nodeLines, "\n")
+        if len(uniqueEdgeLines) &gt; 0 </span><span class="cov4" title="3">{
+                result += "\n" + strings.Join(uniqueEdgeLines, "\n")
+        }</span>
+        <span class="cov4" title="3">return result</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package runner
+
+import (
+        "context"
+        "time"
+)
+
+// RetryStrategy wraps an ExecutionStrategy and retries on failure up to
+// a configurable number of times with a fixed backoff between attempts.
+// It respects context cancellation between retry attempts.
+type RetryStrategy[T any] struct {
+        maxRetries int
+        backoff    time.Duration
+        inner      ExecutionStrategy[T]
+}
+
+// NewRetryStrategy creates a RetryStrategy that retries failed executions.
+// The inner strategy is called on each attempt. If it succeeds, the result
+// is returned immediately. On failure, the strategy waits for the backoff
+// duration (or context cancellation) before retrying.
+func NewRetryStrategy[T any](maxRetries int, backoff time.Duration, inner ExecutionStrategy[T]) *RetryStrategy[T] <span class="cov6" title="3">{
+        return &amp;RetryStrategy[T]{
+                maxRetries: maxRetries,
+                backoff:    backoff,
+                inner:      inner,
+        }
+}</span>
+
+func (s *RetryStrategy[T]) Execute(ctx context.Context, task Task[T], sharedState T) TaskResult <span class="cov6" title="3">{
+        var lastResult TaskResult
+        for attempt := 0; attempt &lt;= s.maxRetries; attempt++ </span><span class="cov10" title="7">{
+                // Check context before each attempt
+                select </span>{
+                case &lt;-ctx.Done():<span class="cov1" title="1">
+                        return TaskResult{Status: StatusCancelled, Err: ctx.Err()}</span>
+                default:<span class="cov9" title="6"></span>
+                }
+
+                <span class="cov9" title="6">lastResult = s.inner.Execute(ctx, task, sharedState)
+                if lastResult.Status != StatusFailure </span><span class="cov1" title="1">{
+                        return lastResult
+                }</span>
+
+                // Wait before retrying (with context support)
+                <span class="cov8" title="5">if attempt &lt; s.maxRetries </span><span class="cov7" title="4">{
+                        select </span>{
+                        case &lt;-time.After(s.backoff):<span class="cov7" title="4"></span>
+                        case &lt;-ctx.Done():<span class="cov0" title="0">
+                                return TaskResult{Status: StatusCancelled, Err: ctx.Err()}</span>
+                        }
+                }
+        }
+        <span class="cov1" title="1">return lastResult</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">// Package runner provides the core task orchestration logic for the Go
+// implementation of the task-runner. This package is currently a scaffold
+// and will be expanded during the Go rewrite.
+package runner
+
+// Runner orchestrates the execution of a task graph.
+// It resolves dependencies, executes tasks in parallel where possible,
+// and propagates cancellation via context.
+type Runner struct {
+        // concurrency limits the number of tasks running simultaneously.
+        // A value of 0 means unlimited.
+        concurrency int
+
+        // dispatcher handles asynchronous event broadcasting to plugins.
+        dispatcher *EventDispatcher
+}
+
+// New creates a new Runner with the given concurrency limit and optional plugins.
+func New(concurrency int, plugins ...any) *Runner <span class="cov10" title="2">{
+        dispatcher := NewEventDispatcher()
+        for _, p := range plugins </span><span class="cov1" title="1">{
+                dispatcher.RegisterPlugin(p)
+        }</span>
+
+        <span class="cov10" title="2">return &amp;Runner{
+                concurrency: concurrency,
+                dispatcher:  dispatcher,
+        }</span>
+}
+
+// Shutdown stops the runner and its background services.
+func (r *Runner) Shutdown() <span class="cov10" title="2">{
+        if r.dispatcher != nil </span><span class="cov1" title="1">{
+                r.dispatcher.Shutdown()
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package runner
+
+import "context"
+
+// taskRunnerConfig holds non-generic configuration for TaskRunner.
+type taskRunnerConfig struct {
+        concurrency int
+        plugins     []any
+}
+
+// TaskRunnerOption is a functional option for configuring a TaskRunner.
+type TaskRunnerOption func(*taskRunnerConfig)
+
+// WithConcurrency sets the maximum number of tasks that can execute concurrently.
+// A value of 0 means unlimited (default).
+func WithConcurrency(n int) TaskRunnerOption <span class="cov1" title="1">{
+        return func(cfg *taskRunnerConfig) </span><span class="cov1" title="1">{
+                cfg.concurrency = n
+        }</span>
+}
+
+// WithPlugin registers a plugin that implements one or more listener interfaces.
+func WithPlugin(p any) TaskRunnerOption <span class="cov1" title="1">{
+        return func(cfg *taskRunnerConfig) </span><span class="cov1" title="1">{
+                cfg.plugins = append(cfg.plugins, p)
+        }</span>
+}
+
+// TaskRunner is the central orchestrator for executing task graphs.
+// It uses an ExecutionStrategy to wrap task execution and supports
+// configuration via functional options.
+type TaskRunner[T any] struct {
+        config   taskRunnerConfig
+        strategy ExecutionStrategy[T]
+}
+
+// NewTaskRunner creates a new TaskRunner with the given options.
+// Defaults:
+//   - concurrency: 0 (unlimited)
+//   - strategy: StandardStrategy
+func NewTaskRunner[T any](opts ...TaskRunnerOption) *TaskRunner[T] <span class="cov8" title="7">{
+        var cfg taskRunnerConfig
+        for _, opt := range opts </span><span class="cov3" title="2">{
+                opt(&amp;cfg)
+        }</span>
+        <span class="cov8" title="7">return &amp;TaskRunner[T]{
+                config:   cfg,
+                strategy: &amp;StandardStrategy[T]{},
+        }</span>
+}
+
+// SetStrategy sets the execution strategy for the TaskRunner.
+// Returns the runner for method chaining.
+func (tr *TaskRunner[T]) SetStrategy(strategy ExecutionStrategy[T]) *TaskRunner[T] <span class="cov1" title="1">{
+        tr.strategy = strategy
+        return tr
+}</span>
+
+// wrappedTask wraps a Task with an ExecutionStrategy so the strategy
+// intercepts the Run call.
+type wrappedTask[T any] struct {
+        inner    Task[T]
+        strategy ExecutionStrategy[T]
+}
+
+func (t *wrappedTask[T]) Run(ctx context.Context, sharedState T) TaskResult <span class="cov10" title="9">{
+        return t.strategy.Execute(ctx, t.inner, sharedState)
+}</span>
+
+// Execute runs a task graph with the configured strategy.
+// It validates the graph, wraps all tasks with the execution strategy,
+// and delegates to WorkflowExecutor for concurrent DAG execution.
+func (tr *TaskRunner[T]) Execute(ctx context.Context, graph *TaskGraph, tasks map[string]Task[T], sharedState T) error <span class="cov8" title="6">{
+        if err := Validate(graph); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        <span class="cov7" title="5">stateManager := NewTaskStateManager(graph)
+
+        dispatcher := NewEventDispatcher()
+        defer dispatcher.Shutdown()
+        for _, p := range tr.config.plugins </span><span class="cov1" title="1">{
+                dispatcher.RegisterPlugin(p)
+        }</span>
+
+        // Wrap all tasks with the execution strategy
+        <span class="cov7" title="5">wrappedTasks := make(map[string]Task[T], len(tasks))
+        for id, task := range tasks </span><span class="cov10" title="9">{
+                wrappedTasks[id] = &amp;wrappedTask[T]{
+                        inner:    task,
+                        strategy: tr.strategy,
+                }
+        }</span>
+
+        <span class="cov7" title="5">executor := NewWorkflowExecutor[T](
+                stateManager,
+                wrappedTasks,
+                sharedState,
+                tr.config.concurrency,
+                dispatcher,
+        )
+
+        return executor.Execute(ctx)</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package runner
+
+import (
+        "fmt"
+        "sync"
+)
+
+// TaskState represents the lifecycle state of a task within the TaskStateManager.
+type TaskState int
+
+const (
+        // TaskStatePending indicates the task is queued but not yet started.
+        TaskStatePending TaskState = iota
+        // TaskStateRunning indicates the task is currently executing.
+        TaskStateRunning
+        // TaskStateCompleted indicates the task has finished execution and has a result.
+        TaskStateCompleted
+)
+
+// String returns the human-readable name of the TaskState.
+func (s TaskState) String() string <span class="cov8" title="118">{
+        switch s </span>{
+        case TaskStatePending:<span class="cov7" title="58">
+                return "pending"</span>
+        case TaskStateRunning:<span class="cov2" title="2">
+                return "running"</span>
+        case TaskStateCompleted:<span class="cov7" title="57">
+                return "completed"</span>
+        default:<span class="cov1" title="1">
+                return "unknown"</span>
+        }
+}
+
+// TaskStateManager manages the lifecycle state and results of tasks in a task graph.
+// All exported methods are safe for concurrent use.
+type TaskStateManager struct {
+        mu           sync.RWMutex
+        states       map[string]TaskState
+        results      map[string]TaskResult
+        dependencies map[string][]string
+        dependents   map[string][]string
+}
+
+// NewTaskStateManager creates a new TaskStateManager initialised from a TaskGraph.
+// All tasks are set to TaskStatePending and dependency/dependent maps are populated.
+// A nil graph produces an empty manager.
+func NewTaskStateManager(graph *TaskGraph) *TaskStateManager <span class="cov6" title="39">{
+        tsm := &amp;TaskStateManager{
+                states:       make(map[string]TaskState),
+                results:      make(map[string]TaskResult),
+                dependencies: make(map[string][]string),
+                dependents:   make(map[string][]string),
+        }
+
+        if graph != nil </span><span class="cov6" title="36">{
+                for _, task := range graph.Tasks </span><span class="cov8" title="81">{
+                        tsm.states[task.ID] = TaskStatePending
+
+                        deps := make([]string, len(task.Dependencies))
+                        copy(deps, task.Dependencies)
+                        tsm.dependencies[task.ID] = deps
+
+                        for _, depID := range deps </span><span class="cov6" title="32">{
+                                tsm.dependents[depID] = append(tsm.dependents[depID], task.ID)
+                        }</span>
+                }
+        }
+
+        <span class="cov6" title="39">return tsm</span>
+}
+
+// GetState returns the current lifecycle state of the task and whether the task exists.
+func (tsm *TaskStateManager) GetState(taskID string) (TaskState, bool) <span class="cov10" title="269">{
+        tsm.mu.RLock()
+        defer tsm.mu.RUnlock()
+        state, ok := tsm.states[taskID]
+        return state, ok
+}</span>
+
+// GetResult returns the result for a completed task and whether a result exists.
+func (tsm *TaskStateManager) GetResult(taskID string) (TaskResult, bool) <span class="cov8" title="106">{
+        tsm.mu.RLock()
+        defer tsm.mu.RUnlock()
+        result, ok := tsm.results[taskID]
+        return result, ok
+}</span>
+
+// GetDependencies returns a copy of the dependency ID list for a task.
+// Returns nil if the task does not exist.
+func (tsm *TaskStateManager) GetDependencies(taskID string) []string <span class="cov7" title="46">{
+        tsm.mu.RLock()
+        defer tsm.mu.RUnlock()
+        deps, ok := tsm.dependencies[taskID]
+        if !ok </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+        <span class="cov7" title="45">out := make([]string, len(deps))
+        copy(out, deps)
+        return out</span>
+}
+
+// GetDependents returns a copy of the dependent ID list for a task (tasks that depend on it).
+// Returns nil if the task does not exist.
+func (tsm *TaskStateManager) GetDependents(taskID string) []string <span class="cov7" title="46">{
+        tsm.mu.RLock()
+        defer tsm.mu.RUnlock()
+        deps, ok := tsm.dependents[taskID]
+        if !ok </span><span class="cov6" title="23">{
+                return nil
+        }</span>
+        <span class="cov6" title="23">out := make([]string, len(deps))
+        copy(out, deps)
+        return out</span>
+}
+
+// AreDependenciesMet checks whether all dependencies of a task have completed successfully.
+// It returns true when the task has no dependencies or every dependency has
+// StatusSuccess. It returns false if the task does not exist, any dependency is
+// not yet completed, or any dependency completed with a non-success status.
+func (tsm *TaskStateManager) AreDependenciesMet(taskID string) bool <span class="cov8" title="79">{
+        tsm.mu.RLock()
+        defer tsm.mu.RUnlock()
+        deps, ok := tsm.dependencies[taskID]
+        if !ok </span><span class="cov1" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="78">for _, depID := range deps </span><span class="cov6" title="28">{
+                state, exists := tsm.states[depID]
+                if !exists || state != TaskStateCompleted </span><span class="cov4" title="12">{
+                        return false
+                }</span>
+                <span class="cov5" title="16">result, hasResult := tsm.results[depID]
+                if !hasResult || result.Status != StatusSuccess </span><span class="cov1" title="1">{
+                        return false
+                }</span>
+        }
+        <span class="cov7" title="65">return true</span>
+}
+
+// MarkRunning transitions a task from Pending to Running.
+// Returns an error if the task is not found or is not in the Pending state.
+func (tsm *TaskStateManager) MarkRunning(taskID string) error <span class="cov8" title="104">{
+        tsm.mu.Lock()
+        defer tsm.mu.Unlock()
+        state, ok := tsm.states[taskID]
+        if !ok </span><span class="cov1" title="1">{
+                return fmt.Errorf("task %q not found", taskID)
+        }</span>
+        <span class="cov8" title="103">if state != TaskStatePending </span><span class="cov7" title="57">{
+                return fmt.Errorf("task %q is in state %s, expected %s", taskID, state, TaskStatePending)
+        }</span>
+        <span class="cov7" title="46">tsm.states[taskID] = TaskStateRunning
+        return nil</span>
+}
+
+// MarkCompleted transitions a task to Completed and stores the given result.
+// Both Running and Pending are accepted as pre-transition states, allowing
+// tasks to be skipped before they start. Returns an error if the task is not
+// found or is already completed.
+func (tsm *TaskStateManager) MarkCompleted(taskID string, result TaskResult) error <span class="cov8" title="99">{
+        tsm.mu.Lock()
+        defer tsm.mu.Unlock()
+        state, ok := tsm.states[taskID]
+        if !ok </span><span class="cov1" title="1">{
+                return fmt.Errorf("task %q not found", taskID)
+        }</span>
+        <span class="cov8" title="98">if state == TaskStateCompleted </span><span class="cov7" title="57">{
+                return fmt.Errorf("task %q is already completed", taskID)
+        }</span>
+        <span class="cov6" title="41">tsm.states[taskID] = TaskStateCompleted
+        tsm.results[taskID] = result
+        return nil</span>
+}
+
+// MarkFailed is a convenience method that marks a task as completed with StatusFailure.
+func (tsm *TaskStateManager) MarkFailed(taskID string, err error) error <span class="cov2" title="2">{
+        return tsm.MarkCompleted(taskID, TaskResult{Status: StatusFailure, Err: err})
+}</span>
+
+// MarkSkipped is a convenience method that marks a task as completed with StatusSkipped.
+func (tsm *TaskStateManager) MarkSkipped(taskID string) error <span class="cov1" title="1">{
+        return tsm.MarkCompleted(taskID, TaskResult{Status: StatusSkipped})
+}</span>
+
+// MarkDependencyFailed marks a task as failed and cascades the skip to all
+// pending dependents. Dependents are recursively marked as skipped so the
+// entire affected sub-graph transitions to the skipped state.
+//
+// It returns the list of all task IDs that were skipped as a result of the
+// cascade. An error is returned if the task is not found or is already completed.
+func (tsm *TaskStateManager) MarkDependencyFailed(taskID string, err error) ([]string, error) <span class="cov4" title="11">{
+        tsm.mu.Lock()
+        defer tsm.mu.Unlock()
+        state, ok := tsm.states[taskID]
+        if !ok </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("task %q not found", taskID)
+        }</span>
+        <span class="cov4" title="10">if state == TaskStateCompleted </span><span class="cov3" title="6">{
+                return nil, fmt.Errorf("task %q is already completed", taskID)
+        }</span>
+
+        <span class="cov3" title="4">tsm.states[taskID] = TaskStateCompleted
+        tsm.results[taskID] = TaskResult{Status: StatusFailure, Err: err}
+
+        skipped := tsm.cascadeSkip(taskID)
+        return skipped, nil</span>
+}
+
+// cascadeSkip recursively marks all pending dependents of the given task as
+// skipped (Completed + StatusSkipped). It continues through each skipped
+// task's own dependents, effectively propagating the skip through the
+// sub-graph.
+//
+// Must be called while holding tsm.mu.Lock.
+func (tsm *TaskStateManager) cascadeSkip(taskID string) []string <span class="cov3" title="4">{
+        var skipped []string
+        queue := []string{taskID}
+        seen := make(map[string]bool)
+
+        for len(queue) &gt; 0 </span><span class="cov4" title="12">{
+                current := queue[0]
+                queue = queue[1:]
+                if seen[current] </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov4" title="12">seen[current] = true
+
+                for _, depID := range tsm.dependents[current] </span><span class="cov4" title="9">{
+                        if _, exists := tsm.states[depID]; !exists </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov4" title="9">if tsm.states[depID] == TaskStatePending </span><span class="cov4" title="8">{
+                                tsm.states[depID] = TaskStateCompleted
+                                tsm.results[depID] = TaskResult{Status: StatusSkipped}
+                                skipped = append(skipped, depID)
+                                queue = append(queue, depID)
+                        }</span>
+                }
+        }
+
+        <span class="cov3" title="4">return skipped</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package runner
+
+// TaskStatus represents the discrete outcome of a task's execution.
+// Using a named integer type allows exhaustive switch checks and a human-readable String method.
+type TaskStatus int
+
+const (
+        // StatusSuccess indicates the task completed without errors.
+        StatusSuccess TaskStatus = iota
+        // StatusFailure indicates the task encountered an error during execution.
+        StatusFailure
+        // StatusSkipped indicates the task was skipped (e.g., its condition evaluated to false).
+        StatusSkipped
+        // StatusCancelled indicates the task was aborted via context cancellation.
+        StatusCancelled
+)
+
+// String returns the canonical lower-case name of the TaskStatus.
+// It satisfies the fmt.Stringer interface for convenient logging and serialisation.
+func (s TaskStatus) String() string <span class="cov10" title="5">{
+        switch s </span>{
+        case StatusSuccess:<span class="cov1" title="1">
+                return "success"</span>
+        case StatusFailure:<span class="cov1" title="1">
+                return "failure"</span>
+        case StatusSkipped:<span class="cov1" title="1">
+                return "skipped"</span>
+        case StatusCancelled:<span class="cov1" title="1">
+                return "cancelled"</span>
+        default:<span class="cov1" title="1">
+                return "unknown"</span>
+        }
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

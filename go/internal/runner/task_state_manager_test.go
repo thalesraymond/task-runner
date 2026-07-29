@@ -584,6 +584,40 @@ func TestCascadingSkip_DiamondGraph(t *testing.T) {
 	}
 }
 
+// TestCascadeSkip_NonExistentDependent verifies that cascadeSkip does not panic
+// when a dependent listed in the dependents map does not exist in states (e.g.
+// due to inconsistent data).
+func TestCascadeSkip_NonExistentDependent(t *testing.T) {
+	graph := &TaskGraph{
+		Tasks: []TaskDefinition{
+			{ID: "A"},
+			{ID: "B", Dependencies: []string{"A"}},
+		},
+	}
+	tsm := NewTaskStateManager(graph)
+
+	// Remove B from states while keeping it in A's dependents to create
+	// the inconsistent state that exercises the guard clause.
+	delete(tsm.states, "B")
+
+	_ = tsm.MarkRunning("A")
+	skipped, err := tsm.MarkDependencyFailed("A", errors.New("A failed"))
+	if err != nil {
+		t.Fatalf("MarkDependencyFailed failed: %v", err)
+	}
+
+	// B should not be in skipped because it didn't exist in states.
+	if len(skipped) != 0 {
+		t.Errorf("expected 0 skipped tasks, got %d: %v", len(skipped), skipped)
+	}
+
+	// A should still be marked as failure.
+	resultA, _ := tsm.GetResult("A")
+	if resultA.Status != StatusFailure {
+		t.Errorf("expected A to be StatusFailure, got %s", resultA.Status)
+	}
+}
+
 func TestMarkDependencyFailed_AlreadyCompleted(t *testing.T) {
 	graph := &TaskGraph{
 		Tasks: []TaskDefinition{
