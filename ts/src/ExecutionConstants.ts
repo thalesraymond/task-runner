@@ -9,4 +9,5 @@ export const ExecutionConstants = {
   SKIPPED_BY_CONDITION: "Skipped by condition evaluation.",
   EXECUTION_STRATEGY_FAILED: "Execution strategy failed.",
   WORKFLOW_CANCELLED: "Workflow cancelled.",
+  WORKFLOW_DEADLOCKED: "Workflow deadlocked: pending tasks remain with nothing running.",
 };
