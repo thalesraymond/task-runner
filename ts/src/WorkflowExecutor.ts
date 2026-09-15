@@ -86,7 +86,11 @@ export class WorkflowExecutor<TContext> {
       }
 
       // Ensure everything is accounted for (e.g. if loop exited early)
-      this.stateManager.cancelAllPending(ExecutionConstants.WORKFLOW_CANCELLED);
+      this.stateManager.cancelAllPending(
+        signal?.aborted
+          ? ExecutionConstants.WORKFLOW_CANCELLED
+          : ExecutionConstants.WORKFLOW_DEADLOCKED,
+      );
 
       const results = this.stateManager.getResults();
       this.eventBus.emit("workflowEnd", { context: this.context, results });
